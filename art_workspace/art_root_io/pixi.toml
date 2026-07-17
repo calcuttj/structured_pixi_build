@@ -1,0 +1,21 @@
+[package]
+name = "art_root_io"
+version = "1.14.1"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh", "patches/**"]
+
+# Inter-member SOURCE deps (every art sibling in the recipe host: section);
+# binary deps (cetmodules, boost, root_base, catch2, ...) stay in recipe.yaml only.
+[package.host-dependencies]
+art = { path = "../art" }
+canvas_root_io = { path = "../canvas_root_io" }
+canvas = { path = "../canvas" }
+hep_concurrency = { path = "../hep_concurrency" }
+messagefacility = { path = "../messagefacility" }
+fhiclcpp = { path = "../fhiclcpp" }
+cetlib = { path = "../cetlib" }
+cetlib_except = { path = "../cetlib_except" }

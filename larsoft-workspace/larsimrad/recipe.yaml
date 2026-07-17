@@ -1,0 +1,100 @@
+# rattler-build recipe (v1 / CEP-13 format) for larsimrad.
+#
+# larsimrad is the LArSoft radiological-background simulation layer (Decay0Gen
+# etc.), wrapping the BxDecay0 radioactive-decay generator. Trunk step above
+# larsim. BxDecay0 is on conda-forge (1.1.2 = the UPS bxdecay0 v1_1_2), so it is
+# used directly. Built against our art/boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v10_01_04
+  version: "10.1.4"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larsimrad
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larsimrad/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: f50deb835b0aa56b4309c06a5b097d9857dedc9bd9d18747ef34130fc0f132fc
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - genie
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - larvecutils
+    - libwda
+    - marley
+    - nucondb
+    - nufinder
+    - nug4
+    - nutools
+    - ppfx
+    - pythia6
+    - tpythia6
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    # radioactive-decay generator (conda-forge)
+    - bxdecay0
+    # art suite
+    - art
+    - art_root_io
+    # nu* layer
+    - nugen
+    - nurandom
+    - nusimdata
+    # lar object/algorithm/sim layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larsim
+  run_exports:
+    - ${{ pin_subpackage('larsimrad', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larsimrad/cmake/larsimradConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larsimrad
+  repository: https://github.com/LArSoft/larsimrad
+  license: Apache-2.0
+  summary: larsimrad -- LArSoft radiological background simulation (BxDecay0)
+  description: |
+    larsimrad provides LArSoft's radiological-background event generation
+    (Decay0Gen and friends) built on the BxDecay0 radioactive-decay generator.
+    Trunk step above larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

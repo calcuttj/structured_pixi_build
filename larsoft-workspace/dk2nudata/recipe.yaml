@@ -1,0 +1,79 @@
+# rattler-build recipe (v1 / CEP-13 format) for dk2nudata.
+#
+# dk2nudata is the data half (the `tree/` subdir) of NuSoftHEP/dk2nu: the
+# "dk2nu" beam-flux ntuple data classes (dk2nu, dkmeta, NuChoice, ...) and their
+# ROOT dictionary -> library `dk2nuTree` (CMake target dk2nu::Tree). nusimdata
+# (and nuevdb) require it. The companion `genie/` half (dk2nugenie) needs GENIE
+# and is built separately; here we build the tree only (-DWITH_GENIE=OFF).
+#
+# dk2nu is a LEGACY, non-cetmodules ROOT project (cmake_minimum_required(2.6),
+# ROOT's own ROOT_GENERATE_DICTIONARY, needs $ROOTSYS). It ships no CMake package
+# config, so consumers locate it via NuSoftHEP nufinder's Finddk2nudata.cmake,
+# which falls back to the env var DK2NUDATA_INC + the include/dk2nu/tree layout
+# this recipe installs (see the nusimdata recipe's build.sh).
+
+context:
+  # dk2nu (HepForge origin) pads the major: tag v01_11_00 (unlike nusimdata's
+  # v1_29_03). version is the SemVer source of truth; the UPS tag is derived.
+  version: "1.11.0"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: dk2nudata
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/dk2nu/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 5b5f8993c230b10c2354fd428bfa51e1e7d2c8477a3ee0ecb0dd5d8bc3429dbe
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - root_base                  # dk2nuTree links ROOT + uses rootcling for the dict
+    # Pin cxx_standard 20 to MATCH the (boost-1.90-rebuilt) art stack: canvas_root_io
+    # etc. are now built against root_cxx_standard==20 + root_base 6.36.6. Without a
+    # canvas_root_io puller here, this pin keeps dk2nudata's run_export aligned with
+    # the rest of the suite. (The art-stack-boost190 variant config also sets cxx20.)
+    - root_cxx_standard ==20
+  run:
+  run_exports:
+    - ${{ pin_subpackage('dk2nudata', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - dk2nuTree
+      include:
+        - dk2nu/tree/dk2nu.h
+        - dk2nu/tree/dkmeta.h
+      files:
+        - lib/libdk2nuTree_rdict.pcm
+        - lib/libdk2nuTree.rootmap
+
+about:
+  homepage: https://github.com/NuSoftHEP/dk2nu
+  repository: https://github.com/NuSoftHEP/dk2nu
+  # NOTE: upstream dk2nu ships no LICENSE file (HepForge origin); none vendored.
+  license: BSD-3-Clause
+  summary: dk2nudata -- dk2nu neutrino-beam flux ntuple data classes (ROOT)
+  description: |
+    dk2nudata provides the "dk2nu" standardized neutrino-beam flux ntuple data
+    model (the tree/ half of NuSoftHEP/dk2nu): the dk2nu, dkmeta and NuChoice
+    classes plus location-weight helpers and their ROOT dictionary, built into
+    the dk2nuTree library (CMake target dk2nu::Tree). Used by nusimdata, nuevdb
+    and the neutrino flux/generator tools. The GENIE flux-driver half is omitted.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

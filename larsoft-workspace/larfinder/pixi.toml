@@ -1,0 +1,9 @@
+[package]
+name = "larfinder"
+version = "9.0.5"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]

@@ -1,0 +1,78 @@
+# rattler-build recipe (v1 / CEP-13 format) for pythia6.
+#
+# PYTHIA 6.4.28 is the (unmaintained) Fortran event generator. LArSoft pulls it
+# in transitively through GENIE / nugen: GENIE's Pythia6 hadronization and the
+# ROOT TPythia6 interface both link this library. It is NOT on conda-forge
+# (conda-forge builds ROOT with pythia6 OFF -- only libEGPythia8 ships).
+#
+# This recipe mirrors the spack builtin `pythia6` package: it builds the +root
+# variant (the ROOT TPythia6 glue sources pythia6_common_address.c and
+# tpythia6_called_from_cc.F are compiled into libPythia6) so the standalone
+# TPythia6 wrapper and GENIE can use it without a pythia6-enabled ROOT. The
+# shipped Makefile is replaced with a small CMakeLists (build.sh applies the
+# spack patches + NMXHEP=4000 tweak). pythia6 itself has NO library deps -- it
+# is a pure C+Fortran leaf.
+#
+# Consumer contract: NuSoftHEP nufinder ships FindPythia6.cmake, which locates
+# main60.f under $PYTHIA_INC (installed here to include/), derives lib/, and
+# defines the Pythia6::Pythia6 imported target. Consumers set
+# `export PYTHIA_INC="$PREFIX/include"`.
+
+context:
+  version: "6.4.28"
+
+package:
+  name: pythia6
+  version: ${{ version }}
+
+source:
+  # main source (the "split" distribution: PYDATA block-data split out)
+  - url: https://pythia.org/download/pythia6/pythia6428-split.tgz
+    sha256: 01cbff47e99365b5e46f6d62c1735d3cae1932c4710604850d59f538cb758020
+  # ROOT's TPythia6 interface glue (the +root variant sources)
+  - url: https://root.cern.ch/download/pythia6.tar.gz
+    sha256: d613dcb27c905710e2f13a934913cc5545e3e5d0e477e580107385d9ef260056
+    target_directory: root-shim
+  # example main used by FindPythia6.cmake as the include-dir marker
+  - url: https://pythia.org/download/pythia6/main60.f
+    sha256: d713b8b267c4405cc9d31c58bba267ae3378902a26fa52393003bf35fd56902c
+    file_name: main60.f
+    target_directory: example
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('fortran') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  run_exports:
+    - ${{ pin_subpackage('pythia6', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - Pythia6
+      files:
+        - include/main60.f
+
+about:
+  homepage: https://pythiasix.hepforge.org/
+  repository: https://gitlab.com/Pythia6/pythia6
+  license: GPL-2.0-only
+  license_family: GPL
+  summary: pythia6 -- PYTHIA 6.4 Fortran high-energy physics event generator (+root)
+  description: |
+    PYTHIA 6.4.28, the legacy Fortran event generator, built as a shared
+    library with ROOT's TPythia6 interface glue compiled in (the +root
+    variant). Used transitively by GENIE and NuSoftHEP nugen for Pythia6
+    hadronization. Not maintained upstream; new code should prefer Pythia8.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

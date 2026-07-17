@@ -1,0 +1,79 @@
+# rattler-build recipe (v1 / CEP-13 format) for nurandom.
+#
+# nurandom is the NuSoftHEP per-event random-number management for art: the
+# NuRandomService art service + the RandomUtils seed-policy providers (SeedMaster,
+# per-event policies). Built on the art stack + CLHEP::Random.
+
+context:
+  # NuSoftHEP tags do NOT pad the major (v1_11_06).
+  version: "1.11.6"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: nurandom
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/nurandom/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 8e9b03de4e4743fdf4ac78e1199d6ee9f63f7b2c859a6afffc9a1d809b4b27a8
+  patches:
+    # drop WERROR (GCC 14 / C++20) + guard add_subdirectory(test) behind BUILD_TESTING.
+    - patches/0001-drop-werror-and-guard-tests.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - art                        # find_package direct (local-channel)
+    - canvas                     # find_package direct
+    - messagefacility            # find_package direct
+    - fhiclcpp                   # find_package direct
+    - cetlib                     # find_package direct
+    - cetlib_except              # find_package direct
+    - clhep                      # find_package(CLHEP COMPONENTS Random)
+    - range-v3                   # art/canvas Config find_dependency(Range-v3)
+    - libboost-devel
+    - catch2
+    - libsqlite
+    - tbb-devel
+    - root_base                  # ROOT (MathCore)
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('nurandom', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - nurandom_RandomUtils_Providers
+      include:
+        - nurandom/RandomUtils/NuRandomService.h
+      files:
+        - lib/nurandom/cmake/nurandomConfig.cmake
+
+about:
+  homepage: https://github.com/NuSoftHEP/nurandom
+  repository: https://github.com/NuSoftHEP/nurandom
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: nurandom -- NuSoftHEP per-event random-number management for art
+  description: |
+    nurandom provides per-event random-number management for the art framework:
+    the NuRandomService art service and the RandomUtils seed-policy providers
+    (SeedMaster, per-event and time-based policies). Used across the nu* and
+    LArSoft simulation chain to make random sequences reproducible.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

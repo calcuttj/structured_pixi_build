@@ -1,0 +1,101 @@
+# rattler-build recipe (v1 / CEP-13 format) for larana.
+#
+# larana is the LArSoft analysis layer (optical detector reco, calorimetry,
+# particle ID, T0 reconstruction, cosmic removal, ...). Trunk step directly above
+# larreco. Its only larsoft/external dependency beyond the green stack is larreco.
+# Built against our art/boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v10_02_05
+  version: "10.2.5"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larana
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larana/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: f2c6d3722eab397358e7db7421bf2f576f3106dcf3bc2161fb99f63e8e64f5ed
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - genie
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - larvecutils
+    - libwda
+    - marley
+    - nucondb
+    - nufinder
+    - nugen
+    - nutools
+    - ppfx
+    - pythia6
+    - rstartree
+    - tpythia6
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    - eigen
+    # art suite
+    - art
+    - art_root_io
+    # nu* layer
+    - nug4
+    - nurandom
+    - nusimdata
+    # lar object/algorithm/sim/reco layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larsim
+    - larreco
+  run_exports:
+    - ${{ pin_subpackage('larana', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larana/cmake/laranaConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larana
+  repository: https://github.com/LArSoft/larana
+  license: Apache-2.0
+  summary: larana -- LArSoft analysis algorithms (optical, calorimetry, PID, ...)
+  description: |
+    larana is the LArSoft analysis layer: optical detector reconstruction,
+    calorimetry, particle identification, T0 reconstruction and cosmic-ray
+    removal algorithms. Trunk step above larreco.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

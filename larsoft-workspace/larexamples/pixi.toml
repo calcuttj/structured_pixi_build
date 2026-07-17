@@ -1,0 +1,44 @@
+[package]
+name = "larexamples"
+version = "10.2.0"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]
+
+# Inter-member SOURCE deps = transitive sibling closure (a sibling's
+# run_export pins propagate into this build's host env); binary deps
+# (cetmodules, root_base, geant4, ...) stay in recipe.yaml only.
+[package.host-dependencies]
+artg4tk = { path = "../artg4tk" }
+cry = { path = "../cry" }
+dk2nudata = { path = "../dk2nudata" }
+dk2nugenie = { path = "../dk2nugenie" }
+genie = { path = "../genie" }
+ifbeam = { path = "../ifbeam" }
+ifdh_art = { path = "../ifdh_art" }
+ifdhc = { path = "../ifdhc" }
+ifdhc_config = { path = "../ifdhc_config" }
+larcore = { path = "../larcore" }
+larcorealg = { path = "../larcorealg" }
+larcoreobj = { path = "../larcoreobj" }
+lardata = { path = "../lardata" }
+lardataalg = { path = "../lardataalg" }
+lardataobj = { path = "../lardataobj" }
+larevt = { path = "../larevt" }
+larsim = { path = "../larsim" }
+larvecutils = { path = "../larvecutils" }
+libwda = { path = "../libwda" }
+marley = { path = "../marley" }
+nucondb = { path = "../nucondb" }
+nufinder = { path = "../nufinder" }
+nug4 = { path = "../nug4" }
+nugen = { path = "../nugen" }
+nurandom = { path = "../nurandom" }
+nusimdata = { path = "../nusimdata" }
+nutools = { path = "../nutools" }
+ppfx = { path = "../ppfx" }
+pythia6 = { path = "../pythia6" }
+tpythia6 = { path = "../tpythia6" }

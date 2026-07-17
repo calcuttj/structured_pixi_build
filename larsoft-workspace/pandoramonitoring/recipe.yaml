@@ -1,0 +1,64 @@
+# rattler-build recipe (v1 / CEP-13 format) for PandoraMonitoring.
+#
+# PandoraMonitoring is the ROOT-based visualization/monitoring library of the
+# PandoraPFA framework (github.com/PandoraPFA). Together with PandoraSDK it
+# makes up the LArSoft UPS `pandora` product that larpandoracontent ->
+# larpandora depend on. The v05-00-00 release is a clean modern CMake package
+# (project VERSION 05.00.00) that links PandoraSDK + ROOT (Eve/Geom/RGL/EG) and
+# installs the PandoraPFA::PandoraMonitoring target + a CMake config package,
+# matching larpandoracontent's find_package(PandoraMonitoring 05.00.00 CONFIG).
+# conda-forge root_base ships libEve/libRGL/libGeom/libEG, so the ROOT
+# visualization components are available. Built C++20 for ABI consistency.
+
+context:
+  version: "5.0.0"
+  tag: v05-00-00
+
+package:
+  name: pandoramonitoring
+  version: ${{ version }}
+
+source:
+  url: https://github.com/PandoraPFA/PandoraMonitoring/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 5e0ae85eae9ed4b04018104ab920c4259c6f17a582fd105ff75e85e34ff43ecc
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - pandorasdk
+    - root_base
+    - root_cxx_standard ==20
+  run_exports:
+    - ${{ pin_subpackage('pandoramonitoring', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/cmake/PandoraMonitoring/PandoraMonitoringConfig.cmake
+        - lib/libPandoraMonitoring.so
+
+about:
+  homepage: https://github.com/PandoraPFA/PandoraMonitoring
+  repository: https://github.com/PandoraPFA/PandoraMonitoring
+  license: GPL-3.0-or-later
+  license_file: LICENSE
+  summary: PandoraMonitoring -- ROOT-based visualization for the PandoraPFA framework
+  description: |
+    PandoraMonitoring provides ROOT-based event display and monitoring
+    utilities for the PandoraPFA pattern-recognition framework. It links
+    PandoraSDK and ROOT (Eve/Geom/RGL/EG) and is consumed by
+    larpandoracontent / LArSoft's larpandora.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

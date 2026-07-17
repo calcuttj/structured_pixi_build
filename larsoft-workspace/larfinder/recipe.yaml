@@ -1,0 +1,53 @@
+# rattler-build recipe (v1 / CEP-13 format) for larfinder.
+#
+# larfinder is a tiny LArSoft helper product ("common cmake bits"): a
+# LANGUAGES-NONE, ARCH_INDEPENDENT cetmodules package that installs CMake Find
+# modules (FindTensorFlow.cmake) + a larfinderConfig. larrecodnn does
+# find_package(larfinder REQUIRED EXPORT) so the optional TensorFlow probe can
+# resolve. No compiled artifacts.
+
+context:
+  # LArSoft pads the major: tag v09_00_05
+  version: "9.0.5"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larfinder
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larfinder/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: eb066c3afd8d1b0ed629238bb2ecb774ab14fa9481e4adc4ecf06ecc50b35870
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+  run_exports:
+    - ${{ pin_subpackage('larfinder', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larfinder/cmake/larfinderConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larfinder
+  repository: https://github.com/LArSoft/larfinder
+  license: Apache-2.0
+  summary: larfinder -- common CMake find modules for LArSoft
+  description: |
+    larfinder is a small LArSoft helper product that ships common CMake find
+    modules (e.g. FindTensorFlow). It is a build-time dependency of larrecodnn.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

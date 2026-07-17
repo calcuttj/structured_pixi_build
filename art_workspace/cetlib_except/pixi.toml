@@ -1,0 +1,10 @@
+[package]
+name = "cetlib_except"
+version = "1.10.0"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+# Only recipe.yaml + source are hashed by default; add the build script.
+extra-input-globs = ["build.sh"]

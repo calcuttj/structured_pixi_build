@@ -1,0 +1,29 @@
+Drop -Werror from cet_set_compiler_flags and guard the test subdir.
+
+larg4 builds DIAGS CAUTIOUS + WERROR; under GCC 14 / C++20 (our art-stack
+standard) stricter diagnostics become hard errors. CXXFLAGS can't demote
+cetmodules' add_compile_options(-Werror), so drop WERROR. Also guard
+add_subdirectory(test) behind BUILD_TESTING (test/ uses cet_test machinery
+we don't need in the packaging build).
+--- a/CMakeLists.txt	2026-06-11 20:57:43.000000000 -0700
++++ b/CMakeLists.txt	2026-06-29 15:02:28.517653336 -0700
+@@ -14,7 +14,7 @@
+ include(CetCMakeEnv)
+ cet_cmake_env()
+ 
+-cet_set_compiler_flags(DIAGS CAUTIOUS WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
++cet_set_compiler_flags(DIAGS CAUTIOUS NO_UNDEFINED EXTRA_FLAGS -pedantic)
+ 
+ cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
+ 
+@@ -50,7 +50,9 @@
+ add_subdirectory(gdml)
+ add_subdirectory(larg4)
+ add_subdirectory(macros)
+-add_subdirectory(test)
++if(BUILD_TESTING)
++  add_subdirectory(test)
++endif()
+ 
+ # packaging utility
+ # this has to be last

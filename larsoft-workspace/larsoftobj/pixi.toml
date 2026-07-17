@@ -1,0 +1,29 @@
+[package]
+name = "larsoftobj"
+version = "10.6.1"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]
+
+# Inter-member SOURCE deps = transitive sibling closure (a sibling's
+# run_export pins propagate into this build's host env); binary deps
+# (cetmodules, root_base, geant4, ...) stay in recipe.yaml only.
+[package.host-dependencies]
+dk2nudata = { path = "../dk2nudata" }
+gallery = { path = "../gallery" }
+larcorealg = { path = "../larcorealg" }
+larcoreobj = { path = "../larcoreobj" }
+lardataalg = { path = "../lardataalg" }
+lardataobj = { path = "../lardataobj" }
+larvecutils = { path = "../larvecutils" }
+nufinder = { path = "../nufinder" }
+nusimdata = { path = "../nusimdata" }
+
+[package.run-dependencies]
+gallery = { path = "../gallery" }
+lardataalg = { path = "../lardataalg" }
+lardataobj = { path = "../lardataobj" }
+larvecutils = { path = "../larvecutils" }

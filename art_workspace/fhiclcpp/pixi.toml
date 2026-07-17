@@ -1,0 +1,15 @@
+[package]
+name = "fhiclcpp"
+version = "4.19.0"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh", "patches/**"]
+
+# Inter-member SOURCE deps (every art sibling in the recipe host: section);
+# binary deps (cetmodules, boost, root_base, catch2, ...) stay in recipe.yaml only.
+[package.host-dependencies]
+cetlib = { path = "../cetlib" }
+cetlib_except = { path = "../cetlib_except" }

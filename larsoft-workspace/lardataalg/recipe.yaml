@@ -1,0 +1,88 @@
+# rattler-build recipe (v1 / CEP-13 format) for lardataalg.
+#
+# lardataalg is the LArSoft *algorithm* layer over the data objects: DetectorInfo
+# (DetectorProperties, DetectorClocks, LArProperties), Utilities (quantities,
+# intervals, MappedContainer), and the MC/Geometry helper algorithms. Sits above
+# lardataobj + larcorealg in the object/algorithm layer.
+
+context:
+  # LArSoft tags pad the major (v10_02_02).
+  version: "10.2.2"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: lardataalg
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/lardataalg/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: fc9a751947e4a5d1b94674d2078ae075035f6f7ce14790a0d25c3e3e4c3061fd
+  patches:
+    # DIAGS CAUTIOUS + WERROR -> hard errors under GCC 14 / C++20; drop WERROR
+    # (CXXFLAGS can't demote cetmodules' add_compile_options(-Werror)).
+    - patches/0001-drop-werror.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - nufinder   # + transitive run_export closure (pixi-build workspace)
+    - cetmodules <4.0a0
+    - lardataobj                 # find_package direct (larsoft-output)
+    - larcorealg                 # find_package direct
+    - larcoreobj                 # find_package direct
+    - nusimdata                  # find_package direct
+    - dk2nudata                  # nusimdataConfig find_dependency(dk2nudata) -> Finddk2nudata
+    - canvas_root_io             # transitive find_dependency
+    - canvas                     # find_package direct
+    - messagefacility            # find_package direct
+    - fhiclcpp                   # find_package direct
+    - cetlib                     # find_package direct
+    - cetlib_except              # find_package direct
+    - clhep
+    - range-v3
+    - libboost-devel             # find_package(Boost)
+    - catch2
+    - libsqlite
+    - tbb-devel
+    - root_base                  # ROOT (Core EG Hist Physics) + dicts
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('lardataalg', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - lardataalg_DetectorInfo
+      include:
+        - lardataalg/DetectorInfo/DetectorProperties.h
+      files:
+        - lib/lardataalg/cmake/lardataalgConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/lardataalg
+  repository: https://github.com/LArSoft/lardataalg
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: lardataalg -- LArSoft detector-information and data algorithms
+  description: |
+    lardataalg provides the LArSoft algorithm layer over lardataobj: DetectorInfo
+    services backends (DetectorProperties, DetectorClocks, LArProperties), the
+    Utilities quantity/interval framework and MappedContainer, and supporting
+    MC/geometry helper algorithms. Built on lardataobj, larcorealg and the
+    art/canvas ROOT stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

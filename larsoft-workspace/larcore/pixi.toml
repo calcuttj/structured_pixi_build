@@ -1,0 +1,16 @@
+[package]
+name = "larcore"
+version = "10.0.4"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh", "patches/**"]
+
+# Inter-member SOURCE deps = transitive sibling closure (a sibling's
+# run_export pins propagate into this build's host env); binary deps
+# (cetmodules, root_base, geant4, ...) stay in recipe.yaml only.
+[package.host-dependencies]
+larcorealg = { path = "../larcorealg" }
+larcoreobj = { path = "../larcoreobj" }

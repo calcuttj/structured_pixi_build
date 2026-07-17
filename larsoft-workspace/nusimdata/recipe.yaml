@@ -1,0 +1,83 @@
+# rattler-build recipe (v1 / CEP-13 format) for nusimdata.
+#
+# nusimdata provides the NuSoftHEP "simb" Monte-Carlo truth data products
+# (MCTruth, MCParticle, MCNeutrino, MCFlux, GTruth, MCTrajectory, ...) and their
+# ROOT dictionaries -- the simulation data model shared by larsoft (lardataobj
+# depends on it) and the generator/Geant4 layers. Depends only on the art/canvas
+# ROOT stack + nufinder, so it is buildable on our existing art stack.
+
+context:
+  # NuSoftHEP tags pad minor/patch but NOT major (v1_29_03), like the art suite.
+  version: "1.29.3"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: nusimdata
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/nusimdata/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 2d9efd0df18c8f886df33de587149857f5e2f4bbe9d437f90a8c4aa2d804e36f
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - nufinder                   # find_package(nufinder REQUIRED) (larsoft-output)
+    - dk2nudata                  # find_package(dk2nudata REQUIRED); dict links dk2nu::Tree
+    - canvas_root_io             # find_package in SimulationBase/CMakeLists.txt
+    - canvas                     # find_package direct
+    - cetlib_except              # find_package direct
+    # transitive Config closure via canvas:
+    - cetlib
+    - fhiclcpp
+    - messagefacility
+    - clhep
+    - range-v3
+    - libboost-devel
+    - catch2
+    - libsqlite
+    - tbb-devel
+    # ROOT (Core EG Physics RIO Tree) + dictionaries:
+    - root_base
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('nusimdata', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - nusimdata_SimulationBase
+      include:
+        - nusimdata/SimulationBase/MCTruth.h
+        - nusimdata/SimulationBase/MCParticle.h
+      files:
+        - lib/nusimdata/cmake/nusimdataConfig.cmake
+
+about:
+  homepage: https://github.com/NuSoftHEP/nusimdata
+  repository: https://github.com/NuSoftHEP/nusimdata
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: nusimdata -- NuSoftHEP simb Monte-Carlo truth data products
+  description: |
+    nusimdata provides the "simb" Monte-Carlo truth data products used across
+    LArSoft and the NuSoftHEP simulation stack: MCTruth, MCParticle, MCNeutrino,
+    MCFlux, GTruth, MCTrajectory and friends, plus their ROOT dictionaries. Built
+    on canvas, cetlib_except, ROOT and the nufinder find-modules.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

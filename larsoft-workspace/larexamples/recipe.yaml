@@ -1,0 +1,97 @@
+# rattler-build recipe (v1 / CEP-13 format) for larexamples.
+#
+# larexamples is the LArSoft examples/tutorial layer (reference algorithms and
+# modules). Trunk step above larsim and one of the larsoft metapackage's direct
+# dependencies. Built against our art/boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v10_02_00
+  version: "10.2.0"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larexamples
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larexamples/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: ac6ab826d7fb4919efd05c7dc99968b2303b1e238babafea1b49c109bdadc746
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - genie
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - larvecutils
+    - libwda
+    - marley
+    - nucondb
+    - nufinder
+    - nug4
+    - nugen
+    - nurandom
+    - nutools
+    - ppfx
+    - pythia6
+    - tpythia6
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    # art suite
+    - art
+    - art_root_io
+    # nu* layer
+    - nusimdata
+    # lar object/algorithm/sim layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larsim
+  run_exports:
+    - ${{ pin_subpackage('larexamples', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larexamples/cmake/larexamplesConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larexamples
+  repository: https://github.com/LArSoft/larexamples
+  license: Apache-2.0
+  summary: larexamples -- LArSoft example/tutorial algorithms and modules
+  description: |
+    larexamples provides reference example algorithms, services and modules for
+    LArSoft (a tutorial/illustration layer). It is a direct dependency of the
+    larsoft metapackage. Built on top of larsim and the art suite.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,76 @@
+# rattler-build recipe (v1 / CEP-13 format) for larsoftobj.
+#
+# larsoftobj is the LArSoft object/algorithm *bundle*: an empty (LANGUAGES NONE)
+# cetmodules product whose only job is to pull in the data-object + algorithm
+# layer (gallery, lardataalg, lardataobj, larvecutils) and install
+# larsoftobjConfig.cmake. Upstream deprecates it, but the full larsoft suite
+# still references it, so we package it as a thin metapackage. First milestone of
+# the larsoft conda port (the object/algorithm layer is now fully buildable).
+
+context:
+  # LArSoft tags pad the major (v10_06_01).
+  version: "10.6.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larsoftobj
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larsoftobj/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 95f0319d31c8f068448af5e43fb3d3fa85daf6b0f96993cf0a9816a3518b583a
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - cmake
+    - make
+  host:
+    - dk2nudata   # + transitive run_export closure (pixi-build workspace)
+    - gallery
+    - larcorealg
+    - larcoreobj
+    - lardataalg
+    - lardataobj
+    - larvecutils
+    - nufinder
+    - nusimdata
+    - cetmodules <4.0a0
+  run:
+    # The bundle closure (ups/product_deps). These are separately-built channel
+    # packages (NOT subpackages of this recipe), so pin by version range, not
+    # pin_subpackage. Each carries its own run_exports, which transitively pull
+    # in larcorealg/larcoreobj/nusimdata/the art stack.
+    - gallery >=1.22.6,<1.23.0a0
+    - lardataalg >=10.2.2,<10.3.0a0
+    - lardataobj >=10.5.1,<10.6.0a0
+    - larvecutils >=9.4.3,<9.5.0a0
+  run_exports:
+    - ${{ pin_subpackage('larsoftobj', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larsoftobj/cmake/larsoftobjConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larsoftobj
+  repository: https://github.com/LArSoft/larsoftobj
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: larsoftobj -- LArSoft object/algorithm layer bundle
+  description: |
+    larsoftobj is an empty cetmodules bundle product that groups the LArSoft
+    data-object and algorithm layer: gallery, lardataalg, lardataobj and
+    larvecutils (plus their transitive larcore/nusimdata/art-stack closure).
+    It installs only larsoftobjConfig.cmake; its purpose is to provide a single
+    dependency the wider larsoft suite can require.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

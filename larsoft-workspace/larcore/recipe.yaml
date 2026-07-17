@@ -1,0 +1,81 @@
+# rattler-build recipe (v1 / CEP-13 format) for larcore.
+#
+# larcore is the LArSoft core *service* layer: the Geometry / AuxDetGeometry /
+# WireReadout art services and providers, plus CoreUtils (ServiceUtil,
+# ServiceProviderWrappers). Built on larcoreobj + larcorealg and the art stack;
+# sits just below lardata in the build order.
+
+context:
+  # LArSoft tags pad the major (v10_00_04).
+  version: "10.0.4"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larcore
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larcore/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 58524376d608b6a79e309c6dcbb47f5bddbacf9189c18eff88037d9ff39e17b6
+  patches:
+    # drop WERROR (GCC 14 / C++20) + guard add_subdirectory(test) behind BUILD_TESTING.
+    - patches/0001-drop-werror-and-guard-tests.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - larcoreobj                 # find_package direct (larsoft-output)
+    - larcorealg                 # find_package direct
+    - art                        # find_package direct (local-channel) — services/plugins
+    - canvas                     # find_package direct
+    - messagefacility            # find_package direct
+    - fhiclcpp                   # find_package direct
+    - cetlib                     # find_package direct
+    - cetlib_except              # find_package direct
+    - clhep
+    - range-v3
+    - libboost-devel             # find_package(Boost) (tests + transitive)
+    - catch2
+    - libsqlite
+    - tbb-devel
+    - root_base                  # ROOT (transitive via larcorealg/canvas)
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('larcore', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - larcore/Geometry/Geometry.h
+        - larcore/CoreUtils/ServiceUtil.h
+      files:
+        - lib/larcore/cmake/larcoreConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larcore
+  repository: https://github.com/LArSoft/larcore
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: larcore -- LArSoft core geometry/service layer
+  description: |
+    larcore provides the LArSoft core art services and providers: Geometry,
+    AuxDetGeometry, WireReadout and the GeometryConfigurationWriter, plus the
+    CoreUtils service-access helpers (ServiceUtil, ServiceProviderWrappers).
+    Built on larcoreobj, larcorealg and the art framework.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

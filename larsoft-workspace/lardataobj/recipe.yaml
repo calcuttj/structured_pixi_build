@@ -1,0 +1,88 @@
+# rattler-build recipe (v1 / CEP-13 format) for lardataobj.
+#
+# lardataobj is the LArSoft reconstruction/raw/sim *data object* layer: RecoBase
+# (Hit, Cluster, Track, Shower, ...), RawData (RawDigit, OpDetWaveform), MCBase,
+# AnalysisBase, Simulation, OpticalDetectorData and Utilities, plus their ROOT
+# dictionaries. Sits above larcoreobj + nusimdata in the object layer.
+
+context:
+  # LArSoft tags pad the major (v10_05_01).
+  version: "10.5.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: lardataobj
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/lardataobj/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: f2d1d4bef76b5c0f33dc5e8f11b346c9717800ed366e6037eda218863c520cc5
+  patches:
+    # GCC 14 -Wtemplate-body + WERROR turns BitMask.tcc into a hard error; drop
+    # WERROR (CXXFLAGS can't demote cetmodules' add_compile_options(-Werror)).
+    - patches/0001-drop-werror.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - nufinder   # + transitive run_export closure (pixi-build workspace)
+    - cetmodules <4.0a0
+    - larcoreobj                 # find_package direct (larsoft-output)
+    - nusimdata                  # find_package direct (larsoft-output)
+    - dk2nudata                  # nusimdataConfig find_dependency(dk2nudata) -> Finddk2nudata
+    - canvas_root_io             # find_package direct
+    - canvas
+    - messagefacility
+    - cetlib
+    - cetlib_except
+    - fhiclcpp
+    - clhep
+    - range-v3
+    - libboost-devel             # find_package(Boost)
+    - catch2
+    - libsqlite
+    - tbb-devel
+    - root_base                  # ROOT (Core GenVector MathCore Matrix Physics) + dicts
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('lardataobj', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - lardataobj_RecoBase
+        - lardataobj_RawData
+      include:
+        - lardataobj/RecoBase/Hit.h
+        - lardataobj/RawData/RawDigit.h
+      files:
+        - lib/lardataobj/cmake/lardataobjConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/lardataobj
+  repository: https://github.com/LArSoft/lardataobj
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: lardataobj -- LArSoft reconstruction/raw/simulation data objects
+  description: |
+    lardataobj provides the LArSoft event-data model: RecoBase (Hit, Cluster,
+    Track, Shower, Vertex, ...), RawData (RawDigit, OpDetWaveform), MCBase,
+    AnalysisBase, Simulation and OpticalDetectorData data products plus their
+    ROOT dictionaries. Built on larcoreobj, nusimdata and the art/canvas ROOT
+    stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

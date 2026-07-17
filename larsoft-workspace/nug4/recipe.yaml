@@ -1,0 +1,91 @@
+# rattler-build recipe (v1 / CEP-13 format) for nug4.
+#
+# nug4 is the NuSoftHEP Geant4 interface layer: G4Base (Geant4 run manager and
+# user-action plumbing for art), magnetic-field services, particle navigation,
+# and additional G4 physics (Pythia8-driven decays). It sits above nusimdata and
+# is a direct dependency of larg4. Built on the art/ROOT stack + Geant4 + Pythia8.
+# Not on conda-forge.
+
+context:
+  # NuSoftHEP tags pad minor/patch but NOT major (v1_17_03), like the art suite.
+  version: "1.17.3"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: nug4
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/nug4/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 50ec8e51dfae9887822ec76f227e1aae93f17bf483912b0e4165b92964a55f98
+  patches:
+    # DIAGS CAUTIOUS + WERROR -> hard errors under GCC 14 / C++20; drop WERROR
+    # (CXXFLAGS can't demote cetmodules' add_compile_options(-Werror)).
+    - patches/0001-drop-werror.patch
+    # Geant4 11.x removed HepRep vis (G4visHepRep); drop it from the G4Base link
+    # list so target_link_libraries doesn't fail on conda-forge geant4 11.4.2.
+    - patches/0002-drop-g4vishreprep.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - art_root_io                # product_deps build dep; art plugin/dict macros
+    - art                        # find_package(art) direct
+    - nusimdata                  # find_package(nusimdata) direct (larsoft-output)
+    - dk2nudata                  # nusimdataConfig find_dependency(dk2nudata)
+    - nufinder                   # nusimdataConfig find_dependency(nufinder)
+    - cetlib                     # find_package direct
+    - cetlib_except              # find_package direct
+    - messagefacility            # find_package direct
+    - fhiclcpp                   # transitive find_dependency (art/nusimdata)
+    - clhep                      # find_package(CLHEP) direct
+    - geant4                     # find_package(Geant4) direct (conda-forge)
+    - pythia8                    # find_package(Pythia8) (AdditionalG4Physics)
+    - range-v3                   # transitive find_dependency
+    - libboost-devel             # find_package(Boost) direct
+    - catch2
+    - libsqlite
+    - tbb-devel
+    # ROOT (Core Physics Geom) + dictionaries:
+    - root_base
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('nug4', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - nug4_G4Base
+      include:
+        - nug4/G4Base/G4Helper.h
+      files:
+        - lib/nug4/cmake/nug4Config.cmake
+
+about:
+  homepage: https://github.com/NuSoftHEP/nug4
+  repository: https://github.com/NuSoftHEP/nug4
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: nug4 -- NuSoftHEP Geant4 interface for the art framework
+  description: |
+    nug4 provides the NuSoftHEP Geant4 interface used by the LArSoft simulation
+    stack: G4Base (Geant4 run manager + art user-action plumbing), magnetic-field
+    services, particle navigation, and additional G4 physics constructors driven
+    by Pythia8. Built on the art/ROOT framework, nusimdata, Geant4 and Pythia8.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

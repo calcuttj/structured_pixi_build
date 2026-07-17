@@ -1,0 +1,92 @@
+# rattler-build recipe (v1 / CEP-13 format) for lardata.
+#
+# lardata is the LArSoft data-access / utilities layer above the object +
+# algorithm layers: RecoBaseProxy, ArtDataHelper, RecoObjects, the Utilities
+# (associations, fits, FFT) and detector-data art services. Built on larcore,
+# lardataobj, lardataalg, larvecutils + the art stack.
+
+context:
+  # LArSoft tags pad the major (v10_00_17).
+  version: "10.0.17"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: lardata
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/lardata/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: dcae6313f840f1db2419191b9d80b0da5244cf32ab62d47832e6a9d7c74fecc2
+  patches:
+    # drop WERROR (GCC 14 / C++20) + guard add_subdirectory(test) behind BUILD_TESTING.
+    - patches/0001-drop-werror-and-guard-tests.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - nufinder   # + transitive run_export closure (pixi-build workspace)
+    - cetmodules <4.0a0
+    - larcore                    # find_package direct (larsoft-output)
+    - larcoreobj                 # find_package direct
+    - larcorealg                 # find_package direct
+    - lardataobj                 # find_package direct
+    - lardataalg                 # find_package direct
+    - larvecutils                # find_package direct
+    - nusimdata                  # lardataalgConfig find_dependency(nusimdata)
+    - dk2nudata                  # nusimdataConfig find_dependency(dk2nudata) -> Finddk2nudata
+    - art_root_io                # find_package direct
+    - art                        # find_package direct
+    - canvas                     # find_package direct
+    - messagefacility            # find_package direct
+    - fhiclcpp                   # find_package direct
+    - cetlib                     # find_package direct
+    - cetlib_except              # find_package direct
+    - clhep
+    - range-v3                   # find_package(Range-v3)
+    - fftw                       # find_package(FFTW3) + ROOT FFTW component
+    - libpq                      # find_package(PostgreSQL)
+    - libboost-devel             # find_package(Boost date_time serialization)
+    - catch2
+    - libsqlite
+    - tbb-devel
+    - root_base                  # ROOT (Core FFTW GenVector Hist MathCore Physics RIO Tree)
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('lardata', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - lardata_RecoBaseProxy
+      include:
+        - lardata/Utilities/AssociationUtil.h
+      files:
+        - lib/lardata/cmake/lardataConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/lardata
+  repository: https://github.com/LArSoft/lardata
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: lardata -- LArSoft data-access and utilities layer
+  description: |
+    lardata provides the LArSoft data-access and utilities layer: the
+    RecoBaseProxy, ArtDataHelper and RecoObjects libraries, association/fit/FFT
+    utilities, and the detector-data art services. Built on larcore, lardataobj,
+    lardataalg, larvecutils and the art/ROOT stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

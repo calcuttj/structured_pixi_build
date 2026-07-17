@@ -1,0 +1,17 @@
+Drop -Werror from cet_set_compiler_flags.
+
+nuevdb builds DIAGS CAUTIOUS + WERROR (inline). Under GCC 14 / C++20 (our art-stack
+standard, vs upstream's C++17 default) stricter diagnostics become hard errors;
+CXXFLAGS can't demote cetmodules' add_compile_options(-Werror), so drop the WERROR
+keyword. See conda/potential_improvements.md (#2).
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -20,7 +20,7 @@
+ include(CetCMakeEnv)
+ cet_cmake_env()
+
+-cet_set_compiler_flags(DIAGS CAUTIOUS WERROR
++cet_set_compiler_flags(DIAGS CAUTIOUS
+                        NO_UNDEFINED
+                        EXTRA_FLAGS -pedantic
+                                    -Wno-unused-local-typedefs -Wno-variadic-macros)

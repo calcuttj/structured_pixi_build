@@ -1,0 +1,14 @@
+[package]
+name = "cetlib"
+version = "3.19.0"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]
+
+# Inter-member SOURCE dep: build cetlib_except from the workspace, not a channel
+# binary. Binary deps (cetmodules, boost, sqlite, openssl) stay in recipe.yaml only.
+[package.host-dependencies]
+cetlib_except = { path = "../cetlib_except" }

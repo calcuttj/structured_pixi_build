@@ -1,0 +1,57 @@
+# rattler-build recipe (v1 / CEP-13 format) for rstartree.
+#
+# rstartree is a small header-only C++ template implementation of an R*-tree
+# (virtuald/r-star-tree). LArSoft's larreco uses it (RecoAlg/DBScanAlg) and
+# packages it as the UPS product `rstartree v2016_07`; that product version
+# corresponds to upstream commit 845ae41 (dated 2016-07-03). It is not on
+# conda-forge, so we package it here. Header-only -> noarch generic; larreco
+# ships its own Modules/FindRStarTree.cmake which locates the headers via the
+# RSTARTREE_INC environment variable and builds the RStarTree::RStarTree
+# INTERFACE target, so this package only needs to install the three headers
+# under include/RStarTree/.
+
+context:
+  version: "2016.07.03"
+  commit: 845ae41c122b4302e5a7cc53614c33f4c077db0a
+
+package:
+  name: rstartree
+  version: ${{ version }}
+
+source:
+  url: https://github.com/virtuald/r-star-tree/archive/${{ commit }}.tar.gz
+  sha256: 430f0c5b449b1a85cf60f1e34c797243283da079c5facaca974e54f646a317ae
+
+build:
+  number: 0
+  noarch: generic
+  script: build.sh
+
+requirements:
+  # Header-only: a weak run_export keeps the headers present in the host env of
+  # any larreco consumer, since larrecoConfig re-exports RStarTree
+  # (find_package(RStarTree REQUIRED EXPORT)).
+  run_exports:
+    - ${{ pin_subpackage('rstartree', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - include/RStarTree/RStarTree.h
+        - include/RStarTree/RStarBoundingBox.h
+        - include/RStarTree/RStarVisitor.h
+
+about:
+  homepage: https://github.com/virtuald/r-star-tree
+  repository: https://github.com/virtuald/r-star-tree
+  license: LGPL-2.1-only
+  license_file: LICENSE
+  summary: rstartree -- header-only C++ R*-tree template (used by LArSoft larreco)
+  description: |
+    A templated C++ implementation of an R*-tree spatial index. LArSoft's
+    larreco DBScan clustering algorithm uses it. Header-only; installs
+    RStarTree.h, RStarBoundingBox.h and RStarVisitor.h under include/RStarTree/.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

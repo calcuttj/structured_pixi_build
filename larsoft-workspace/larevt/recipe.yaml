@@ -1,0 +1,95 @@
+# rattler-build recipe (v1 / CEP-13 format) for larevt.
+#
+# larevt is the LArSoft event/calibration layer: the CalibrationDBI conditions
+# database interface (libwda + SQLite providers), SpaceCharge services, CalData
+# and Filters. Built on lardata + libwda; first trunk step above lardata toward
+# larg4/larsim.
+
+context:
+  # LArSoft tags pad the major (v10_00_19).
+  version: "10.0.19"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larevt
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larevt/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 6dab57753588a30f904a086abf60b4a92f372124a1316bca458ce5350018430b
+  patches:
+    # drop WERROR (GCC 14 / C++20) + guard add_subdirectory(test) behind BUILD_TESTING.
+    - patches/0001-drop-werror-and-guard-tests.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - lardataalg   # + transitive run_export closure (pixi-build workspace)
+    - larvecutils
+    - nufinder
+    - cetmodules <4.0a0
+    - larcore                    # find_package direct (larsoft-output)
+    - larcorealg                 # find_package direct
+    - larcoreobj                 # find_package direct
+    - lardata                    # find_package direct
+    - lardataobj                 # find_package direct
+    - nusimdata                  # find_package direct
+    - dk2nudata                  # nusimdataConfig find_dependency(dk2nudata) -> Finddk2nudata
+    - libwda                     # find_package(libwda) -> wda::wda (via $LIBWDA_INC)
+    - art_root_io                # find_package direct
+    - art                        # find_package direct
+    - canvas                     # find_package direct
+    - messagefacility            # find_package direct
+    - fhiclcpp                   # find_package direct
+    - cetlib                     # find_package direct
+    - cetlib_except              # find_package direct
+    - clhep
+    - range-v3                   # art/canvas Config find_dependency(Range-v3)
+    - fftw                       # lardataConfig find_dependency(FFTW3) (pkg-config path)
+    - libpq                      # lardataConfig find_dependency(PostgreSQL)
+    - libsqlite                  # find_package(SQLite3)
+    - libboost-devel
+    - catch2
+    - tbb-devel
+    - root_base                  # ROOT (Core Hist MathCore Physics RIO)
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('larevt', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - larevt_CalibrationDBI_IOVData
+      include:
+        - larevt/Filters/SimpleChannelStatus.h
+      files:
+        - lib/larevt/cmake/larevtConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larevt
+  repository: https://github.com/LArSoft/larevt
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: larevt -- LArSoft event/calibration + conditions-DB layer
+  description: |
+    larevt provides the LArSoft calibration and event-processing layer: the
+    CalibrationDBI conditions-database interface (libwda + SQLite-backed
+    providers for channel status, pedestals, electron lifetime, gains),
+    SpaceCharge services, CalData and Filters. Built on lardata, libwda and the
+    art/ROOT stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,28 @@
+Drop -Werror from cet_set_compiler_flags and guard the test subdir.
+
+1. larevt builds DIAGS CAUTIOUS + WERROR; under GCC 14 / C++20 (our art-stack
+   standard, vs upstream's C++17 default) stricter diagnostics become hard errors.
+   CXXFLAGS can't demote cetmodules' add_compile_options(-Werror), so drop WERROR.
+2. add_subdirectory(test) → guard behind BUILD_TESTING (tests are off in the
+   packaging build and the test tree pulls cet_test machinery we don't need).
+See conda/potential_improvements.md (#2).
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -17,7 +17,6 @@
+ cet_cmake_env()
+
+ cet_set_compiler_flags(DIAGS CAUTIOUS
+-  WERROR
+   NO_UNDEFINED
+   EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs
+ )
+@@ -54,7 +53,9 @@
+ add_subdirectory(larevt)
+
+ # tests
+-add_subdirectory(test)
++if(BUILD_TESTING)
++  add_subdirectory(test)
++endif()
+
+ # ups - table and config files

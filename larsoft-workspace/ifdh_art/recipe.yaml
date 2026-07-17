@@ -1,0 +1,75 @@
+# rattler-build recipe (v1 / CEP-13 format) for ifdh_art.
+#
+# ifdh_art provides art service access to the ifdh data-handling libraries
+# (art-framework-suite/ifdh-art). It is the art-plugin layer over
+# ifdhc/ifbeam/nucondb, and a hard dependency of NuSoftHEP nugen -> larsim.
+# Absent from conda-forge. Mirrors the FNAL spack ifdh_art package (v2_17_08
+# needs no source patch). Built against our art 3.15.0 stack + the ifdh glue.
+#
+# cetmodules ships Find{ifdhc,ifbeam,nucondb} modules that locate the products
+# via env vars (IFDHC_INC/IFDHC_DIR, IFBEAM_FQ_DIR, NUCONDB_FQ_DIR) -- set in
+# build.sh. WERROR is stripped (GCC 14 vigilant diagnostics).
+
+context:
+  # art-framework-suite does NOT pad the major (like art): v2_17_08
+  version: "2.17.8"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: ifdh_art
+  version: ${{ version }}
+
+source:
+  url: https://github.com/art-framework-suite/ifdh-art/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 91fb581ef2a8b70679d1f96a13d0ab5fd5eaa92722bbe78147a2f89cbe6209a8
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - ifdhc_config   # + transitive run_export closure (pixi-build workspace)
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel                  # artConfig.cmake find_dependency(TBB) needs TBBConfig
+    - range-v3                   # artConfig.cmake find_dependency(Range-v3)
+    - libboost-devel             # fhiclcpp/coding.h includes boost/lexical_cast.hpp
+    - art
+    - ifdhc
+    - ifbeam
+    - nucondb
+    - libwda
+  run_exports:
+    - ${{ pin_subpackage('ifdh_art', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/ifdh_art/cmake/ifdh_artConfig.cmake
+        - lib/libIFDH_service.so
+        - lib/libNUconDB_service.so
+
+about:
+  homepage: https://cdcvs.fnal.gov/redmine/projects/ifdh-art/wiki
+  repository: https://github.com/art-framework-suite/ifdh-art
+  license: Apache-2.0
+  summary: ifdh_art -- art service access to the ifdh data-handling libraries
+  description: |
+    ifdh_art provides art framework services (IFDHService, IFBeamService,
+    NUconDBService, IFFileTransfer, IFCatalogInterface) wrapping the ifdhc /
+    ifbeam / nucondb data-handling clients. Required by NuSoftHEP nugen and
+    transitively by larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

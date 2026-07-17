@@ -1,0 +1,87 @@
+# rattler-build recipe (v1 / CEP-13 format) for nuevdb.
+#
+# nuevdb is the NuSoftHEP event-display + conditions-database base layer:
+# EventDisplayBase (ROOT-GUI art services for event displays, with a ROOT
+# dictionary) and IFDatabase (a libwda + PostgreSQL conditions-DB interface).
+# Built on the art stack + nusimdata; needs libwda and PostgreSQL.
+
+context:
+  # NuSoftHEP tags do NOT pad the major (v1_09_13).
+  version: "1.9.13"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: nuevdb
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/nuevdb/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 8cd9030a0b6512691a5a7e347212a0e342e00265e7cbcabc8ff1475f05b6292d
+  patches:
+    # DIAGS CAUTIOUS + WERROR -> hard errors under GCC 14 / C++20; drop WERROR.
+    - patches/0001-drop-werror.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - nufinder   # + transitive run_export closure (pixi-build workspace)
+    - cetmodules <4.0a0
+    - art                        # find_package direct
+    - art_root_io                # find_package direct
+    - nusimdata                  # find_package direct
+    - dk2nudata                  # nusimdataConfig find_dependency(dk2nudata) -> Finddk2nudata
+    - libwda                     # IFDatabase find_package(libwda) -> wda::wda (via $LIBWDA_INC)
+    - libpq                      # find_package(PostgreSQL) -> PostgreSQL::PostgreSQL
+    - canvas
+    - messagefacility
+    - fhiclcpp
+    - cetlib                     # find_package direct
+    - cetlib_except              # find_package direct
+    - clhep
+    - range-v3                   # art/canvas Config find_dependency(Range-v3)
+    - libboost-devel             # find_package(Boost date_time)
+    - catch2
+    - libsqlite
+    - tbb-devel
+    - root_base                  # ROOT (Core Tree Gui Graf Graf3d Rint) + dict
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('nuevdb', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - nuevdb_IFDatabase
+        - nuevdb_EventDisplayBase
+      include:
+        - nuevdb/IFDatabase/Table.h
+      files:
+        - lib/nuevdb/cmake/nuevdbConfig.cmake
+
+about:
+  homepage: https://github.com/NuSoftHEP/nuevdb
+  repository: https://github.com/NuSoftHEP/nuevdb
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: nuevdb -- NuSoftHEP event-display base + IF conditions-database interface
+  description: |
+    nuevdb provides the NuSoftHEP EventDisplayBase (ROOT-GUI art services that
+    underpin experiment event displays, with a ROOT dictionary) and IFDatabase, a
+    libwda + PostgreSQL interface to the IF conditions database. Built on the
+    art/ROOT stack and nusimdata.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

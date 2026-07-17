@@ -1,0 +1,10 @@
+[package]
+name = "wire-cell-toolkit"
+version = "0.37.0"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+# recipe.yaml + source hashed by default; add the build script + patches.
+extra-input-globs = ["build.sh", "patches/**"]

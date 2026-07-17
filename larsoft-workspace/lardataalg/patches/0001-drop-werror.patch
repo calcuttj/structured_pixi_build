@@ -1,0 +1,17 @@
+Drop -Werror from cet_set_compiler_flags.
+
+lardataalg builds with DIAGS CAUTIOUS + WERROR. Under GCC 14 / C++20 (the conda
+art-stack standard, vs upstream's C++17 default) the stricter diagnostics in the
+DetectorInfo/Utilities headers get promoted to hard errors. CXXFLAGS can't demote
+cetmodules' add_compile_options(-Werror) (it lands after $CXXFLAGS), so drop the
+WERROR keyword. See conda/potential_improvements.md (#2).
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -15,7 +15,6 @@
+ cet_cmake_env()
+
+ cet_set_compiler_flags(DIAGS CAUTIOUS
+-  WERROR
+   NO_UNDEFINED
+   EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs
+ )

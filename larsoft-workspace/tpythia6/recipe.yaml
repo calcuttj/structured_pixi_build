@@ -1,0 +1,70 @@
+# rattler-build recipe (v1 / CEP-13 format) for tpythia6 -> libEGPythia6.
+#
+# ROOT's TPythia6 interface (the EGPythia6 library) was REMOVED from ROOT after
+# 6.28 (gone in 6.34 / 6.36), so conda-forge root_base 6.36 ships no
+# libEGPythia6. GENIE and NuSoftHEP nugen still link `ROOT::EGPythia6`. Rather
+# than rebuild a custom pythia6-enabled root_base (which would cascade a full
+# stack rebuild via root_base's run_export), we rebuild just the TPythia6
+# classes from ROOT v6-28-12 against our conda ROOT 6.36 + pythia6 -- the same
+# approach as the (now-unavailable) ShipSoft/TPythia6 repo and FNAL's tpythia6
+# spack package. The TPythia6 sources are vendored under src/ + inc/.
+#
+# Installs libEGPythia6 (+ ROOT dict pcm/rootmap), headers, and a
+# tpythia6Config.cmake that defines the imported target ROOT::EGPythia6 for the
+# GENIE-chain consumers.
+
+context:
+  # extracted from ROOT v6-28-12 (last release carrying montecarlo/pythia6)
+  version: "6.28.12"
+
+package:
+  name: tpythia6
+  version: ${{ version }}
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - root_base
+    - root_cxx_standard ==20      # match the boost-1.90 art/larsoft stack
+    - pythia6                      # Pythia6::Pythia6 (fortran entry points)
+    - nufinder                     # FindPythia6.cmake (PYTHIA_INC contract)
+  run_exports:
+    - ${{ pin_subpackage('tpythia6', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - EGPythia6
+      include:
+        - TPythia6.h
+      files:
+        - lib/libEGPythia6_rdict.pcm
+        - lib/libEGPythia6.rootmap
+        - lib/cmake/tpythia6/tpythia6Config.cmake
+
+about:
+  homepage: https://root.cern/
+  repository: https://github.com/root-project/root
+  # TPythia6 sources are from the ROOT distribution (montecarlo/pythia6).
+  license: LGPL-2.1-or-later
+  license_family: LGPL
+  summary: tpythia6 -- ROOT's TPythia6 interface (libEGPythia6) rebuilt for ROOT 6.36
+  description: |
+    Standalone rebuild of ROOT's TPythia6 / TPythia6Decayer / TMCParticle
+    classes (the EGPythia6 library), extracted from ROOT v6-28-12 because the
+    montecarlo/pythia6 module was removed from ROOT after 6.28. Compiled against
+    conda ROOT 6.36 and pythia6 so GENIE and NuSoftHEP nugen can resolve the
+    ROOT::EGPythia6 target without a pythia6-enabled ROOT build.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

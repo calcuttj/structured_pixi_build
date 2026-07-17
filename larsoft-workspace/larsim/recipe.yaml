@@ -1,0 +1,107 @@
+# rattler-build recipe (v1 / CEP-13 format) for larsim.
+#
+# larsim is the LArSoft detector-simulation layer (LArG4, PhotonPropagation,
+# ElectronDrift, MARLEY/GENIE/CRY generator interfaces, ...). Its top-level
+# CMakeLists hard-REQUIREs the full generator/externals set with NO _FOUND
+# gating, so it gates on the whole genie chain + marley + cry + nugen + nutools +
+# ppfx (all now green) plus geant4. Built against our art 3.15.0 / boost-1.90
+# stack. The major trunk milestone of the sim/reco layer.
+
+context:
+  # LArSoft pads the major: tag v10_20_03
+  version: "10.20.3"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larsim
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larsim/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: e05b87aa292120cba75f4102ccac8e052db87158421ef4cf8a27434f290bc48a
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - ifbeam   # + transitive run_export closure (pixi-build workspace)
+    - ifdh_art
+    - ifdhc_config
+    - larvecutils
+    - libwda
+    - nucondb
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    # art suite
+    - art
+    - art_root_io
+    - artg4tk
+    # nu* layer
+    - nug4
+    - nugen
+    - nurandom
+    - nufinder
+    - nusimdata
+    - nutools
+    - dk2nugenie
+    - dk2nudata
+    - ppfx
+    # generators / externals
+    - cry
+    - genie
+    - marley
+    - tpythia6
+    - pythia6
+    - lhapdf
+    - libblas
+    - libxml2
+    - ifdhc
+    - log4cpp
+    - libsqlite
+    # lar object/algorithm layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+  run_exports:
+    - ${{ pin_subpackage('larsim', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larsim/cmake/larsimConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larsim
+  repository: https://github.com/LArSoft/larsim
+  license: Apache-2.0
+  summary: larsim -- LArSoft liquid-argon TPC detector simulation
+  description: |
+    larsim is the LArSoft simulation layer: Geant4-based particle transport
+    (LArG4), photon propagation, electron drift, and the neutrino/cosmic
+    generator interfaces (GENIE via nugen, MARLEY, CRY). Built against the art
+    suite, geant4, and the full genie generator chain. The central milestone of
+    the LArSoft sim/reco layer.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

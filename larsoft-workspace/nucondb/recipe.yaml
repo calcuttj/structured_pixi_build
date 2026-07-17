@@ -1,0 +1,59 @@
+# rattler-build recipe (v1 / CEP-13 format) for nucondb.
+#
+# nucondb is FNAL's conditions-database client (fnal-fife/nucondb): libnucondb,
+# built on ifdhc + ifbeam + libwda. It is the direct dependency of ifdh_art
+# (-> NuSoftHEP nugen -> larsim). Absent from conda-forge. Mirrors the FNAL
+# spack nucondb package: small Makefile build in src/ with a catch-by-reference
+# patch.
+
+context:
+  version: "2.6.3"
+  v_under: ${{ version | replace(".", "_") }}
+
+package:
+  name: nucondb
+  version: ${{ version }}
+
+source:
+  url: https://github.com/fnal-fife/nucondb/archive/refs/tags/v${{ v_under }}.tar.gz
+  sha256: 0b664a07b67f72bea2d7c2648553a32e4479b6044b447b720039e64c01a9b8d7
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+  host:
+    - ifdhc_config   # + transitive run_export closure (pixi-build workspace)
+    - ifdhc
+    - ifbeam
+    - libwda
+    - libcurl
+  run_exports:
+    - ${{ pin_subpackage('nucondb', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/libnucondb.so
+        - include/nucondb.h
+
+about:
+  homepage: https://github.com/fnal-fife/nucondb
+  repository: https://github.com/fnal-fife/nucondb
+  license: Apache-2.0
+  summary: nucondb -- Fermilab conditions-database client
+  description: |
+    nucondb is the Fermilab conditions-database client library, built on ifdhc,
+    ifbeam and libwda. It is the direct dependency of ifdh_art and is required
+    transitively by NuSoftHEP nugen and larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,9 @@
+[package]
+name = "ifdhc_config"
+version = "2.8.1"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]

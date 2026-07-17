@@ -1,0 +1,32 @@
+Drop -Werror from cet_set_compiler_flags and guard the test subdir.
+
+Two tests-off / GCC-14-C++20 fixes for the conda build:
+1. larcore builds DIAGS CAUTIOUS + WERROR; under GCC 14 / C++20 (our art-stack
+   standard, vs upstream's C++17 default) the stricter diagnostics get promoted to
+   hard errors. CXXFLAGS can't demote cetmodules' add_compile_options(-Werror), so
+   drop the WERROR keyword. See conda/potential_improvements.md (#2).
+2. test/Geometry/CMakeLists.txt calls cet_test_env() referencing
+   ${larcorealg_BINARY_DIR} (a source-tree path that does not exist when larcorealg
+   is an installed package rather than an in-tree subdirectory). With
+   -DBUILD_TESTING=OFF (the packaging default) the tests are not built anyway, so
+   only descend into test/ when BUILD_TESTING is ON.
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -17,7 +17,6 @@
+ cet_cmake_env()
+
+ cet_set_compiler_flags(DIAGS CAUTIOUS
+-  WERROR
+   NO_UNDEFINED
+   EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs
+ )
+@@ -43,7 +42,9 @@
+ add_subdirectory(larcore)
+
+ # tests
+-add_subdirectory(test)
++if(BUILD_TESTING)
++  add_subdirectory(test)
++endif()
+
+ # ups - table and config files

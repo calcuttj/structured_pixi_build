@@ -1,0 +1,71 @@
+# rattler-build recipe (v1 / CEP-13 format) for ppfx.
+#
+# ppfx ("Package to predict the FluX", NuSoftHEP ppfxv2) reweights NuMI neutrino
+# flux predictions. A hard dependency of larsim. cetmodules build. Despite the
+# FNAL spack recipe's long depends_on list (genie/cry/ifdh/pythia6/...), the
+# v02_20_08 source actually links only dk2nu::Tree + ROOT(EG,Tree) + Boost
+# filesystem (verified: src/CMakeLists.txt + the only external #includes are
+# dk2nu/tree headers), so those extra deps are vestigial and omitted.
+#
+# Mirrors the spack ppfx package (cetmodules, -Dppfx_FW_DIR=fw); WERROR dropped.
+
+context:
+  # ppfxv2 pads the major in its tag: v02_20_08
+  version: "2.20.8"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: ppfx
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/ppfxv2/archive/${{ tag }}.tar.gz
+  sha256: 48a1fec09fdee0bfda32245be433240c741e3da323f9cd481eb8d0c9195b1d6f
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - nufinder
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel                  # artConfig find_dependency(TBB)
+    - range-v3                   # artConfig find_dependency(Range-v3)
+    - libboost-devel             # Boost headers + filesystem
+    - art
+    - dk2nudata
+    - libwda
+  run_exports:
+    - ${{ pin_subpackage('ppfx', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - ppfx
+      files:
+        - lib/ppfx/cmake/ppfxConfig.cmake
+
+about:
+  homepage: https://github.com/NuSoftHEP/ppfxv2
+  repository: https://github.com/NuSoftHEP/ppfxv2
+  license: Apache-2.0
+  summary: ppfx -- Package to predict the (NuMI neutrino) flux
+  description: |
+    ppfx reweights NuMI neutrino-flux predictions using hadron-production data.
+    Built as an art/cetmodules library (libppfx) linking the dk2nu flux ntuple
+    classes and ROOT. A hard dependency of larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

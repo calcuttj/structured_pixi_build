@@ -1,0 +1,19 @@
+[package]
+name = "dk2nugenie"
+version = "1.11.0"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]
+
+# Inter-member SOURCE deps = transitive sibling closure (a sibling's
+# run_export pins propagate into this build's host env); binary deps
+# (cetmodules, root_base, geant4, ...) stay in recipe.yaml only.
+[package.host-dependencies]
+dk2nudata = { path = "../dk2nudata" }
+genie = { path = "../genie" }
+nufinder = { path = "../nufinder" }
+pythia6 = { path = "../pythia6" }
+tpythia6 = { path = "../tpythia6" }

@@ -1,0 +1,56 @@
+# rattler-build recipe (v1 / CEP-13 format) for CRY 1.7.
+#
+# CRY is the LLNL cosmic-ray shower generator (muons/neutrons/protons/e/gamma/pi
+# at sea level / 2100m / 11300m). Self-contained C++ Makefile build, no external
+# library deps. Required by NuSoftHEP nutools and by ppfx, and transitively by
+# larsim. Absent from conda-forge. Mirrors the FNAL spack cry package: applies
+# cry_v1.7.patch (overridable CXX + builds libCRY.so) and installs the source
+# tree (CRYHOME layout: lib/ + data/ + src/ + setup scripts).
+
+context:
+  version: "1.7"
+
+package:
+  name: cry
+  version: ${{ version }}
+
+source:
+  url: https://nuclear.llnl.gov/simulation/cry_v${{ version }}.tar.gz
+  sha256: dcee2428f81cba113f82e0c7c42f4d85bff4b8530e5ab5c82c059bed3e570c20
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+  run_exports:
+    - ${{ pin_subpackage('cry', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/libCRY.so
+        - lib/libCRY.a
+        - data/cosmics_0.data
+
+about:
+  homepage: https://nuclear.llnl.gov/simulation/
+  repository: https://nuclear.llnl.gov/simulation/
+  license: LicenseRef-CRY-LLNL
+  summary: cry -- LLNL cosmic-ray shower generator
+  description: |
+    CRY generates correlated cosmic-ray particle showers (muons, neutrons,
+    protons, electrons, photons, pions) at sea level, 2100 m and 11300 m, for
+    use as input to transport and detector simulations. Self-contained C++
+    library (libCRY); consumers use the CRYHOME / CRY_LIB / CRYDATAPATH
+    environment variables. Required by NuSoftHEP nutools and by ppfx.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

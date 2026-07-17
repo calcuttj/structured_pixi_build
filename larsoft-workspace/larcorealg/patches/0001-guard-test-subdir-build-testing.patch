@@ -1,0 +1,24 @@
+Guard add_subdirectory(test) behind if(BUILD_TESTING).
+
+test/Geometry/CMakeLists.txt calls set_property(TEST <names> ...) at top level,
+but those tests are only registered by cet_test() when BUILD_TESTING is ON. With
+-DBUILD_TESTING=OFF (the packaging default), cet_test() no-ops, so the tests do
+not exist and set_property() hard-fails at configure time:
+
+  CMake Error at test/Geometry/CMakeLists.txt:177 (set_property):
+    set_property given TEST names that do not exist: geometry_test ...
+
+Only descend into test/ when BUILD_TESTING is ON. Upstream-worthy: a tests-off
+configure should not fail. See conda/potential_improvements.md.
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -43,6 +43,8 @@ add_subdirectory(larcorealg)
+ add_subdirectory(larcorealg)
+
+ # tests
+-add_subdirectory(test)
++if(BUILD_TESTING)
++  add_subdirectory(test)
++endif()
+
+ # ups - table and config files

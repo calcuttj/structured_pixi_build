@@ -1,0 +1,42 @@
+[workspace]
+authors = ["Jacob Calcutt <jcalcutt@bnl.gov>"]
+channels = ["conda-forge"]
+name = "art_workspace"
+platforms = ["linux-64"]
+version = "0.1.0"
+preview = ["pixi-build"]
+
+# Central variant pins for the whole art stack. The pixi-build-rattler-build
+# backend IGNORES each recipe's adjacent conda_build_config.yaml, so every pin
+# (toolchain + CF-migration drift guards) has to live here to reach the render.
+[workspace.build-variants]
+c_stdlib = ["sysroot"]
+c_stdlib_version = ["2.17"]
+# boost pinned to CF's active libboost190 migration value (matches conda-forge
+# geant4's libboost-python <1.91) — the same override as build-config/art-stack-boost190.yaml.
+libboost_devel = ["1.90"]
+libboost_headers = ["1.90"]
+libboost_python_devel = ["1.90"]
+# ROOT: canvas_root_io/art_root_io use root_base 6.36.* + a bare root_cxx_standard
+# (the two are zip_keys in CF pinning). The backend does NOT load CF pinning, so
+# pin BOTH to single values here — one combo, so no zip_keys entry is needed.
+root_base = ["6.36.6"]
+root_cxx_standard = ["20"]
+# NOTE: pinning icu/libxml2 here is a NO-OP for the art stack — they aren't direct deps
+# of any art recipe (they arrive transitively via root_base), so a build-variants pin
+# doesn't change any variant hash. This stack resolves icu 78 / libxml2 2.15 (current CF).
+
+[tasks]
+
+# Whole art stack, dependency order. `pixi install` builds every member from source
+# (in path-dep order) into the default env. Workspace-only: no root [package].
+[dependencies]
+cetlib_except = { path = "cetlib_except" }
+cetlib = { path = "cetlib" }
+hep_concurrency = { path = "hep_concurrency" }
+fhiclcpp = { path = "fhiclcpp" }
+messagefacility = { path = "messagefacility" }
+canvas = { path = "canvas" }
+canvas_root_io = { path = "canvas_root_io" }
+art = { path = "art" }
+art_root_io = { path = "art_root_io" }

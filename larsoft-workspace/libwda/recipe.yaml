@@ -1,0 +1,65 @@
+# rattler-build recipe (v1 / CEP-13 format) for libwda.
+#
+# libwda is Fermilab's "Web Data Access" C library (github.com/fnal-fife/libwda):
+# a small libcurl-based client (wda.h + ifbeam_c.h) used by the IFBeam/IFDH data
+# services. Plain Makefile build (no cetmodules). Required by nuevdb's IFDatabase
+# (find_package(libwda) -> wda::wda, via cetmodules' Findlibwda + $LIBWDA_INC) and
+# downstream by ifdh_art. Not on conda-forge; spack recipe lives in
+# FNALssi/fnal_art (spack_repo/fnal_art/packages/libwda).
+
+context:
+  # fnal-fife tags do NOT pad any component: 2.30.0 -> v2_30_0.
+  version: "2.30.0"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ parts[1] ~ "_" ~ parts[2] }}
+
+package:
+  name: libwda
+  version: ${{ version }}
+
+source:
+  url: https://github.com/fnal-fife/libwda/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: ace33ae85cd418d37ad882ab38a0ce76397a65ae6f9a5d229707a06e62bf5204
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+  host:
+    - libcurl                    # links -lcurl
+    - openssl                    # -lcrypto (lib) / -lssl (test)
+    - zlib                       # libcurl transitive link
+  run:
+  run_exports:
+    - ${{ pin_subpackage('libwda', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - wda                    # libwda.so* (find_library NAMES wda)
+      include:
+        - wda.h
+        - ifbeam_c.h
+
+about:
+  homepage: https://github.com/fnal-fife/libwda
+  repository: https://github.com/fnal-fife/libwda
+  # Upstream ships no LICENSE file; Fermilab software. Placeholder — confirm SPDX.
+  license: LicenseRef-Fermilab
+  summary: libwda -- Fermilab Web Data Access C library
+  description: |
+    libwda is Fermilab's Web Data Access library: a small libcurl-based C client
+    (wda.h, ifbeam_c.h) used by the IFBeam and IFDH data-handling services. Plain
+    Makefile build producing libwda.so. Consumed by nuevdb (IFDatabase) and the
+    ifdh_art stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

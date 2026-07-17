@@ -1,0 +1,110 @@
+# rattler-build recipe (v1 / CEP-13 format) for larpandora.
+#
+# larpandora is the LArSoft art interface to the PandoraPFA reconstruction
+# (LArPandoraInterface): art modules/services that drive larpandoracontent's
+# LArTPC pattern recognition. Trunk step above larreco + larpandoracontent.
+# LibTorch-aware DL algorithms are gated on Torch_FOUND (off here, matching our
+# Torch-off larpandoracontent core build). Built against our art/boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v10_03_00
+  version: "10.3.0"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larpandora
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larpandora/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: acce6a3c12734ad25410cbdd1db639e81088df47a5ad1eb3227531b56ab74a2a
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - genie
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - larvecutils
+    - libwda
+    - marley
+    - nucondb
+    - nufinder
+    - nug4
+    - nugen
+    - nurandom
+    - nutools
+    - ppfx
+    - pythia6
+    - rstartree
+    - tpythia6
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    - eigen
+    # libtorch ON (CPU) -> LARPANDORA_LIBTORCH; links larpandoracontent's
+    # LArPandoraDLContent. Force CPU variant (CUDA TorchConfig needs nvcc).
+    - libtorch * cpu*
+    # pandora externals + content
+    - pandorasdk
+    - pandoramonitoring
+    - larpandoracontent
+    # art suite
+    - art
+    - art_root_io
+    # nu* layer
+    - nusimdata
+    # lar object/algorithm/sim/reco layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larsim
+    - larreco
+  run_exports:
+    - ${{ pin_subpackage('larpandora', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larpandora/cmake/larpandoraConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larpandora
+  repository: https://github.com/LArSoft/larpandora
+  license: Apache-2.0
+  summary: larpandora -- LArSoft art interface to the PandoraPFA reconstruction
+  description: |
+    larpandora provides the LArSoft art modules and services (LArPandoraInterface)
+    that run the PandoraPFA multi-algorithm pattern recognition (via
+    larpandoracontent) on liquid-argon TPC data. Trunk step above larreco and
+    larpandoracontent.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

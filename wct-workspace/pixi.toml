@@ -1,0 +1,35 @@
+[workspace]
+authors = ["Jacob Calcutt <jcalcutt@bnl.gov>"]
+channels = ["conda-forge"]
+name = "wct_workspace"
+platforms = ["linux-64"]
+version = "0.1.0"
+preview = ["pixi-build"]
+
+# Central variant pins (the pixi-build-rattler-build backend ignores each recipe's
+# conda_build_config.yaml, so every pin lives here). Matches art_workspace so WCT is
+# co-installable with the art stack.
+[workspace.build-variants]
+c_stdlib = ["sysroot"]
+c_stdlib_version = ["2.17"]
+libboost_devel = ["1.90"]
+libboost_headers = ["1.90"]
+libboost_python_devel = ["1.90"]
+# ROOT: recipe now deps root_base 6.36.* (was the `root` metapackage); single-valued
+# root_base + root_cxx_standard = one combo, so no zip_keys entry needed.
+root_base = ["6.36.6"]
+root_cxx_standard = ["20"]
+# hdf5 1.14 + python 3.13 to match the larsoft/geant4-gated stack (current CF drifted
+# hdf5->2.x and root_base->py3.14; larsoft needs hdf5 1.14 + geant4 caps python<=3.13).
+hdf5 = ["1.14"]
+python = ["3.13"]
+# WCT optional-feature toggles (were in the removed variants.yaml). Referenced in the
+# recipe's `if:` conditionals + exported to build.sh as env vars. Fully-featured CPU build.
+wct_with_root = ["true"]
+wct_with_libtorch = ["true"]
+wct_with_cuda = ["false"]
+
+[tasks]
+
+[dependencies]
+wire-cell-toolkit = { path = "wire-cell-toolkit" }

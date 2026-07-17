@@ -1,0 +1,62 @@
+# rattler-build recipe (v1 / CEP-13 format) for MARLEY 1.2.1.
+#
+# MARLEY (Model of Argon Reaction Low Energy Yields) simulates tens-of-MeV
+# neutrino-nucleus interactions. A hard dependency of larsim
+# (find_package(MARLEY REQUIRED)). Makefile build (in build/), produces
+# libMARLEY + a ROOT interface lib (libMARLEY_ROOT) + the marley CLI and its
+# reaction/structure data. Absent from conda-forge. Mirrors the FNAL spack
+# marley package (marley-1.2.1.patch fixes the install layout / drops ldconfig).
+
+context:
+  version: "1.2.1"
+
+package:
+  name: marley
+  version: ${{ version }}
+
+source:
+  url: https://github.com/MARLEY-MC/marley/archive/refs/tags/v${{ version }}.tar.gz
+  sha256: 75e8e4acbbcf7ad9de0ef629ac9e8764ebf90fda2242ff5e6e590e77f9df6972
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+  host:
+    - root_base
+    - root_cxx_standard ==20
+    - gsl
+  run_exports:
+    - ${{ pin_subpackage('marley', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      bin:
+        - marley
+      files:
+        - lib/libMARLEY.so
+        - lib/libMARLEY_ROOT.so
+
+about:
+  homepage: https://www.marleygen.org/
+  repository: https://github.com/MARLEY-MC/marley
+  license: GPL-3.0-or-later
+  license_family: GPL
+  summary: MARLEY -- Model of Argon Reaction Low Energy Yields (neutrino-nucleus MC)
+  description: |
+    MARLEY simulates tens-of-MeV neutrino-nucleus interactions (notably
+    charged-current scattering on argon-40), producing final-state particles and
+    de-excitation gammas. Provides libMARLEY, a ROOT interface library
+    (libMARLEY_ROOT), the marley CLI and reaction/structure data. A hard
+    dependency of larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

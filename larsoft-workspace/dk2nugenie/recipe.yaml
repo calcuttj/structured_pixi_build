@@ -1,0 +1,78 @@
+# rattler-build recipe (v1 / CEP-13 format) for dk2nugenie.
+#
+# dk2nugenie is the GENIE flux-driver half of NuSoftHEP/dk2nu (the same source
+# tarball as dk2nudata, built with GENIE_ONLY=True so only the genie/ subdir is
+# built and it links the prebuilt dk2nudata). It consolidates neutrino-beam
+# "flux" file formats for GENIE; required (hard) by nugen and transitively by
+# larsim. Legacy non-cetmodules ROOT/CMake project (cmake_minimum_required 2.6).
+#
+# Mirrors the NuSoftHEP spack dk2nugenie recipe, adapted for v01_11_00 (newer
+# than spack's pinned 01.10.01 -- the modern genie/CMakeLists.txt already has
+# the GENIE-3.x layout, so spack's dk2nu.patch is unneeded; see build.sh). Built
+# against our genie 3.04.00 + dk2nudata 1.11.0.
+
+context:
+  # dk2nu (HepForge origin) pads the major: tag v01_11_00 (same as dk2nudata).
+  version: "1.11.0"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: dk2nugenie
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/dk2nu/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 5b5f8993c230b10c2354fd428bfa51e1e7d2c8477a3ee0ecb0dd5d8bc3429dbe
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - nufinder   # + transitive run_export closure (pixi-build workspace)
+    - pythia6
+    - root_base
+    - root_cxx_standard ==20
+    - dk2nudata                  # the tree half (dk2nu::Tree); GENIE_ONLY links it
+    - genie                      # GFw* libs + flux driver headers
+    - tpythia6                   # genie's run-export pulls pythia6/tpythia6
+    - log4cpp
+    - libxml2
+    - tbb-devel                  # libtbb.so for -DTBB_LIBRARY
+    - gsl
+    - lhapdf
+  run_exports:
+    - ${{ pin_subpackage('dk2nugenie', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - dk2nuGenie
+      files:
+        - lib/libdk2nuGenie_rdict.pcm
+        - lib/libdk2nuGenie.rootmap
+
+about:
+  homepage: https://github.com/NuSoftHEP/dk2nu
+  repository: https://github.com/NuSoftHEP/dk2nu
+  # upstream dk2nu ships no LICENSE file (HepForge origin); none vendored.
+  license: BSD-3-Clause
+  summary: dk2nugenie -- the GENIE flux-driver half of dk2nu (GDk2NuFlux)
+  description: |
+    dk2nugenie is the GENIE neutrino-beam flux driver built from the genie/ half
+    of NuSoftHEP/dk2nu (GDk2NuFlux + ROOT dictionary, library dk2nuGenie). Built
+    GENIE_ONLY against the prebuilt dk2nudata tree half and GENIE 3.04.00.
+    Required by NuSoftHEP nugen and (transitively) larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,60 @@
+# rattler-build recipe (v1 / CEP-13 format) for PandoraSDK.
+#
+# PandoraSDK is the core Software Development Kit of the PandoraPFA
+# multi-algorithm pattern-recognition framework (github.com/PandoraPFA). LArSoft
+# consumes it (via larpandoracontent -> larpandora) as part of the UPS `pandora`
+# product. The v05-00-00 release is a clean, self-contained, dependency-free
+# CMake package (project VERSION 05.00.00) that installs the
+# PandoraPFA::PandoraSDK target + a CMake config package, exactly what
+# larpandoracontent's find_package(PandoraSDK 05.00.00 CONFIG) expects. Not on
+# conda-forge, so we package it here. Built C++20 for ABI consistency with the
+# rest of the LArSoft/art stack.
+
+context:
+  version: "5.0.0"
+  tag: v05-00-00
+
+package:
+  name: pandorasdk
+  version: ${{ version }}
+
+source:
+  url: https://github.com/PandoraPFA/PandoraSDK/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: d4f57bd5d9aa8a2a588816fc1da2b78e0704405b48674ae18d597d99769c0142
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  run_exports:
+    - ${{ pin_subpackage('pandorasdk', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/cmake/PandoraSDK/PandoraSDKConfig.cmake
+        - lib/libPandoraSDK.so
+
+about:
+  homepage: https://github.com/PandoraPFA/PandoraSDK
+  repository: https://github.com/PandoraPFA/PandoraSDK
+  license: GPL-3.0-or-later
+  license_file: LICENSE
+  summary: PandoraSDK -- core SDK of the PandoraPFA pattern-recognition framework
+  description: |
+    The PandoraSDK provides the core APIs, managers and data structures of the
+    PandoraPFA multi-algorithm pattern-recognition framework. It is the
+    foundation that LArContent / larpandoracontent (and hence LArSoft's
+    larpandora) build upon.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

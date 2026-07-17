@@ -1,0 +1,91 @@
+# rattler-build recipe (v1 / CEP-13 format) for nugen.
+#
+# nugen (NuSoftHEP) provides the art generator interfaces to GENIE/GiBUU -- a
+# hard dependency of larsim. cetmodules build. Mirrors the NuSoftHEP spack nugen
+# package (which tops out at 1.21.02; we build the larsoft v10_21_01 target
+# 1.23.4 -- same build logic). Built against our art 3.15.0 stack + the full
+# genie chain (genie/dk2nugenie/ifdh_art/pythia6/tpythia6, all green).
+#
+# KEY (option-B EGPythia6 contract): nugen does
+# `find_package(ROOT COMPONENTS ... EGPythia6 ...)` and links ROOT::EGPythia6 in
+# 8 CMakeLists. conda ROOT 6.36 dropped the pythia6 module, so build.sh removes
+# EGPythia6 from the ROOT components and adds find_package(tpythia6) (our package
+# defines the ROOT::EGPythia6 imported target). See [[larsoft-pythia6-egpythia6]].
+
+context:
+  # NuSoftHEP does NOT pad the major: tag v1_23_04
+  version: "1.23.4"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: nugen
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/nugen/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: dd721be1ddfb679a263fb58501f02c218e6fcb996cea022b321339bcf0762e0c
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - ifbeam   # + transitive run_export closure (pixi-build workspace)
+    - ifdhc
+    - ifdhc_config
+    - libwda
+    - nucondb
+    - cetmodules <4.0a0
+    - nufinder                   # Find{GENIE,Pythia6,dk2nugenie,LHAPDF,log4cpp}
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel                  # artConfig find_dependency(TBB)
+    - range-v3                   # artConfig find_dependency(Range-v3)
+    - libboost-devel             # fhiclcpp boost headers
+    - art
+    - art_root_io
+    - nusimdata
+    - dk2nudata
+    - dk2nugenie
+    - ifdh_art
+    - genie
+    - tpythia6                   # ROOT::EGPythia6 shim
+    - pythia6
+    - clhep
+    - gsl
+    - libblas                    # find_package(BLAS)
+    - lhapdf
+    - log4cpp
+    - libxml2
+  run_exports:
+    - ${{ pin_subpackage('nugen', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/nugen/cmake/nugenConfig.cmake
+
+about:
+  homepage: https://github.com/NuSoftHEP/nugen
+  repository: https://github.com/NuSoftHEP/nugen
+  license: Apache-2.0
+  summary: nugen -- NuSoftHEP art generator interfaces for GENIE/GiBUU
+  description: |
+    nugen provides the art framework generator interfaces (EventGeneratorBase:
+    GENIE, GiBUU) plus the NuReweight tools. Built against GENIE 3.06.02, the
+    dk2nu flux drivers and the ifdh data-handling stack. A hard dependency of
+    larsim. Uses the standalone tpythia6 (libEGPythia6) for the ROOT::EGPythia6
+    target that ROOT 6.36 no longer provides.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,104 @@
+# rattler-build recipe (v1 / CEP-13 format) for lareventdisplay.
+#
+# lareventdisplay is the LArSoft event-display layer (built on nuevdb's
+# EventDisplayBase + larreco reco products). It builds a ROOT dictionary
+# (cet_rootcint over the EventDisplay GUI classes) that pulls in
+# fhiclcpp/ParameterSet.h -> coding.h, so it needs the same ROOT-6.36 rootcling
+# coding.h fix as nuevdb. One of the last two larsoft metapackage deps. Built
+# against our art/boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v10_01_05
+  version: "10.1.5"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: lareventdisplay
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/lareventdisplay/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 3fe3668ac4b6bcfc22ec8bd284a904ebb3af135c5b03ef270867f5844d29d629
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - genie
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - larvecutils
+    - libwda
+    - marley
+    - nucondb
+    - nufinder
+    - nug4
+    - nugen
+    - nurandom
+    - nutools
+    - ppfx
+    - pythia6
+    - rstartree
+    - tpythia6
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    - eigen
+    # art suite
+    - art
+    - art_root_io
+    # nu* layer
+    - nuevdb
+    - nusimdata
+    # lar object/algorithm/sim/reco layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larsim
+    - larreco
+  run_exports:
+    - ${{ pin_subpackage('lareventdisplay', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/lareventdisplay/cmake/lareventdisplayConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/lareventdisplay
+  repository: https://github.com/LArSoft/lareventdisplay
+  license: Apache-2.0
+  summary: lareventdisplay -- LArSoft event display
+  description: |
+    lareventdisplay provides LArSoft's interactive event display (built on
+    nuevdb's EventDisplayBase ROOT-GUI services and the larreco reconstruction
+    products). One of the final dependencies of the larsoft metapackage.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

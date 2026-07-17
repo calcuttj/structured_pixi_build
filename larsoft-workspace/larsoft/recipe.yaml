@@ -1,0 +1,146 @@
+# rattler-build recipe (v1 / CEP-13 format) for the larsoft metapackage.
+#
+# larsoft is the top-level LArSoft metapackage (LARSOFT_SUITE_v10_21_01): an
+# "empty product" whose CMake find_package()s the reco/display layer and whose
+# real purpose is to depend on the whole suite. Installing `larsoft` pulls every
+# component. This is the capstone of the LArSoft conda packaging effort — every
+# component below it is already GREEN.
+#
+# larsoft_data (v1_02_02) is a DATA-ONLY product (photon libraries etc.) with no
+# code and no conda package; it is intentionally omitted from the run deps here
+# (it is a runtime data download, not a build/library dependency).
+
+context:
+  # LArSoft pads the major: tag v10_21_01
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larsoft
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larsoft/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 4b1f42d61bfe732231011b1f5a784fe2d9148cff3e7b6b8c4e142ccbfc5f5f61
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - gallery
+    - genie
+    - hep_hpc
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larfinder
+    - larpandoracontent
+    - larsim
+    - larsimdnn
+    - larsimrad
+    - larsoftobj
+    - larvecutils
+    - larwirecell
+    - libwda
+    - marley
+    - nucondb
+    - nuevdb
+    - nufinder
+    - nug4
+    - nugen
+    - nurandom
+    - nusimdata
+    - nutools
+    - pandoramonitoring
+    - pandorasdk
+    - ppfx
+    - pythia6
+    - rstartree
+    - tpythia6
+    # larsoft's CMakeLists find_package()s these 6 (REQUIRED EXPORT); their
+    # run_exports pull the rest of the suite + externals (pandora, libtorch,
+    # hep_hpc, nuevdb, rstartree, ...) into the host env so the transitive
+    # find_dependency() chains resolve.
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    # build-time CMake-config providers the components' find_dependency() chains
+    # need (the components' run_exports pull the runtime libs, e.g. `tbb`, but
+    # not the -devel/-config packages, e.g. tbb-devel -> TBBConfig.cmake).
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    - eigen
+    - hdf5
+    # Force CPU libtorch: larpandora's run_export version-pins libtorch but not
+    # the build string, so the host would otherwise solve to a CUDA build whose
+    # TorchConfig runs enable_language(CUDA) and fails (find_dependency(Torch)).
+    - libtorch * cpu*
+    # the 6 find_package(... REQUIRED EXPORT)'d components (run_exports pull the
+    # rest of the suite + externals: pandora, libtorch, hep_hpc, nuevdb, ...)
+    - lareventdisplay
+    - larexamples
+    - larana
+    - larreco
+    - larrecodnn
+    - larpandora
+  run:
+    # The full suite (ups/product_deps), pinned by version range like larsoftobj
+    # (separate channel packages, not subpackages). larsoft_data omitted (data
+    # product, not packaged).
+    - larana >=10.2.5,<10.3.0a0
+    - lareventdisplay >=10.1.5,<10.2.0a0
+    - larexamples >=10.2.0,<10.3.0a0
+    - larpandora >=10.3.0,<10.4.0a0
+    - larrecodnn >=10.3.6,<10.4.0a0
+    - larsimdnn >=10.2.3,<10.3.0a0
+    - larsimrad >=10.1.4,<10.2.0a0
+    - larsoftobj >=10.6.1,<10.7.0a0
+    - larwirecell >=10.3.7,<10.4.0a0
+  run_exports:
+    - ${{ pin_subpackage('larsoft', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larsoft/cmake/larsoftConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larsoft
+  repository: https://github.com/LArSoft/larsoft
+  license: Apache-2.0
+  summary: larsoft -- the LArSoft suite metapackage (LARSOFT_SUITE_v10_21_01)
+  description: |
+    larsoft is the top-level metapackage for the LArSoft liquid-argon TPC
+    simulation and reconstruction suite. It depends on the full set of LArSoft
+    products (larana, lareventdisplay, larexamples, larpandora, larrecodnn,
+    larsimdnn, larsimrad, larsoftobj, larwirecell); installing it brings in the
+    entire suite. (larsoft_data, a runtime data product, is not packaged.)
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,29 @@
+Drop -Werror and guard the test subdir.
+
+1. artg4tk builds DIAGS CAUTIOUS + WERROR; under GCC 14 / C++20 (our art-stack
+   standard, vs upstream C++17) stricter diagnostics become hard errors.
+   CXXFLAGS can't demote cetmodules' add_compile_options(-Werror), so drop WERROR.
+2. add_subdirectory(test) -> guard behind BUILD_TESTING (tests off in packaging;
+   test/ pulls cet_test machinery we don't need).
+--- a/CMakeLists.txt	2024-11-13 12:06:36.000000000 -0800
++++ b/CMakeLists.txt	2026-06-29 14:55:26.803633681 -0700
+@@ -19,7 +19,7 @@
+ include(CetCMakeEnv)
+ cet_cmake_env()
+ 
+-cet_set_compiler_flags(DIAGS CAUTIOUS WERROR NO_UNDEFINED EXTRA_FLAGS -pedantic)
++cet_set_compiler_flags(DIAGS CAUTIOUS NO_UNDEFINED EXTRA_FLAGS -pedantic)
+ 
+ cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
+ 
+@@ -68,7 +68,9 @@
+ add_subdirectory(artg4tk)
+ add_subdirectory(examples)
+ add_subdirectory(fcl)
+-add_subdirectory(test)
++if(BUILD_TESTING)
++  add_subdirectory(test)
++endif()
+ 
+ # packaging utility
+ # this has to be last

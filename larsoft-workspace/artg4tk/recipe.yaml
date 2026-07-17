@@ -1,0 +1,92 @@
+# rattler-build recipe (v1 / CEP-13 format) for artg4tk.
+#
+# artg4tk (art-g4tk) is the art-framework Geant4 toolkit: it wraps Geant4 detector
+# simulation as art modules/services with ROOT-dictionary data products
+# (G4DetectorHits, EventGenerators, ...). It is a direct dependency of larg4.
+# Source repo is art-framework-suite/art-g4tk; the product is named artg4tk.
+# Not on conda-forge.
+
+context:
+  # art-suite tags do NOT pad the major (v13_01_01).
+  # NOTE: the LArSoft v10_21_01 release pins artg4tk v13_00_00, but that release
+  # targets Geant4 11.2; v13_00_00 fails to compile against conda-forge's Geant4
+  # 11.4.2 (removed/changed APIs in artg4tk/lists: G4AntiBarionBuilder::RegisterMe,
+  # ArParticleHPCaptureFS::Init, G4FTFPAntiBarionBuilder ctor). v13_01_01 is the
+  # upstream release that targets Geant4 11.4 (product_deps geant4 v4_11_4_p01a),
+  # so we use it (UPS versions are floors; this is the G4-11.4-compatible artg4tk).
+  version: "13.1.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: artg4tk
+  version: ${{ version }}
+
+source:
+  url: https://github.com/art-framework-suite/art-g4tk/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 9db3d36c55b70772510929eae8eeb66beb3e5cbf6ef57fff952169e5bd58e97c
+  patches:
+    # DIAGS CAUTIOUS + WERROR -> hard errors under GCC 14 / C++20; drop WERROR
+    # and guard the unconditional add_subdirectory(test) behind BUILD_TESTING.
+    - patches/0001-drop-werror-and-guard-tests.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - art_root_io                # find_package direct (local-channel)
+    - art                        # find_package direct
+    - canvas_root_io             # find_package direct
+    - canvas                     # find_package direct
+    - messagefacility            # find_package direct
+    - fhiclcpp                   # find_package direct
+    - cetlib                     # transitive find_dependency
+    - cetlib_except              # find_package direct
+    - clhep                      # find_package(CLHEP COMPONENTS Vector)
+    - geant4                     # find_package(Geant4 COMPONENTS gdml) (conda-forge)
+    - range-v3                   # find_package(Range-v3)
+    - libboost-devel             # Boost (spack dep; transitive headers)
+    - catch2
+    - libsqlite
+    - tbb-devel
+    # ROOT (Core Hist Tree) + art_dictionary:
+    - root_base
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('artg4tk', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - artg4tk_DataProducts_G4DetectorHits
+      include:
+        - artg4tk/DataProducts/G4DetectorHits/G4Interaction.hh
+      files:
+        - lib/artg4tk/cmake/artg4tkConfig.cmake
+
+about:
+  homepage: https://github.com/art-framework-suite/art-g4tk
+  repository: https://github.com/art-framework-suite/art-g4tk
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: artg4tk -- art-framework Geant4 detector-simulation toolkit
+  description: |
+    artg4tk wraps Geant4 detector simulation as art modules and services with
+    ROOT-dictionary data products (G4 detector hits, event generators, model
+    config). Built on the art/ROOT framework, Geant4 and CLHEP. It is a direct
+    dependency of LArSoft's larg4.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

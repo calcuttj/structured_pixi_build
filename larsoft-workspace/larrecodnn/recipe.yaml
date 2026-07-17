@@ -1,0 +1,110 @@
+# rattler-build recipe (v1 / CEP-13 format) for larrecodnn.
+#
+# larrecodnn is the LArSoft deep-learning reconstruction layer. Its always-built
+# content (ImagePatternAlgs core + ImageMaker) REQUIRES hep_hpc + HDF5; the ML
+# refinements are gated: if(TensorFlow_FOUND)->CVN, if(TritonClient_FOUND)->
+# NuSonic, if(Torch_FOUND)->NuGraph. Per project ML policy (TF/Triton OFF), and
+# because NuGraph additionally hard-requires TorchScatter::TorchScatter +
+# delaunator (a heavier libtorch sub-chain), this build is the CORE (all ML
+# extras off). larfinder supplies FindTensorFlow so the TF probe resolves.
+# Built against our art/boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v10_03_06
+  version: "10.3.6"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larrecodnn
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larrecodnn/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 884262f41fe2a7e13d54926d899e08790a7bd5aa96588417a0131c2bb0111878
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - genie
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - lardataalg
+    - larvecutils
+    - libwda
+    - marley
+    - nucondb
+    - nufinder
+    - nug4
+    - nugen
+    - nutools
+    - ppfx
+    - pythia6
+    - rstartree
+    - tpythia6
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    # DNN-area required externals
+    - hdf5
+    - hep_hpc
+    - larfinder
+    # art suite
+    - art
+    - art_root_io
+    # nu* layer
+    - nusimdata
+    - nurandom
+    # lar object/algorithm/sim/reco layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataobj
+    - larevt
+    - larsim
+    - larreco
+  run_exports:
+    - ${{ pin_subpackage('larrecodnn', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larrecodnn/cmake/larrecodnnConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larrecodnn
+  repository: https://github.com/LArSoft/larrecodnn
+  license: Apache-2.0
+  summary: larrecodnn -- LArSoft deep-learning reconstruction
+  description: |
+    larrecodnn provides LArSoft's deep-learning-based reconstruction modules
+    (image pattern algorithms, ImageMaker, and -- when the ML backends are
+    present -- CVN/Triton/NuGraph). This build provides the core (TensorFlow,
+    Triton and Torch/NuGraph extras disabled per the conda ML policy), requiring
+    hep_hpc + HDF5.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

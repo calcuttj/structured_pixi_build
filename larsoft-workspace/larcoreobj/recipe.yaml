@@ -1,0 +1,92 @@
+# rattler-build recipe (v1 / CEP-13 format) for larcoreobj.
+#
+# larcoreobj is the lowest-level LArSoft product: the core data objects and
+# simple types/constants (geo_types, PhysicalConstants, SummaryData: POTSummary,
+# RunData, GeometryConfigurationInfo) shared across the whole suite. It is the
+# leaf of the lar* dependency tree (depends only on the art ROOT-I/O stack), so
+# it is the first LArSoft package built and the template for the cetmodules
+# consumer pattern reused by every downstream lar* product.
+#
+# Built against our newer art stack (canvas_root_io 1.14.1 etc.); the release
+# targeted canvas_root_io 1.13.6 but UPS product_deps versions are floors.
+
+context:
+  # LArSoft tags zero-pad ALL fields including the major (v10_00_01, v09_04_03),
+  # unlike the art suite (v3_15_00). version is the no-leading-zeros SemVer source
+  # of truth; the UPS git tag is derived from it.
+  version: "10.0.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larcoreobj
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larcoreobj/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 8d3802fbffbf3552287b95133939b0c25ca127fff32b102dc3f608124f387491
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0          # build system (conda-forge; noarch)
+    - canvas_root_io             # find_package direct (local channel)
+    - canvas                     # find_package direct (local channel)
+    - fhiclcpp                   # find_package direct (local channel)
+    # transitive closure via canvas_root_io / canvas Configs:
+    - cetlib
+    - cetlib_except
+    - messagefacility
+    - clhep
+    - range-v3
+    - libboost-devel
+    - catch2
+    - libsqlite
+    - tbb-devel
+    # ROOT: GenVector component + dictionaries. root_base (not the `root`
+    # metapackage); root_cxx_standard matches ROOT's C++ std (both weak-run_export).
+    - root_base
+    - root_cxx_standard
+  run:
+    # Runtimes arrive via run_exports of the host packages.
+  run_exports:
+    - ${{ pin_subpackage('larcoreobj', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - larcoreobj_SummaryData
+      include:
+        - larcoreobj/SummaryData/POTSummary.h
+        - larcoreobj/SummaryData/RunData.h
+        - larcoreobj/SimpleTypesAndConstants/geo_types.h
+        - larcoreobj/SimpleTypesAndConstants/PhysicalConstants.h
+      files:
+        - lib/larcoreobj/cmake/larcoreobjConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larcoreobj
+  repository: https://github.com/LArSoft/larcoreobj
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: larcoreobj -- core LArSoft data objects and simple types/constants
+  description: |
+    larcoreobj is the lowest-level LArSoft product. It provides the simple types
+    and physical constants (geo_types, PhysicalConstants, RawTypes, readout
+    types) and the SummaryData data products (POTSummary, RunData,
+    GeometryConfigurationInfo) used throughout the LArSoft event-data model,
+    plus their ROOT dictionaries. Built on the art/canvas ROOT-I/O stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

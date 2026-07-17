@@ -1,0 +1,97 @@
+# rattler-build recipe (v1 / CEP-13 format) for larcorealg.
+#
+# larcorealg is the LArSoft core *algorithm* layer: the detector Geometry
+# description/service-independent geometry classes, GeoAlgo geometric primitives,
+# and CoreUtils. Sits just above larcoreobj. Generates ROOT dictionaries
+# (GeoAlgo) so it follows the ROOT-dictionary build pattern.
+#
+# Built against our newer art stack; release floor canvas_root_io 1.13.6 (we
+# supply 1.14.1) and cetmodules v3_27_04 (we use conda-forge 3.25, <4.0a0).
+
+context:
+  # LArSoft tags zero-pad all fields incl. major (v10_00_04). version is the
+  # no-leading-zeros SemVer source of truth; the UPS tag is derived.
+  version: "10.0.4"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larcorealg
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larcorealg/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: d62e0915652a5e7cc282cf80905b996b0f9255196d257efbd2516dd877e34269
+  patches:
+    # tests-off configure fix: test/Geometry/CMakeLists.txt calls
+    # set_property(TEST ...) on tests cet_test() only registers when
+    # BUILD_TESTING=ON, so -DBUILD_TESTING=OFF hard-fails. Guard the test subdir.
+    - patches/0001-guard-test-subdir-build-testing.patch
+    # C++20 std::ranges migration for Geometry/Iterable.h: range-v3's top-level
+    # `namespace ranges` is ambiguous with std::ranges under cling's implicit
+    # `using namespace std;`, breaking ROOT dictionary generation in downstream
+    # consumers (dunecore Geometry dict). Iterable.h only uses make_subrange ->
+    # std::ranges::subrange. See conda/RANGE_V3_CLING_DICT_CLASH.md.
+    - patches/0002-iterable-std-ranges-cxx20.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - larcoreobj                 # find_package direct (larsoft-output channel)
+    - canvas_root_io             # find_package direct
+    - canvas
+    - messagefacility
+    - fhiclcpp
+    - cetlib
+    - cetlib_except
+    - clhep                      # find_package(CLHEP COMPONENTS Geometry Vector)
+    - range-v3
+    - libboost-devel             # find_package(Boost unit_test_framework filesystem)
+    # transitive Config closure:
+    - catch2
+    - libsqlite
+    - tbb-devel
+    # ROOT (Core GenVector Geom MathCore Matrix Physics) + dictionaries:
+    - root_base
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('larcorealg', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - larcorealg_GeoAlgo
+        - larcorealg_CoreUtils
+      include:
+        - larcorealg/GeoAlgo/GeoAlgo.h
+        - larcorealg/Geometry/GeometryCore.h
+      files:
+        - lib/larcorealg/cmake/larcorealgConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larcorealg
+  repository: https://github.com/LArSoft/larcorealg
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: larcorealg -- LArSoft core geometry and algorithm libraries
+  description: |
+    larcorealg provides the LArSoft service-independent core algorithms: the
+    detector Geometry description and geometry-iteration classes, the GeoAlgo
+    geometric primitives/intersection library, and CoreUtils utilities. Built on
+    larcoreobj and the art/canvas ROOT-I/O stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

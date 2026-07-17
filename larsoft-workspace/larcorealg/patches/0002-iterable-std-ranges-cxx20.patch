@@ -1,0 +1,77 @@
+Use C++20 std::ranges::subrange instead of range-v3 make_subrange in Iterable.h.
+
+range-v3 predates C++20 and defines a top-level `namespace ranges`. Under C++20
+that clashes with std::ranges whenever `using namespace std;` is in scope -- which
+is what ROOT's cling does during dictionary generation. So any downstream ROOT
+dictionary whose header closure includes this file (e.g. dunecore's Geometry dict
+via WireReadoutGeom.h -> Iterable.h) fails to generate with:
+
+  error: reference to 'ranges' is ambiguous
+    candidate: 'ranges' (range-v3)   candidate: 'std::ranges'
+
+The only range-v3 facility used here is make_subrange, whose C++20 equivalent is
+std::ranges::subrange (the iterator/sentinel model these iterators already follow).
+Under C++20, include <ranges> and use std::ranges::subrange, keeping range-v3 out
+of the dictionary header closure entirely; pre-C++20 builds are unchanged.
+Upstream-worthy (LArSoft). See conda/RANGE_V3_CLING_DICT_CLASH.md.
+--- a/larcorealg/Geometry/Iterable.h
++++ b/larcorealg/Geometry/Iterable.h
+@@ -8,7 +8,19 @@
+ #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
+ 
+ // External libraries
+-#include "range/v3/view.hpp"
++// range-v3 predates C++20 std::ranges and defines a top-level `namespace ranges`.
++// Under C++20 that namespace is ambiguous with std::ranges whenever a `using
++// namespace std;` is in scope -- which is exactly what ROOT's cling does when it
++// generates dictionaries, so any downstream ROOT dictionary that pulls this header
++// (e.g. dunecore's Geometry dict via WireReadoutGeom.h) fails with "reference to
++// 'ranges' is ambiguous". The only range-v3 feature used here is make_subrange,
++// which is std::ranges::subrange in C++20, so prefer the standard facility and
++// don't drag range-v3 into the dictionary's header closure at all.
++#if __cplusplus >= 202002L
++#  include <ranges>
++#else
++#  include "range/v3/view.hpp"
++#endif
+ 
+ // C/C++ standard libraries
+ #include <type_traits>
+@@ -48,8 +60,20 @@
+         iterator_for(ID{}, std::declval<Policy>())));
+     };
+ 
++    // Bridge between range-v3's make_subrange and C++20 std::ranges::subrange so
++    // the two call sites below (and RangeType) are agnostic to which is in use.
++#if __cplusplus >= 202002L
+     template <typename Begin, typename End>
+-    using RangeType = decltype(ranges::make_subrange(std::declval<Begin>(), std::declval<End>()));
++    auto make_subrange(Begin begin, End end)
++    {
++      return std::ranges::subrange(begin, end);
++    }
++#else
++    using ranges::make_subrange;
++#endif
++
++    template <typename Begin, typename End>
++    using RangeType = decltype(make_subrange(std::declval<Begin>(), std::declval<End>()));
+   }
+ 
+   template <typename IterationPolicy, typename Transform = void_tag>
+@@ -120,13 +144,13 @@
+     template <typename T>
+     range_type<T> Iterate() const
+     {
+-      return ranges::make_subrange(begin<T>(), end<T>());
++      return details::make_subrange(begin<T>(), end<T>());
+     }
+ 
+     template <typename T, typename ID>
+     range_type<T> Iterate(ID const& id) const
+     {
+-      return ranges::make_subrange(begin<T>(id), end<T>(id));
++      return details::make_subrange(begin<T>(id), end<T>(id));
+     }
+ 
+   private:

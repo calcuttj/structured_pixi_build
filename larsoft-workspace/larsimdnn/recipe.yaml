@@ -1,0 +1,103 @@
+# rattler-build recipe (v1 / CEP-13 format) for larsimdnn.
+#
+# larsimdnn is the LArSoft deep-learning simulation layer (DNN photon
+# propagation, PDFastSimANN). Its entire PhotonPropagation content is gated on
+# TensorFlow_FOUND; per the conda ML policy TF is OFF, so this builds as a
+# headers/config package (still a valid dependency for the larsoft metapackage).
+# larfinder supplies FindTensorFlow so the QUIET probe resolves. Trunk step above
+# larsim. Built against our art/boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v10_02_03
+  version: "10.2.3"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larsimdnn
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larsimdnn/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 59d6ba33fa1b49596ff1052953231c93df35f395fda70a89b5ae8430661b7e1d
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - genie
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - larvecutils
+    - libwda
+    - marley
+    - nucondb
+    - nufinder
+    - nug4
+    - nugen
+    - nutools
+    - ppfx
+    - pythia6
+    - tpythia6
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    - eigen
+    - larfinder
+    # art suite
+    - art
+    - art_root_io
+    # nu* layer
+    - nurandom
+    - nusimdata
+    # lar object/algorithm/sim layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larsim
+  run_exports:
+    - ${{ pin_subpackage('larsimdnn', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larsimdnn/cmake/larsimdnnConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larsimdnn
+  repository: https://github.com/LArSoft/larsimdnn
+  license: Apache-2.0
+  summary: larsimdnn -- LArSoft deep-learning simulation (DNN photon propagation)
+  description: |
+    larsimdnn provides LArSoft's deep-learning simulation modules (DNN photon
+    propagation / PDFastSimANN). The TensorFlow-backed content is built only when
+    TensorFlow is available; under the conda ML policy (TF off) it installs as a
+    headers/config package. Trunk step above larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

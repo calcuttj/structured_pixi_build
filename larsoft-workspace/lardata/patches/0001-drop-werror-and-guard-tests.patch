@@ -1,0 +1,29 @@
+Drop -Werror from cet_set_compiler_flags and guard the test subdir.
+
+1. lardata builds DIAGS CAUTIOUS + WERROR; under GCC 14 / C++20 (our art-stack
+   standard, vs upstream's C++17 default) stricter diagnostics become hard errors.
+   CXXFLAGS can't demote cetmodules' add_compile_options(-Werror), so drop WERROR.
+2. add_subdirectory(test) → guard behind BUILD_TESTING: with -DBUILD_TESTING=OFF
+   (the packaging default) the tests are not built, and the test tree references
+   build-tree paths of sibling packages that don't exist for installed deps.
+See conda/potential_improvements.md (#2).
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -17,7 +17,6 @@
+ cet_cmake_env()
+
+ cet_set_compiler_flags(DIAGS CAUTIOUS
+-  WERROR
+   NO_UNDEFINED
+   EXTRA_FLAGS -pedantic
+ )
+@@ -54,7 +53,9 @@
+ add_subdirectory(lardata)
+
+ # tests
+-add_subdirectory(test)
++if(BUILD_TESTING)
++  add_subdirectory(test)
++endif()
+
+ # ups - table and config files

@@ -1,0 +1,63 @@
+# rattler-build recipe (v1 / CEP-13 format) for nufinder.
+#
+# nufinder is a tiny NuSoftHEP build-helper product: it ships a set of CMake
+# find-modules (FindGENIE, FindLHAPDF, FindCRY, FindPythia6/8, Finddk2nu*,
+# Findlog4cpp) used by nusimdata/nugen/nutools to locate non-cetmodules
+# externals. It has NO compiled code (project(... LANGUAGES NONE), ARCH_INDEPENDENT)
+# -> noarch package.
+
+context:
+  # NuSoftHEP tags pad minor/patch to 2 digits but NOT the major (v1_03_01, not
+  # v01_03_01) -- same convention as the art suite, UNLIKE LArSoft (v09_04_03).
+  # version is the no-leading-zeros SemVer source of truth; the UPS tag is derived.
+  version: "1.3.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: nufinder
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/nufinder/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 1abe55b4ed4a97539c4b5f0aad767028d7b09179aa986e1b0b08f4733e01b1b2
+
+build:
+  number: 0
+  noarch: generic
+  script: build.sh
+
+requirements:
+  build:
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+  run:
+    - cetmodules <4.0a0          # consumers find_package(nufinder) -> needs cetmodules
+  run_exports:
+    - ${{ pin_subpackage('nufinder', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/nufinder/cmake/nufinderConfig.cmake
+        - Modules/FindGENIE.cmake
+        - Modules/Findlog4cpp.cmake
+
+about:
+  homepage: https://github.com/NuSoftHEP/nufinder
+  repository: https://github.com/NuSoftHEP/nufinder
+  # NOTE: upstream nufinder ships no LICENSE file in its release tarball; the
+  # SPDX id is declared but no license text is vendored (NuSoftHEP = FNAL Apache-2.0).
+  license: Apache-2.0
+  summary: nufinder -- CMake find-modules for NuSoftHEP externals
+  description: |
+    nufinder is a build-only NuSoftHEP helper that installs CMake find-modules
+    (FindGENIE, FindLHAPDF, FindCRY, FindPythia6/8, Finddk2nudata,
+    Finddk2nugenie, Findlog4cpp) used by nusimdata, nugen and nutools to locate
+    HEP externals that are not cetmodules packages. Architecture-independent.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

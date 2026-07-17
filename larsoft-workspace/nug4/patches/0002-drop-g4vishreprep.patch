@@ -1,0 +1,16 @@
+Drop Geant4::G4visHepRep from the G4Base link list.
+
+HepRep visualization (G4visHepRep) was removed in Geant4 11.0; conda-forge
+ships Geant4 11.4.2 (the release floor was 11.2.2), so the target does not
+exist and cet_make_library's target_link_libraries fails. All other Geant4
+vis targets nug4 links (G4VRML, G4ToolsSG, G4vis_management, ...) remain.
+--- a/nug4/G4Base/CMakeLists.txt	2026-05-01 21:00:16.000000000 -0700
++++ b/nug4/G4Base/CMakeLists.txt	2026-06-29 14:55:26.799633617 -0700
+@@ -27,7 +27,6 @@
+                         Geant4::G4readout
+                         Geant4::G4run
+                         Geant4::G4tracking
+-                        Geant4::G4visHepRep
+                         Geant4::G4vis_management
+                         Geant4::G4ToolsSG
+                         XercesC::XercesC

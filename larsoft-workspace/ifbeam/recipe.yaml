@@ -1,0 +1,57 @@
+# rattler-build recipe (v1 / CEP-13 format) for ifbeam.
+#
+# ifbeam is FNAL's beam-conditions data client (fnal-fife/ifbeam): libifbeam,
+# built on ifdhc + libwda. Required (via nucondb / ifdh_art) by NuSoftHEP nugen
+# and larsim. Absent from conda-forge. Mirrors the FNAL spack ifbeam package:
+# small Makefile build in src/ with a catch-by-reference patch.
+
+context:
+  version: "2.6.3"
+  v_under: ${{ version | replace(".", "_") }}
+
+package:
+  name: ifbeam
+  version: ${{ version }}
+
+source:
+  url: https://github.com/fnal-fife/ifbeam/archive/refs/tags/v${{ v_under }}.tar.gz
+  sha256: 1a0d2cc50ef73d459b3d8e29e712606b9f5ef9c8e84dc06a50a809b1cc829128
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+  host:
+    - ifdhc_config   # + transitive run_export closure (pixi-build workspace)
+    - ifdhc
+    - libwda
+    - openssl
+  run_exports:
+    - ${{ pin_subpackage('ifbeam', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/libifbeam.so
+        - include/ifbeam.h
+
+about:
+  homepage: https://github.com/fnal-fife/ifbeam
+  repository: https://github.com/fnal-fife/ifbeam
+  license: Apache-2.0
+  summary: ifbeam -- Fermilab beam-conditions (IFBeam) data client
+  description: |
+    ifbeam is the Fermilab IFBeam database client library, built on the ifdhc
+    data-handling client and libwda. Used by nucondb and ifdh_art, and
+    transitively by NuSoftHEP nugen and larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

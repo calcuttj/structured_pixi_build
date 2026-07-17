@@ -1,0 +1,81 @@
+# rattler-build recipe (v1 / CEP-13 format) for gallery.
+#
+# gallery is the art-framework-suite lightweight, art-independent event-data
+# read API: it lets analysis code open and read art/ROOT files (Event,
+# ValidHandle, FindMaker, ...) without pulling in the full art framework. Built
+# on canvas + canvas_root_io. Not on conda-forge.
+
+context:
+  # art-suite tags do NOT pad the major (v1_22_06).
+  version: "1.22.6"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: gallery
+  version: ${{ version }}
+
+source:
+  url: https://github.com/art-framework-suite/gallery/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: d92203e49703e1c97acb9865e3d90c77045dbbf8f6dcedf76d1e68f9ee3bf719
+  patches:
+    # DIAGS VIGILANT + WERROR -> hard errors under GCC 14 / C++20; drop WERROR
+    # (CXXFLAGS can't demote cetmodules' add_compile_options(-Werror)).
+    - patches/0001-drop-werror.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - canvas_root_io             # find_package direct (local-channel)
+    - canvas                     # find_package direct
+    - messagefacility            # transitive find_dependency (canvas)
+    - fhiclcpp                   # transitive find_dependency
+    - cetlib                     # find_package direct
+    - cetlib_except              # transitive find_dependency
+    - clhep
+    - range-v3                   # find_package(Range-v3)
+    - libboost-devel
+    - catch2
+    - libsqlite
+    - tbb-devel
+    - root_base                  # ROOT (Core RIO Tree) + art_dictionary
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('gallery', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - gallery
+      include:
+        - gallery/Event.h
+      files:
+        - lib/gallery/cmake/galleryConfig.cmake
+
+about:
+  homepage: https://github.com/art-framework-suite/gallery
+  repository: https://github.com/art-framework-suite/gallery
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: gallery -- lightweight art/ROOT event-data read API
+  description: |
+    gallery provides lightweight access to event data in art/ROOT files without
+    the use of the art framework: Event, Handle/ValidHandle, FindMaker and the
+    associated data-getter machinery. Intended for analysis code and interactive
+    ROOT use. Built on canvas and canvas_root_io.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

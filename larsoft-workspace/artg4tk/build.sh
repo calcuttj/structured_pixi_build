@@ -1,0 +1,27 @@
+#!/bin/bash
+# artg4tk: art-framework Geant4 toolkit (cetmodules, art plugins + ROOT dicts).
+# ROOT-dictionary pattern: _CheckClassVersion off (PyROOT can't init in the
+# rattler-build sandbox; see conda/potential_improvements.md #8).
+set -euo pipefail
+
+mkdir -p build
+cd build
+
+cmake \
+  -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+  -DCMAKE_PREFIX_PATH="$PREFIX" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_STANDARD=20 \
+  -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+  -DBUILD_TESTING=OFF \
+  -DWANT_UPS:BOOL=OFF \
+  -DWITH_G4CXOPTICKS:BOOL=OFF \
+  -D_CheckClassVersion_ENABLED:BOOL=FALSE \
+  "$SRC_DIR"
+
+make -j"${CPU_COUNT:-1}" install
+
+# Strip stray prefix-root doc FILES only (guard [ -f ]; never ROOT's README dir).
+for f in INSTALL LICENSE README; do
+  if [ -f "$PREFIX/$f" ]; then rm -f "$PREFIX/$f"; fi
+done

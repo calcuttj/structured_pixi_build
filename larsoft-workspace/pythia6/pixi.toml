@@ -1,0 +1,9 @@
+[package]
+name = "pythia6"
+version = "6.4.28"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]

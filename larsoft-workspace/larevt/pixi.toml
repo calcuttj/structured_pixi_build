@@ -1,0 +1,25 @@
+[package]
+name = "larevt"
+version = "10.0.19"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh", "patches/**"]
+
+# Inter-member SOURCE deps = transitive sibling closure (a sibling's
+# run_export pins propagate into this build's host env); binary deps
+# (cetmodules, root_base, geant4, ...) stay in recipe.yaml only.
+[package.host-dependencies]
+dk2nudata = { path = "../dk2nudata" }
+larcore = { path = "../larcore" }
+larcorealg = { path = "../larcorealg" }
+larcoreobj = { path = "../larcoreobj" }
+lardata = { path = "../lardata" }
+lardataalg = { path = "../lardataalg" }
+lardataobj = { path = "../lardataobj" }
+larvecutils = { path = "../larvecutils" }
+libwda = { path = "../libwda" }
+nufinder = { path = "../nufinder" }
+nusimdata = { path = "../nusimdata" }

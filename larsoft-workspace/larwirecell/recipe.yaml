@@ -1,0 +1,112 @@
+# rattler-build recipe (v1 / CEP-13 format) for larwirecell.
+#
+# larwirecell is the LArSoft <-> Wire-Cell Toolkit (WCT) bridge: art modules,
+# services and tools (WCLS) that run WCT signal-processing / simulation graphs on
+# LArSoft data. Trunk step above larsim+larevt; the LAST direct dependency of the
+# larsoft metapackage. Needs the wire-cell-toolkit 0.37.0 conda package (built
+# from the staged-recipes wire-cell-toolkit branch). larwirecell ships its own
+# Modules/FindWireCell.cmake (locates the `wire-cell` executable via
+# $WIRECELL_FQ_DIR + libWireCell*.so + headers) and Find{,go}jsonnet.cmake. Built
+# against our art/boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v10_03_07
+  version: "10.3.7"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larwirecell
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larwirecell/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: a88073851e6c54ac6552e606f40073e0c55fda9d5cb5c1b63ae15d6029cd54d4
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - genie
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - larvecutils
+    - libwda
+    - marley
+    - nucondb
+    - nufinder
+    - nug4
+    - nugen
+    - nurandom
+    - nutools
+    - ppfx
+    - pythia6
+    - tpythia6
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    - eigen
+    - hdf5
+    # Wire-Cell Toolkit + its find-deps (FindWireCell validates these via
+    # find_package; also arrive via WCT run_exports, listed for safety)
+    - wire-cell-toolkit
+    - jsoncpp
+    - libjsonnet
+    - go-jsonnet
+    - spdlog
+    # art suite
+    - art
+    - art_root_io
+    # nu* layer
+    - nusimdata
+    # lar object/algorithm/sim/reco layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larsim
+  run_exports:
+    - ${{ pin_subpackage('larwirecell', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larwirecell/cmake/larwirecellConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larwirecell
+  repository: https://github.com/LArSoft/larwirecell
+  license: Apache-2.0
+  summary: larwirecell -- LArSoft interface to the Wire-Cell Toolkit
+  description: |
+    larwirecell provides the LArSoft art interface to the Wire-Cell Toolkit
+    (WCT): art modules, services and the WCLS tool that drive WCT signal
+    processing and simulation graphs on liquid-argon TPC data. The final direct
+    dependency of the larsoft metapackage.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

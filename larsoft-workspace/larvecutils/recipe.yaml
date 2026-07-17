@@ -1,0 +1,64 @@
+# rattler-build recipe (v1 / CEP-13 format) for larvecutils.
+#
+# larvecutils is a small LArSoft utility product: the MarqFitAlg
+# Levenberg-Marquardt fitting algorithm (OpenMP-accelerated). It depends only on
+# the cetmodules build system (no ROOT, no other lar* products), so it is a leaf
+# of the larsoftobj object/algorithm layer.
+
+context:
+  # LArSoft tags zero-pad all fields incl. major (v09_04_03). version is the
+  # no-leading-zeros SemVer source of truth; the UPS tag is derived.
+  version: "9.4.3"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larvecutils
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larvecutils/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: f419f2342366001ee1893ac216515ba0fe66d30fcee0194d5da1ee92b6d274f1
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0          # build system (conda-forge; noarch)
+    # MarqFitAlg uses OpenMP, provided by the conda compiler runtime (libgomp).
+  run:
+  run_exports:
+    - ${{ pin_subpackage('larvecutils', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - larvecutils_MarqFitAlg
+      include:
+        - larvecutils/MarqFitAlg/MarqFitAlg.h
+      files:
+        - lib/larvecutils/cmake/larvecutilsConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larvecutils
+  repository: https://github.com/LArSoft/larvecutils
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: larvecutils -- LArSoft vector/fitting utilities (MarqFitAlg)
+  description: |
+    larvecutils provides the MarqFitAlg Levenberg-Marquardt fitting algorithm
+    used by LArSoft signal-processing code, parallelized with OpenMP. It depends
+    only on the cetmodules build system.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

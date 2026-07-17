@@ -1,0 +1,84 @@
+# rattler-build recipe (v1 / CEP-13 format) for GENIE 3.06.02.
+#
+# GENIE is the neutrino-interaction event generator required (hard, no _FOUND
+# gating) by NuSoftHEP nugen and dk2nugenie, and transitively by larsim. It is a
+# perl-configure + GNU make project (NOT cmake/autoconf). Recipe mirrors the
+# FNAL fnal_art spack `genie` package for version 3.06.02 (the release nugen
+# v1_23_04 targets), with conda-specific deviations:
+#   * SKIP spack's root_subdir.patch -- conda root_base uses a flat lib/, so
+#     GENIE's stock $ROOTSYS/lib/libMathMore.so configure check is correct.
+#   * -lEGPythia6 (hardcoded in GENIE's Make.include ROOT_LIBRARIES) is supplied
+#     by our `tpythia6` package (ROOT removed the pythia6 module after 6.28).
+#   * pythia6 linked via --with-pythia6-lib=$PREFIX/lib (our `pythia6` package).
+#
+# Upstream officially supports ROOT 6.24-6.28; we build against conda ROOT 6.36
+# (cxx20) -- this recipe is the test of that version skew.
+
+context:
+  # nugen v1_23_04 (larsoft v10_21_01 target) needs Reweight R-1_04_02 (it has
+  # GReWeightNuXSecCCQEELFF.h), which pairs with genie 3.06.02 -- NOT 3.04.00.
+  version: "3.06.02"
+  v_under: ${{ version | replace(".", "_") }}
+
+package:
+  name: genie
+  version: ${{ version }}
+
+source:
+  - url: https://github.com/GENIE-MC/Generator/archive/R-${{ v_under }}.tar.gz
+    sha256: 5770346d888bbac7a80872e7aa01953437ab867e335e39cc7412c9b83a0b4e2a
+  # the Reweight half (--enable-rwght); GENIE 3.06 pairs with Reweight R-1_04_02
+  - url: https://github.com/GENIE-MC/Reweight/archive/R-1_04_02.tar.gz
+    sha256: d0d0ebcbb47936bd1b5f3efa07782589208e830ed019922a3daee267d781fa6a
+    target_directory: Reweight
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+    - perl                       # ./configure is a perl script
+  host:
+    - nufinder   # + transitive run_export closure (pixi-build workspace)
+    - root_base
+    - root_cxx_standard ==20     # match the boost-1.90 art/larsoft stack
+    - pythia6                    # -lPythia6 (--with-pythia6-lib)
+    - tpythia6                   # -lEGPythia6 (ROOT's removed TPythia6 interface)
+    - log4cpp
+    - libxml2
+    - gsl                        # GENIE uses GSL via ROOT MathMore
+    - lhapdf
+  run_exports:
+    - ${{ pin_subpackage('genie', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      bin:
+        - gevgen
+      files:
+        - lib/libGFwMsg.so
+        - VERSION
+
+about:
+  homepage: https://www.genie-mc.org
+  repository: https://github.com/GENIE-MC/Generator
+  license: GPL-3.0-or-later
+  license_family: GPL
+  summary: GENIE 3.06.02 -- neutrino Monte Carlo event generator
+  description: |
+    GENIE is the leading neutrino-interaction Monte Carlo generator. This
+    packages release R-3_06_02 (the version targeted by NuSoftHEP nugen
+    v1_23_04) plus the Reweight R-1_04_02 module (--enable-rwght), built against
+    conda ROOT 6.36 + pythia6 + the standalone tpythia6 (libEGPythia6) since
+    ROOT dropped its pythia6 interface after 6.28. Required by nugen,
+    dk2nugenie, ppfx and (transitively) larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

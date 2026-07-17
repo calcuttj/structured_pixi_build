@@ -1,0 +1,73 @@
+# rattler-build recipe (v1 / CEP-13 format) for larpandoracontent.
+#
+# larpandoracontent is the LArTPC-specific algorithm content of the PandoraPFA
+# pattern-recognition framework (LArSoft's fork of PandoraPFA/LArContent). It is
+# the immediate consumer of the pandora externals (pandorasdk +
+# pandoramonitoring) and feeds larpandora. Uses cetmodules. This build is the
+# CORE LArPandoraContent library (PANDORA_MONITORING on); the optional
+# libtorch-gated LArPandoraDLContent (find_package(Torch QUIET)) is added in a
+# follow-up once libtorch is wired in. Built against our art/boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v05_02_00
+  version: "5.2.0"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larpandoracontent
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larpandoracontent/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: f51999fcb9e04e58b6ee5a78f0b698b9979b6e52962c1699c70f46c82ed5d18c
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - eigen
+    - pandorasdk
+    - pandoramonitoring
+    # libtorch ON -> builds LArPandoraDLContent (find_package(Torch); +TBB).
+    # Force the CPU variant: the CUDA build's TorchConfig does enable_language(CUDA)
+    # (Caffe2/public/cuda.cmake) which fails with no CUDA toolkit. (CPU policy.)
+    - libtorch * cpu*
+    - tbb-devel
+  run_exports:
+    - ${{ pin_subpackage('larpandoracontent', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larpandoracontent/cmake/larpandoracontentConfig.cmake
+        - lib/libLArPandoraContent.so
+        # libtorch ON -> LArPandoraDLContent must be built (guards Torch_FOUND)
+        - lib/libLArPandoraDLContent.so
+
+about:
+  homepage: https://github.com/LArSoft/larpandoracontent
+  repository: https://github.com/LArSoft/larpandoracontent
+  license: GPL-3.0-or-later
+  summary: larpandoracontent -- LArTPC algorithm content for the PandoraPFA framework
+  description: |
+    larpandoracontent provides the liquid-argon TPC pattern-recognition
+    algorithms (clustering, 2D/3D reconstruction, vertexing, track/shower ID)
+    of the PandoraPFA framework, as packaged by LArSoft. It is consumed by
+    larpandora. Built on the pandora externals (pandorasdk + pandoramonitoring).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

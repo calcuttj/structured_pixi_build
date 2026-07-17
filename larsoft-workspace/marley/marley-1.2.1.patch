@@ -1,0 +1,31 @@
+diff -Naur marley-1.2.1/build/Makefile marley-1.2.1/build/Makefile
+--- marley-1.2.1/build/Makefile	2021-01-31 16:57:30.000000000 -0600
++++ marley-1.2.1/build/Makefile	2021-04-12 17:38:14.417212158 -0500
+@@ -333,17 +333,16 @@
+ install: marley
+ 	mkdir -p $(DESTDIR)$(bindir)
+ 	mkdir -p $(DESTDIR)$(libdir)
+-	mkdir -p $(DESTDIR)$(incdir)/marley
+-	mkdir -p $(DESTDIR)$(datadir)/marley
+-	cp marley $(MAYBE_MARSUM) $(DESTDIR)$(bindir)
++	mkdir -p $(DESTDIR)$(incdir)
++	mkdir -p $(DESTDIR)$(datadir)/marley/data
++	cp marley marley-config $(MAYBE_MARSUM) $(DESTDIR)$(bindir)
+ 	cp $(SHARED_LIB) $(DESTDIR)$(libdir)
+ 	cp $(ROOT_SHARED_LIB) $(DESTDIR)$(libdir) 2> /dev/null || true
+ 	cp marley_root_dict_rdict.pcm $(DESTDIR)$(libdir) 2> /dev/null || true
+-	cp -r ../react $(DESTDIR)$(datadir)/marley
+-	cp -r ../structure $(DESTDIR)$(datadir)/marley
++	cp -r ../data/react $(DESTDIR)$(datadir)/marley/data
++	cp -r ../data/structure $(DESTDIR)$(datadir)/marley/data
+ 	cp -r ../examples $(DESTDIR)$(datadir)/marley
+ 	cp -r ../include/marley $(DESTDIR)$(incdir)
+-	ldconfig
+ 
+ uninstall:
+ 	$(RM) $(DESTDIR)$(bindir)/marley
+@@ -354,4 +353,3 @@
+ 	$(RM) $(DESTDIR)$(libdir)/marley_root_dict_rdict.pcm
+ 	$(RM) -r $(DESTDIR)$(datadir)/marley
+ 	$(RM) -r $(DESTDIR)$(incdir)/marley
+-	ldconfig

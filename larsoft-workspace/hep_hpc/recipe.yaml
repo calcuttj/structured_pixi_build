@@ -1,0 +1,56 @@
+# rattler-build recipe (v1 / CEP-13 format) for hep_hpc.
+#
+# hep_hpc (art-framework-suite/hep-hpc) provides utilities for storing ntuples
+# in HDF5 files. LArSoft's larrecodnn REQUIRES it (find_package(hep_hpc REQUIRED)
+# for the always-built ImageMaker / ImagePatternAlgs content). Self-contained
+# CMake project (own CMakeModules; generates hep_hpcConfig.cmake) -- NOT
+# cetmodules. Not on conda-forge. Built C++20 for ABI consistency.
+
+context:
+  version: "0.15.0"
+  tag: v0_15_00
+
+package:
+  name: hep_hpc
+  version: ${{ version }}
+
+source:
+  url: https://github.com/art-framework-suite/hep-hpc/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 07edaf556311e0e39d7e17033b4bc9867bf81bb81720b6eefc2bdfaa9b591431
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - hdf5
+  run_exports:
+    - ${{ pin_subpackage('hep_hpc', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/hep_hpc/cmake/hep_hpcConfig.cmake
+        - lib/libhep_hpc_hdf5.so
+
+about:
+  homepage: https://github.com/art-framework-suite/hep-hpc
+  repository: https://github.com/art-framework-suite/hep-hpc
+  license: Apache-2.0
+  summary: hep_hpc -- utilities for storing ntuples in HDF5 files
+  description: |
+    hep_hpc provides C++ utilities (over HDF5) for storing ntuple-style data in
+    HDF5 files. It is a required dependency of LArSoft's larrecodnn ImageMaker /
+    ImagePatternAlgs content.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

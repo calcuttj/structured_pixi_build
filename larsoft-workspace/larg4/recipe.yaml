@@ -1,0 +1,102 @@
+# rattler-build recipe (v1 / CEP-13 format) for larg4.
+#
+# larg4 is the LArSoft Geant4 simulation layer: the larg4Main art producer, the
+# LArG4Detector service (Geant4 detector construction from GDML), sensitive
+# detectors (AuxDet/SimEnergyDeposit), particle/action plugins and analysis
+# checkers. Built on artg4tk + nug4 + the lar data/algorithm stack + Geant4.
+# First sim-trunk step above the object/algorithm layer; feeds larsim.
+
+context:
+  # LArSoft tags pad the major (v10_20_03).
+  version: "10.20.3"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larg4
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larg4/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 57e2e71569521497ea6da44c3d2186dd4c68a89f0d9c181be9afda873b1688f4
+  patches:
+    # drop WERROR (GCC 14 / C++20) + guard add_subdirectory(test) behind BUILD_TESTING.
+    # (Covers spack's -Wno-error=deprecated-declarations/class-memaccess: with WERROR
+    # gone there is no -Werror left to demote.)
+    - patches/0001-drop-werror-and-guard-tests.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - larcoreobj   # + transitive run_export closure (pixi-build workspace)
+    - larvecutils
+    - nufinder
+    - cetmodules <4.0a0
+    - larcore                    # find_package direct (larsoft-output)
+    - larcorealg                 # find_package direct
+    - lardata                    # find_package direct
+    - lardataalg                 # find_package direct
+    - lardataobj                 # find_package direct
+    - artg4tk                    # find_package direct (larsoft-output)
+    - nug4                       # find_package direct
+    - nurandom                   # find_package direct
+    - nusimdata                  # find_package direct
+    - dk2nudata                  # nusimdataConfig find_dependency(dk2nudata)
+    - geant4                     # find_package(Geant4) (conda-forge)
+    - art_root_io                # find_package direct
+    - art                        # find_package direct
+    - canvas                     # find_package direct
+    - messagefacility            # find_package direct
+    - fhiclcpp                   # find_package direct
+    - cetlib                     # find_package direct
+    - cetlib_except              # find_package direct
+    - clhep                      # find_package(CLHEP COMPONENTS Random Vector)
+    - range-v3                   # find_package(Range-v3)
+    - fftw                       # lardataConfig find_dependency(FFTW3) (pkg-config)
+    - libpq                      # lardataConfig find_dependency(PostgreSQL)
+    - libsqlite
+    - libboost-devel
+    - catch2
+    - tbb-devel
+    - root_base                  # ROOT (Core EG Tree Hist Physics RIO)
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('larg4', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - larg4/Services/LArG4Detector_service.h
+      files:
+        - lib/larg4/cmake/larg4Config.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larg4
+  repository: https://github.com/LArSoft/larg4
+  license: Apache-2.0
+  # NOTE: the larg4 repo ships no LICENSE file (unlike most LArSoft repos), so
+  # there is nothing to copy; the SPDX license tag above records it. Upstream is
+  # Apache-2.0 (https://github.com/LArSoft/larg4).
+  summary: larg4 -- LArSoft Geant4 detector-simulation layer
+  description: |
+    larg4 is the LArSoft Geant4 simulation layer built on artg4tk and nug4: the
+    larg4Main art producer, the LArG4Detector service (GDML-driven Geant4 detector
+    construction), sensitive detectors (auxiliary-detector and SimEnergyDeposit
+    hits), particle/action plugins, and analysis checkers. It bridges the art
+    framework, the LArSoft data products and Geant4, and is the foundation of the
+    LArSoft simulation chain feeding larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

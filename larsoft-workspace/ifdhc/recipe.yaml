@@ -1,0 +1,66 @@
+# rattler-build recipe (v1 / CEP-13 format) for ifdhc.
+#
+# ifdhc is FNAL's intensity-frontier data-handling client (fnal-fife/ifdhc):
+# libifdh + the `ifdh` CLI + a python module. Required (transitively, via
+# ifbeam/nucondb/ifdh_art) by NuSoftHEP nugen and larsim. Absent from
+# conda-forge. Mirrors the FNAL spack ifdhc package: custom multi-subdir
+# Makefile, installs headers to inc/ (not include/), python module links the
+# conda libpython. Consumers locate it via IFDHC_DIR / IFDHC_INC=$PREFIX/inc.
+
+context:
+  version: "2.8.1"
+  v_under: ${{ version | replace(".", "_") }}
+
+package:
+  name: ifdhc
+  version: ${{ version }}
+
+source:
+  url: https://github.com/fnal-fife/ifdhc/archive/refs/tags/v${{ v_under }}.tar.gz
+  sha256: caf5c88cd6eed51eb425b01140bf6a36fe5f3fad98b9bd12ff5b0896f803c847
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+  host:
+    - python
+    - zlib
+    - libuuid
+    - ifdhc_config
+  run:
+    - ifdhc_config
+  run_exports:
+    - ${{ pin_subpackage('ifdhc', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      bin:
+        - ifdh
+      files:
+        - inc/ifdh.h
+        - lib/libifdh.so
+        - lib/python/ifdh.so
+
+about:
+  homepage: https://github.com/fnal-fife/ifdhc
+  repository: https://github.com/fnal-fife/ifdhc
+  license: Apache-2.0
+  summary: ifdhc -- intensity-frontier data-handling client (libifdh + ifdh CLI)
+  description: |
+    ifdhc is the Fermilab intensity-frontier data-handling client: the libifdh
+    C++ library, the ifdh command-line tool, and a python binding module. Used
+    by ifbeam, nucondb and ifdh_art, and transitively by NuSoftHEP nugen and
+    larsim. Headers install under inc/ (FNAL layout); consumers set
+    IFDHC_DIR / IFDHC_INC accordingly.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

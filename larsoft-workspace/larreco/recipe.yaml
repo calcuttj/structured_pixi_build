@@ -1,0 +1,105 @@
+# rattler-build recipe (v1 / CEP-13 format) for larreco.
+#
+# larreco is the LArSoft reconstruction layer (clustering, track/shower/vertex
+# reco, calorimetry, RecoAlg, ...). It sits directly above larsim on the trunk.
+# Its only non-conda-forge, non-art external is rstartree (header-only R*-tree,
+# used by RecoAlg/DBScanAlg). Because larsimConfig re-exports the whole
+# generator chain (find_dependency GENIE/MARLEY/CRY/dk2nu*/artg4tk/...), this
+# build must re-supply the same Find-module env contracts as larsim even though
+# larreco itself only links the lar*/nu* libraries. Built against our
+# art 3.15.0 / boost-1.90 stack.
+
+context:
+  # LArSoft pads the major: tag v10_06_05
+  version: "10.06.05"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: larreco
+  version: ${{ version }}
+
+source:
+  url: https://github.com/LArSoft/larreco/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 5a2b0eafeb23f9b40c8bfe672443b69e015ff7e13dee29e6463db074ac8d0437
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - artg4tk   # + transitive run_export closure (pixi-build workspace)
+    - cry
+    - dk2nudata
+    - dk2nugenie
+    - genie
+    - ifbeam
+    - ifdh_art
+    - ifdhc
+    - ifdhc_config
+    - libwda
+    - marley
+    - nucondb
+    - nufinder
+    - nugen
+    - nutools
+    - ppfx
+    - pythia6
+    - tpythia6
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel
+    - range-v3
+    - libboost-devel
+    - geant4
+    - clhep
+    - eigen
+    - rstartree
+    # art suite
+    - art
+    - art_root_io
+    # nu* layer
+    - nug4
+    - nurandom
+    - nusimdata
+    # lar object/algorithm + sim layer
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larsim
+    - larvecutils
+  run_exports:
+    - ${{ pin_subpackage('larreco', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/larreco/cmake/larrecoConfig.cmake
+
+about:
+  homepage: https://github.com/LArSoft/larreco
+  repository: https://github.com/LArSoft/larreco
+  license: Apache-2.0
+  summary: larreco -- LArSoft liquid-argon TPC reconstruction
+  description: |
+    larreco is the LArSoft reconstruction layer: hit finding, clustering
+    (including DBScan over an R*-tree), track/shower/vertex reconstruction,
+    calorimetry and the associated RecoAlg algorithms. Built on top of larsim
+    and the art suite.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

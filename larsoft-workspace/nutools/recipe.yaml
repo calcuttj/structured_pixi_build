@@ -1,0 +1,72 @@
+# rattler-build recipe (v1 / CEP-13 format) for nutools.
+#
+# nutools (NuSoftHEP) is the art tool/utility layer used by the neutrino
+# generator stack (EventGeneratorBase/CRY cosmic generator, etc.) -- a hard
+# dependency of larsim. cetmodules build. Mirrors the NuSoftHEP spack nutools
+# package (which tops at 3.17.00; we build the larsoft v10_21_01 target 3.22.1).
+# Built against our art 3.15.0 stack + cry + nusimdata.
+
+context:
+  # NuSoftHEP does NOT pad the major: tag v3_22_01
+  version: "3.22.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: nutools
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/nutools/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 563196b8e7cb62a13d36f53a56b8ed44ff85419620c782413c5019ffb854bb07
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+    - perl                       # codegen during the build
+  host:
+    - nufinder   # + transitive run_export closure (pixi-build workspace)
+    - cetmodules <4.0a0
+    - root_base
+    - root_cxx_standard ==20
+    - tbb-devel                  # artConfig find_dependency(TBB)
+    - range-v3                   # artConfig find_dependency(Range-v3)
+    - libboost-devel
+    - art
+    - art_root_io
+    - canvas_root_io
+    - nusimdata
+    - dk2nudata                  # nusimdata links dk2nu::Tree
+    - cry
+    - clhep
+  run_exports:
+    - ${{ pin_subpackage('nutools', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/nutools/cmake/nutoolsConfig.cmake
+
+about:
+  homepage: https://github.com/NuSoftHEP/nutools
+  repository: https://github.com/NuSoftHEP/nutools
+  license: Apache-2.0
+  summary: nutools -- NuSoftHEP art tool/utility layer for neutrino generators
+  description: |
+    nutools provides the art framework tool and utility layer for the neutrino
+    generator stack, including the EventGeneratorBase/CRY cosmic-ray generator
+    interface. Built against the art suite, CRY and nusimdata. A hard dependency
+    of larsim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

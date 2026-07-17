@@ -1,0 +1,20 @@
+Drop -Werror from cet_set_compiler_flags.
+
+lardataobj builds with DIAGS CAUTIOUS + WERROR. GCC 14's new -Wtemplate-body
+diagnostic flags Utilities/BitMask.tcc:226 (`bits.negate()` — a member visible
+only later in the header) and WERROR promotes the warning to a hard error:
+
+  BitMask.tcc:226:24: error: '... Bits_t<Storage>::This_t ...' has no member
+  named 'negate' [-Wtemplate-body]
+
+The code is correct on the reference compiler; this is a newer-GCC diagnostic.
+CXXFLAGS can't demote it (cetmodules' add_compile_options(-Werror) lands after
+$CXXFLAGS), so drop the WERROR keyword. See conda/potential_improvements.md (#2).
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -17,7 +17,6 @@ cet_set_compiler_flags(DIAGS CAUTIOUS
+ cet_set_compiler_flags(DIAGS CAUTIOUS
+-  WERROR
+   NO_UNDEFINED
+   EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs
+ )
