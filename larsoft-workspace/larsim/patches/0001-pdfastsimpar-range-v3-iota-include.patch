@@ -1,0 +1,10 @@
+--- a/larsim/PhotonPropagation/PDFastSimPAR_module.cc	2026-07-21 11:58:39.766021158 -0700
++++ b/larsim/PhotonPropagation/PDFastSimPAR_module.cc	2026-07-21 11:58:39.782021333 -0700
+@@ -68,6 +68,7 @@
+ #include "CLHEP/Random/RandPoissonQ.h"
+ 
+ #include "range/v3/view/enumerate.hpp"
++#include "range/v3/view/iota.hpp"
+ 
+ #include <cmath>
+ #include <ctime>

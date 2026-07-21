@@ -22,6 +22,11 @@ package:
 source:
   url: https://github.com/LArSoft/larreco/archive/refs/tags/${{ tag }}.tar.gz
   sha256: 5a2b0eafeb23f9b40c8bfe672443b69e015ff7e13dee29e6463db074ac8d0437
+  patches:
+    # SpacePointAlg.cxx uses ::ranges::views::transform but includes no range/v3
+    # header; it relied on it arriving transitively via larcorealg
+    # Geometry/Iterable.h, which the C++20 std::ranges migration removed. Add it.
+    - patches/0001-spacepointalg-range-v3-view-include.patch
 
 build:
   number: 0

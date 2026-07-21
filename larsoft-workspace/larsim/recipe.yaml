@@ -20,6 +20,12 @@ package:
 source:
   url: https://github.com/LArSoft/larsim/archive/refs/tags/${{ tag }}.tar.gz
   sha256: e05b87aa292120cba75f4102ccac8e052db87158421ef4cf8a27434f290bc48a
+  patches:
+    # PDFastSimPAR_module.cc uses ::ranges::views::ints but only includes
+    # range/v3/view/enumerate.hpp; it relied on iota.hpp (which defines
+    # views::ints) arriving transitively via larcorealg Geometry/Iterable.h,
+    # which the C++20 std::ranges migration of Iterable.h removed. Add the include.
+    - patches/0001-pdfastsimpar-range-v3-iota-include.patch
 
 build:
   number: 0
