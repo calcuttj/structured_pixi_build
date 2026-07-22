@@ -71,3 +71,34 @@ protoduneana = { path = "protoduneana" }
 srproxy = { path = "srproxy" }
 trace = { path = "trace" }
 python = "3.13.*"
+
+# --- ND_CAFMaker environment (separate from default) -----------------------
+# nd_cafmaker hard-pins duneanaobj ==4.0.0 (v04_00_00 StandardRecord schema),
+# which conflicts with the dunesw suite's 3.16.0 in the default env. It gets its
+# own env built against the duneanaobj-4.0.0 member. no-default-feature = true so
+# this env does NOT drag in the default env's duneanaobj 3.16.0 (or the rest of
+# the dunesw suite). srproxy/edepsim come in transitively via nd_cafmaker's member
+# host-deps; duneanaobj-4.0.0 is listed explicitly so the 4.0.0 source is selected.
+[feature.ndcaf.dependencies]
+nd_cafmaker = { path = "nd_cafmaker" }
+duneanaobj = { path = "duneanaobj-4.0.0" }
+# fhiclcpp 4.18.4 (source member), NOT art-channel's 4.19.0: 4.19's concept-based
+# fhicl::Table breaks ND_CAFMaker's fwd.h. Listed explicitly so the env solve picks
+# the source build over the channel binary. Isolated to this env (nd_cafmaker is the
+# only fhiclcpp consumer here); cetlib/cetlib_except stay 3.19.0 from art-channel.
+fhiclcpp = { path = "fhiclcpp-4.18.4" }
+# log4cpp 1.1.4 (source member): conda-forge's build over-links libnsl.so.3, which
+# py3.13 envs don't provide, so makeCAF (loads log4cpp via genie) fails at runtime.
+# This member disables the configure nsl probe. Listed explicitly so the env picks
+# the source build over conda-forge's broken binary. See log4cpp/ISSUE.md.
+log4cpp = { path = "log4cpp" }
+# edepsim + srproxy are DUNE source members (not in the consumed larsoft/art/wct
+# channels), and nd_cafmaker run_export-pins them, so they must be present as path
+# deps in this env too (the default feature that normally provides them is excluded
+# via no-default-feature). Same dirs the default env builds; versions are shared.
+edepsim = { path = "edepsim" }
+srproxy = { path = "srproxy" }
+python = "3.13.*"
+
+[environments]
+ndcaf = { features = ["ndcaf"], no-default-feature = true }

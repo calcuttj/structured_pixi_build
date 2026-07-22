@@ -1,0 +1,13 @@
+[package]
+name = "log4cpp"
+version = "1.1.4"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]
+
+# No inter-member SOURCE deps: log4cpp's only build deps (compilers, make, autoconf,
+# gnuconfig) are foundational and resolve from conda-forge. This member exists to
+# replace conda-forge's libnsl-over-linked log4cpp; see recipe.yaml + ISSUE.md.

@@ -11,7 +11,15 @@ extra-input-globs = ["build.sh", "patches/**"]
 # Inter-member SOURCE deps = transitive sibling closure (a sibling's
 # run_export pins propagate into this build's host env); binary deps
 # (larsoft/art/root_base/geant4/... from channels) stay in recipe.yaml only.
+# nd_cafmaker targets the duneanaobj v04_00_00 StandardRecord schema, so it builds
+# against the duneanaobj-4.0.0 member (NOT the default-env ../duneanaobj = 3.16.0).
+# fhiclcpp is pinned to the 4.18.4 member: 4.19.0's concept-constrained fhicl::Table
+# breaks ND_CAFMaker's src/fwd.h (see fhiclcpp-4.18.4/recipe.yaml). cetlib/
+# cetlib_except/hep_concurrency still come from art-channel binaries.
 [package.host-dependencies]
-duneanaobj = { path = "../duneanaobj" }
+duneanaobj = { path = "../duneanaobj-4.0.0" }
 edepsim = { path = "../edepsim" }
 srproxy = { path = "../srproxy" }
+fhiclcpp = { path = "../fhiclcpp-4.18.4" }
+# libnsl-fixed log4cpp (conda-forge's over-links libnsl.so.3, absent in py3.13).
+log4cpp = { path = "../log4cpp" }

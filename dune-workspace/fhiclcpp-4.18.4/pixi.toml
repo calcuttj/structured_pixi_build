@@ -1,0 +1,13 @@
+[package]
+name = "fhiclcpp"
+version = "4.18.4"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh", "patches/**"]
+
+# No inter-member SOURCE deps: cetlib / cetlib_except are consumed as BINARIES
+# from art-channel (3.19.0 / 1.10.0) — there are no cetlib members in this
+# workspace. This is the ndcaf-only fhiclcpp; see recipe.yaml for why 4.18.4.

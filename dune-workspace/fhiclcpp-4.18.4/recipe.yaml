@@ -1,0 +1,94 @@
+# rattler-build recipe (v1 / CEP-13 format) for fhiclcpp 4.18.04.
+#
+# The FHiCL (Fermilab Hierarchical Configuration Language) parser/value library
+# plus its CLI tools (fhicl-dump, fhicl-expand, fhicl-get, fhicl-write-db).
+#
+# WHY A SECOND fhiclcpp (vs the art-channel's 4.19.0): DUNE ND_CAFMaker targets
+# fhiclcpp v4_18_04 (ndcaf_setup_deps.sh). fhiclcpp 4.19.0 rewrote fhicl::Table as
+# a concept-constrained, variadic template
+# (`template <table_or_atom_compatible T, keys_to_ignore_provider... KeysToIgnore>`),
+# but ND_CAFMaker's src/fwd.h forward-declares the pre-concepts form
+# (`template <typename T, typename KeysToIgnore = void>`) and uses
+# `fhicl::Table<FhiclConfig>` — which fails to compile against 4.19.0. 4.18.04 keeps
+# the plain signature, matching ND_CAFMaker. Built ONLY for the isolated `ndcaf`
+# env (nd_cafmaker is the sole fhiclcpp/cetlib consumer there); the default/dunesw
+# env keeps 4.19.0 from art-channel.
+
+context:
+  version: "4.18.4"
+  parts: ${{ version | split('.') }}
+  # UPS tag derived from version; art-suite pads minor/patch but NOT major (v4_18_04).
+  git_tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: fhiclcpp
+  version: ${{ version }}
+
+source:
+  url: https://github.com/art-framework-suite/fhicl-cpp/archive/refs/tags/${{ git_tag }}.tar.gz
+  sha256: d0b8beca890707d0bbf35678c3b6bddd1b02b3ab7654801abbe31525dacdd7b5
+  patches:
+    # Missing #include <cassert> in DatabaseSupport.cc -> fails under conda's
+    # newer libstdc++ (assert no longer pulled in transitively). Same fix as the
+    # art-channel 4.19.0 recipe; context matches 4.18.04 verbatim.
+    - patches/0001-DatabaseSupport-include-cassert.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0  # build system (local channel; noarch)
+    - cetlib                     # linked sibling (art-channel binary, 3.19.0)
+    - cetlib_except              # find_package(cetlib_except) direct (art-channel binary)
+    - tbb-devel                  # find_package(TBB) (CF current)
+    - libboost-devel             # find_package(Boost program_options) (CF current)
+    - libsqlite                  # find_package(SQLite3)
+    # openssl is intentionally NOT listed: it is cetlib's private dependency (only
+    # libcetlib.so links libcrypto) and comes in transitively via cetlibConfig's
+    # find_dependency(OpenSSL). Listing it here would wrongly attach openssl's
+    # run_export to fhiclcpp.
+  run:
+    # Runtimes (cetlib/cetlib_except/boost/sqlite/tbb) arrive via the host
+    # packages' run_exports.
+  run_exports:
+    - ${{ pin_subpackage('fhiclcpp', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      lib:
+        - fhiclcpp               # libfhiclcpp.so (also installs a static lib)
+      include:
+        - fhiclcpp/ParameterSet.h
+        - fhiclcpp/intermediate_table.h
+      bin:
+        - fhicl-dump
+        - fhicl-expand
+        - fhicl-get
+        - fhicl-write-db
+      files:
+        - lib/fhiclcpp/cmake/fhiclcppConfig.cmake
+
+about:
+  homepage: https://github.com/art-framework-suite/fhicl-cpp
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: fhiclcpp -- FHiCL configuration language library and tools for the FNAL art suite
+  description: |
+    fhiclcpp implements FHiCL (the Fermilab Hierarchical Configuration
+    Language): parsing, the ParameterSet value model, intermediate tables and
+    the fhicl-dump/expand/get/write-db command-line tools used throughout the
+    art framework. Depends on cetlib, cetlib_except, Boost, SQLite3 and TBB.
+  repository: https://github.com/art-framework-suite/fhicl-cpp
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,65 @@
+# rattler-build recipe (v1 / CEP-13 format) for log4cpp 1.1.4 — libnsl-fixed.
+#
+# WHY THIS MEMBER EXISTS: conda-forge's log4cpp (1.1.4-h59595ed_0) over-links
+# libnsl.so.3 — configure's AC_CHECK_LIB(nsl, gethostbyname) succeeds at build time
+# and adds -lnsl, but log4cpp uses ZERO symbols from it (a phantom DT_NEEDED) and
+# the recipe declares no libnsl run-dep. libnsl used to ride along via CPython, but
+# PEP 594 removed the nis/libnsl module in Python 3.13, so a py3.13 env no longer
+# provides libnsl.so.3. Anything that loads liblog4cpp at runtime (here: makeCAF via
+# genie) then dies with "libnsl.so.3: cannot open shared object file". The whole
+# structured stack is pinned to python 3.13, so we build log4cpp ourselves with the
+# nsl probe disabled -> no libnsl.so.3 in DT_NEEDED. See log4cpp/ISSUE.md for the
+# upstream conda-forge report.
+#
+# THE FIX = build.sh's `export ac_cv_lib_nsl_gethostbyname=no` (skips the configure
+# nsl probe). No source patch needed. Build logic mirrors the conda-forge
+# log4cpp-feedstock autotools build.
+
+package:
+  name: log4cpp
+  version: "1.1.4"
+
+source:
+  url: https://sourceforge.net/projects/log4cpp/files/log4cpp-1.1.x%20%28new%29/log4cpp-1.1/log4cpp-1.1.4.tar.gz
+  sha256: 696113659e426540625274a8b251052cc04306d8ee5c42a0c7639f39ca90c9d6
+
+build:
+  # build number 1 mirrors the conda-forge feedstock PR bump (0 -> 1); distinguishes
+  # this libnsl-fixed build from conda-forge's broken h59595ed_0.
+  number: 1
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+    - autoconf
+    - gnuconfig
+    # NOTE: no `libnsl` here. With ac_cv_lib_nsl_gethostbyname=no in build.sh the
+    # configure nsl probe is skipped, so libnsl is neither needed at build time nor
+    # emitted as a DT_NEEDED — the whole point of the fix.
+  run_exports:
+    - ${{ pin_subpackage('log4cpp', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/liblog4cpp.so.5
+
+about:
+  homepage: http://log4cpp.sourceforge.net
+  license: LGPL-2.1-or-later
+  license_file: COPYING
+  summary: log4cpp — C++ logging library (libnsl over-link fixed for py3.13 envs)
+  description: |
+    log4cpp is a library of C++ classes for flexible logging to files, syslog,
+    IDSA and other destinations, modeled after log4j. This build disables the
+    autoconf libnsl probe so the resulting library carries no phantom libnsl.so.3
+    dependency (which is absent from Python 3.13+ conda environments).
+
+extra:
+  recipe-maintainers:
+    - calcuttj
