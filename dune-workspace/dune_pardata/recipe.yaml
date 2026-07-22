@@ -1,0 +1,60 @@
+# rattler-build recipe (v1 / CEP-13 format) for dune_pardata — a *downloader*.
+#
+# dune_pardata is a 2.7 GB collection of DUNE runtime data (photon libraries,
+# GENIE flux files, PMT responses, ...) hosted on scisoft.fnal.gov. It is NOT a
+# build dependency of dunecore/dunesw — the files are located at runtime via
+# cet::search_path("FW_SEARCH_PATH"). Bundling 2.7 GB into a conda package is
+# impractical, so this package ships ONLY small scripts:
+#   * bin/dune_pardata-fetch          — idempotent downloader/extractor
+#   * etc/conda/activate.d/...         — puts the data dir on FW_SEARCH_PATH
+#   * etc/conda/deactivate.d/...       — undoes the above
+#   * bin/.dune_pardata-post-link.sh   — best-effort fetch at install (opt-out)
+# The actual 2.7 GB is fetched into $CONDA_PREFIX/share/dune_pardata (override via
+# $DUNE_PARDATA_DIR to share one copy across envs). The dunesw metapackage does
+# NOT hard-depend on this (recommended-only), so data-less builds/CI stay light.
+
+context:
+  # UPS tag v01_84_00 -> SemVer 1.84.0; scisoft file version string 01.84.00.
+  version: "1.84.0"
+
+package:
+  name: dune_pardata
+  version: ${{ version }}
+
+# No upstream source: this package contains only scripts authored in build.sh.
+
+build:
+  number: 0
+  noarch: generic
+  script: build.sh
+
+requirements:
+  run:
+    # the fetcher uses curl to download and bzip2/tar to extract.
+    - curl
+    - bzip2
+    - tar
+
+tests:
+  - package_contents:
+      files:
+        - bin/dune_pardata-fetch
+        - etc/conda/activate.d/dune_pardata.sh
+        - etc/conda/deactivate.d/dune_pardata.sh
+
+about:
+  homepage: https://scisoft.fnal.gov/scisoft/packages/dune_pardata/
+  license: Apache-2.0
+  summary: dune_pardata -- on-demand downloader for DUNE runtime data (2.7 GB, FW_SEARCH_PATH)
+  description: |
+    Lightweight downloader for dune_pardata (DUNE runtime data: photon libraries,
+    GENIE flux files, PMT responses). The data (~2.7 GB) is NOT bundled; it is
+    fetched from scisoft.fnal.gov into $CONDA_PREFIX/share/dune_pardata (or
+    $DUNE_PARDATA_DIR) by `dune_pardata-fetch`, and the data directory is placed
+    on FW_SEARCH_PATH by an activation script. Recommended for running DUNE jobs;
+    not required to build dunesw. Set DUNE_PARDATA_AUTOFETCH=0 to skip the
+    best-effort download at install time.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

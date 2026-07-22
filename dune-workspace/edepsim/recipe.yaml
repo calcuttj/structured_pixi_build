@@ -1,0 +1,96 @@
+# rattler-build recipe (v1 / CEP-13 format) for edep-sim 3.2.0 (io-only).
+#
+# edep-sim is Clark McGrew's Energy Deposition Simulation. DUNE's ND_CAFMaker
+# (and the wider ND stack) pin `edepsim v3_2_0e`; the matching upstream is
+# ClarkMcGrew/edep-sim tag 3.2.0 (== the release/3.2.x branch HEAD the DUNE
+# builds track). dune_spack packages the same ClarkMcGrew source at 3.2.0.
+#
+# We build in EDEPSIM_READONLY mode: only the `io` library (edepsim_io ->
+# EDepSim::edepsim_io) that reads edep-sim output is compiled. That library
+# depends solely on ROOT, NOT Geant4 — so this recipe sidesteps the conda-forge
+# Geant4 <-> libboost<1.91 conflict against the art stack (on boost 1.91), which
+# would otherwise gate the full simulation build. ND_CAFMaker links only
+# EDepSim::edepsim_io, so io-only fully satisfies it. The generated
+# EDepSimConfig.cmake gates its find_package(Geant4) behind `if(NOT TRUE)` when
+# READONLY, so downstream consumers never pull Geant4 either.
+
+context:
+  version: "3.2.0"
+
+package:
+  name: edepsim
+  version: ${{ version }}
+
+source:
+  url: https://github.com/ClarkMcGrew/edep-sim/archive/refs/tags/${{ version }}.tar.gz
+  sha256: 119a5b274601cf721d4f954dee8191e089f157b7b9feb97b10e6a1de399f7771
+  patches:
+    # Reorder the io headers so the element class (TG4PrimaryParticle /
+    # TG4TrajectoryPoint) is fully defined before the container class whose
+    # inline constructor instantiates std::vector<element>. ROOT 6.40's rootcling
+    # + gcc-15 libstdc++ now hard-error (static_assert is_destructible / "arithmetic
+    # on incomplete type") on vector<incomplete>; the older ROOT 6.28 toolchain the
+    # DUNE UPS build uses tolerated it. No API/ABI change (public fields preserved
+    # by hoisting the EDEPSIM_USE_PUBLIC_FIELDS define above both classes).
+    - patches/0001-reorder-io-classes-for-modern-libstdcxx.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    # root_base (not the `root` metapackage): provides the ROOT C++ libs/headers/
+    # CMake config + rootcling for the io dictionary. Weak run_export pins it into
+    # run automatically. root_cxx_standard matches ROOT's C++ standard (ABI) and is
+    # zipped with root_base in conda-forge pinning.
+    - root_base
+    - root_cxx_standard
+  run_exports:
+    # io/TG4Event format is stable within a major series (2.x/3.x/4.x are breaks);
+    # cap at <4 so consumers built here get a compatible edepsim.
+    - ${{ pin_subpackage('edepsim', upper_bound='x') }}
+
+tests:
+  - package_contents:
+      lib:
+        # EDepSim::edepsim_io -> libedepsim_io.so (the only ND_CAFMaker links)
+        - edepsim_io
+      include:
+        - EDepSim/TG4Event.h
+        - EDepSim/TG4HitSegment.h
+        - EDepSim/TG4Trajectory.h
+        - EDepSim/TG4PrimaryVertex.h
+      files:
+        # ROOT6 dictionary artifacts + the CMake package config consumers find.
+        - lib/libedepsim_io.rootmap
+        - lib/libedepsim_io_rdict.pcm
+        - lib/cmake/EDepSim/EDepSimConfig.cmake
+
+about:
+  homepage: https://github.com/ClarkMcGrew/edep-sim
+  repository: https://github.com/ClarkMcGrew/edep-sim
+  license: LicenseRef-EDepSim
+  license_file:
+    - LICENSE
+    - licenses/LICENSE.geant4
+    - licenses/LICENSE.nest
+  summary: edep-sim Energy Deposition Simulation — I/O library (readonly build)
+  description: |
+    edep-sim is a wrapper around Geant4 for simulating energy deposition in
+    liquid-argon and other detectors. This conda package is an EDEPSIM_READONLY
+    (io-only) build: it provides just the edepsim_io library (EDepSim::edepsim_io)
+    and its ROOT dictionary, which read edep-sim TG4Event output. It does not
+    build the Geant4-based simulation, so it has no Geant4 dependency. Packaged
+    at tag 3.2.0 to satisfy DUNE ND_CAFMaker (edepsim v3_2_0e).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

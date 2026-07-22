@@ -1,0 +1,1086 @@
+diff --git a/dunecore/ArtSupport/CMakeLists.txt b/dunecore/ArtSupport/CMakeLists.txt
+index df2fcd6..5f70955 100644
+--- a/dunecore/ArtSupport/CMakeLists.txt
++++ b/dunecore/ArtSupport/CMakeLists.txt
+@@ -6,8 +6,14 @@
+ # CMake instructions for the AXServices library which holds
+ # helper classes for dealing with art services.
+ 
+-art_make(
+-  LIB_LIBRARIES
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_ArtSupport
++  SOURCE
++    ArtServiceHelper.cxx
++    DuneToolManager.cxx
++    ToolRedirector.cxx
++  LIBRARIES
+     art::Framework_EventProcessor
+     art::Framework_Services_Registry
+     art::Utilities
+@@ -18,6 +24,13 @@ art_make(
+     ROOT::Core
+ )
+ 
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunecore_ArtSupport
++)
++
++
+ add_subdirectory(Tool)
+ add_subdirectory(test)
+ add_subdirectory(exe)
+diff --git a/dunecore/ChannelMap/CMakeLists.txt b/dunecore/ChannelMap/CMakeLists.txt
+index 88b49a3..23a3fe5 100644
+--- a/dunecore/ChannelMap/CMakeLists.txt
++++ b/dunecore/ChannelMap/CMakeLists.txt
+@@ -10,16 +10,40 @@ install_source()
+ file(GLOB channel_map_files *Map*.txt)
+ install_fw( LIST ${channel_map_files} )
+ 
+-art_make(SERVICE_LIBRARIES 
+-                           art::Framework_Services_Registry
+-                           art::Framework_Principal
+-                           art::Framework_Core
+-                           art::Persistency_Provenance
+-                           messagefacility::MF_MessageLogger
+-                           ROOT::Core
+- 	                   dunecore::ChannelMap
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_ChannelMap
++  SOURCE
++    FDHDChannelMapSP.cxx
++    TPCChannelMapSP.cxx
+ )
+ 
++cet_build_plugin(FDHDChannelMapService art::service
++  LIBRARIES
++    art::Framework_Services_Registry
++    art::Framework_Principal
++    art::Framework_Core
++    art::Persistency_Provenance
++    messagefacility::MF_MessageLogger
++    ROOT::Core
++    dunecore::ChannelMap
++)
++
++cet_build_plugin(TPCChannelMapService art::service
++  LIBRARIES
++    art::Framework_Services_Registry
++    art::Framework_Principal
++    art::Framework_Core
++    art::Persistency_Provenance
++    messagefacility::MF_MessageLogger
++    ROOT::Core
++    dunecore::ChannelMap
++)
++
++cet_build_plugin(PDVDPDMapAlg art::tool
++)
++
++
+ art_make_library(
+   LIBRARY_NAME opdet_PDVDPDMapAlg
+   SOURCE
+diff --git a/dunecore/DAQTriggerSim/AnalyzeTriggers/CMakeLists.txt b/dunecore/DAQTriggerSim/AnalyzeTriggers/CMakeLists.txt
+index 73302db..18e238c 100644
+--- a/dunecore/DAQTriggerSim/AnalyzeTriggers/CMakeLists.txt
++++ b/dunecore/DAQTriggerSim/AnalyzeTriggers/CMakeLists.txt
+@@ -1,24 +1,29 @@
+-art_make( 
+-          MODULE_LIBRARIES dunecore::DAQTriggerSim_Service_TemplateTriggerService_service
+-	                   dunecore::DAQTriggerSim_TriggerDataProducts
+-                           dunecore::DAQTriggerSim_TriggerAlgorithms
+-                           larcore::Geometry_Geometry_service
+-                           larcorealg::Geometry
+-                           nusimdata::SimulationBase	
+-                           art::Framework_Core
+-                           art::Framework_Principal
+-                           art::Framework_Services_Registry
+-                           art_root_io::tfile_support
+-			   ROOT::Core ROOT::Tree
+-                           art_root_io::TFileService_service
+-                           art::Persistency_Common 
+-                           art::Persistency_Provenance 
+-                           art::Utilities 
+-			   canvas::canvas
+-                           messagefacility::MF_MessageLogger
+-                           cetlib::cetlib 
+-			   cetlib_except::cetlib_except
+-	 )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(TemplateTriggerAna art::module
++  LIBRARIES
++    dunecore::DAQTriggerSim_Service_TemplateTriggerService_service
++    dunecore::DAQTriggerSim_TriggerDataProducts
++    dunecore::DAQTriggerSim_TriggerAlgorithms
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
+ 
+ install_fhicl()
+ install_headers()
+diff --git a/dunecore/DAQTriggerSim/FDHDDAQWriter/CMakeLists.txt b/dunecore/DAQTriggerSim/FDHDDAQWriter/CMakeLists.txt
+index 76cf588..743dd96 100644
+--- a/dunecore/DAQTriggerSim/FDHDDAQWriter/CMakeLists.txt
++++ b/dunecore/DAQTriggerSim/FDHDDAQWriter/CMakeLists.txt
+@@ -1,21 +1,54 @@
+ include_directories("${dunedaqdataformats_DIR}/../../../include")
+ include_directories("${dunedetdataformats_DIR}/../../../include")
+ 
+-art_make(MODULE_LIBRARIES
+-                        lardataobj::RawData
+-                        art::Framework_Core
+-                        art::Framework_Principal
+-                        art::Framework_Services_Registry
+-                        art_root_io::tfile_support
+-                        ROOT::Core
+-                        art_root_io::TFileService_service
+-                        messagefacility::MF_MessageLogger
+-			HDF5::HDF5
+-                        dunecore::ChannelMap_FDHDChannelMapService_service
+-                        dunecore::ChannelMap_TPCChannelMapService_service
+-                        BASENAME_ONLY
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(FDHDDAQWIBEthBinary art::module BASENAME_ONLY
++  LIBRARIES
++    lardataobj::RawData
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    messagefacility::MF_MessageLogger
++    HDF5::HDF5
++    dunecore::ChannelMap_FDHDChannelMapService_service
++    dunecore::ChannelMap_TPCChannelMapService_service
++)
++
++cet_build_plugin(FDHDDAQWIBEthPCAP art::module BASENAME_ONLY
++  LIBRARIES
++    lardataobj::RawData
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    messagefacility::MF_MessageLogger
++    HDF5::HDF5
++    dunecore::ChannelMap_FDHDChannelMapService_service
++    dunecore::ChannelMap_TPCChannelMapService_service
+ )
+ 
++cet_build_plugin(FDHDDAQWriter art::module BASENAME_ONLY
++  LIBRARIES
++    lardataobj::RawData
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    messagefacility::MF_MessageLogger
++    HDF5::HDF5
++    dunecore::ChannelMap_FDHDChannelMapService_service
++    dunecore::ChannelMap_TPCChannelMapService_service
++)
++
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/dunecore/DAQTriggerSim/HardwareMapperTest/CMakeLists.txt b/dunecore/DAQTriggerSim/HardwareMapperTest/CMakeLists.txt
+index 3a3abe6..34af1a1 100644
+--- a/dunecore/DAQTriggerSim/HardwareMapperTest/CMakeLists.txt
++++ b/dunecore/DAQTriggerSim/HardwareMapperTest/CMakeLists.txt
+@@ -1,24 +1,27 @@
+-art_make( 
+-          MODULE_LIBRARIES
+-          dunecore::DAQTriggerSim_Service_HardwareMapperService_service
+-          larcore::Geometry_Geometry_service
+-          larcorealg::Geometry
+-          lardataobj::RawData
+-          nusimdata::SimulationBase	
+-          art::Framework_Core
+-          art::Framework_Principal
+-          art::Framework_Services_Registry
+-          art_root_io::tfile_support
+-          ROOT::Core
+-          art_root_io::TFileService_service
+-          art::Persistency_Common
+-          art::Persistency_Provenance
+-          art::Utilities 
+-	  canvas::canvas
+-          messagefacility::MF_MessageLogger
+-          cetlib::cetlib 
+-	  cetlib_except::cetlib_except
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(TestHardwareMapper art::module
++  LIBRARIES
++    dunecore::DAQTriggerSim_Service_HardwareMapperService_service
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    lardataobj::RawData
++    nusimdata::SimulationBase
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
+ 
+ install_fhicl()
+ install_headers()
+diff --git a/dunecore/DAQTriggerSim/TriggerAlgorithms/CMakeLists.txt b/dunecore/DAQTriggerSim/TriggerAlgorithms/CMakeLists.txt
+index 2647edd..bfce9ec 100644
+--- a/dunecore/DAQTriggerSim/TriggerAlgorithms/CMakeLists.txt
++++ b/dunecore/DAQTriggerSim/TriggerAlgorithms/CMakeLists.txt
+@@ -2,27 +2,33 @@
+ 
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+-art_make(
+-  LIB_LIBRARIES    
+-  nusimdata::SimulationBase
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art::Persistency_Common
+-  art::Persistency_Provenance
+-  art::Utilities
+-  canvas::canvas
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  Boost::filesystem              
+-  messagefacility::MF_MessageLogger
+-  fhiclcpp::fhiclcpp
+-  dunecore::DAQTriggerSim_TriggerDataProducts
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_DAQTriggerSim_TriggerAlgorithms
++  SOURCE
++    ActivityTrigger.cxx
++    TemplateTrigger.cxx
++  LIBRARIES
++    nusimdata::SimulationBase
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    Boost::filesystem
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    dunecore::DAQTriggerSim_TriggerDataProducts
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunecore/DAQTriggerSim/TriggerDataProducts/CMakeLists.txt b/dunecore/DAQTriggerSim/TriggerDataProducts/CMakeLists.txt
+index ef5f104..3ffeef4 100644
+--- a/dunecore/DAQTriggerSim/TriggerDataProducts/CMakeLists.txt
++++ b/dunecore/DAQTriggerSim/TriggerDataProducts/CMakeLists.txt
+@@ -1,15 +1,27 @@
+ # for classes_def.xml:
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+-art_make( 
+-          LIB_LIBRARIES 
+-	  lardataobj::RawData
+-	  art::Persistency_Common
+-	  art::Persistency_Provenance
+-	  canvas::canvas
+-	  messagefacility::MF_MessageLogger
+-	  cetlib::cetlib cetlib_except::cetlib_except
+-	)
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_DAQTriggerSim_TriggerDataProducts
++  SOURCE
++    BasicTrigger.cxx
++  LIBRARIES
++    lardataobj::RawData
++    art::Persistency_Common
++    art::Persistency_Provenance
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunecore_DAQTriggerSim_TriggerDataProducts
++)
++
+ 
+ install_headers()
+ install_source()
+diff --git a/dunecore/DAQTriggerSim/TriggerModules/CMakeLists.txt b/dunecore/DAQTriggerSim/TriggerModules/CMakeLists.txt
+index af11594..c2ef482 100644
+--- a/dunecore/DAQTriggerSim/TriggerModules/CMakeLists.txt
++++ b/dunecore/DAQTriggerSim/TriggerModules/CMakeLists.txt
+@@ -1,24 +1,51 @@
+-art_make( BASENAME_ONLY
+-          MODULE_LIBRARIES dunecore::DAQTriggerSim_TriggerDataProducts
+-                           dunecore::DAQTriggerSim_TriggerAlgorithms
+-                           larcore::Geometry_Geometry_service
+-                           larcorealg::Geometry
+-                           nusimdata::SimulationBase
+-                           larsim::MCCheater_ParticleInventoryService_service
+-                           art::Framework_Core
+-                           art::Framework_Principal
+-                           art::Framework_Services_Registry
+-                           art_root_io::tfile_support
+-                           ROOT::Core
+-                           art_root_io::TFileService_service
+-                           art::Persistency_Common
+-                           art::Persistency_Provenance
+-                           art::Utilities
+-			   canvas::canvas
+-                           messagefacility::MF_MessageLogger
+-                           cetlib::cetlib 
+-			   cetlib_except::cetlib_except
+-	 )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(ActivityTriggerProd art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DAQTriggerSim_TriggerDataProducts
++    dunecore::DAQTriggerSim_TriggerAlgorithms
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_ParticleInventoryService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(TemplateTriggerProd art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DAQTriggerSim_TriggerDataProducts
++    dunecore::DAQTriggerSim_TriggerAlgorithms
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_ParticleInventoryService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
+ 
+ install_fhicl()
+ install_headers()
+diff --git a/dunecore/DuneCommon/Service/EventContext/CMakeLists.txt b/dunecore/DuneCommon/Service/EventContext/CMakeLists.txt
+index 4e1d6d3..984b7cc 100644
+--- a/dunecore/DuneCommon/Service/EventContext/CMakeLists.txt
++++ b/dunecore/DuneCommon/Service/EventContext/CMakeLists.txt
+@@ -6,14 +6,18 @@
+ install_headers()
+ install_source()
+ 
+-art_make(SERVICE_LIBRARIES 
+-           dunecore_DuneCommon_Utility
+-           art::Framework_Services_Registry
+-           art::Framework_Principal
+-           art::Framework_Core
+-           art::Persistency_Provenance
+-           messagefacility::MF_MessageLogger
+-           ROOT::Core
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(EventContextService art::service
++  LIBRARIES
++    dunecore_DuneCommon_Utility
++    art::Framework_Services_Registry
++    art::Framework_Principal
++    art::Framework_Core
++    art::Persistency_Provenance
++    messagefacility::MF_MessageLogger
++    ROOT::Core
+ )
+ 
++
+ add_subdirectory(test)
+diff --git a/dunecore/DuneCommon/Service/ToolBasedChannelStatus/CMakeLists.txt b/dunecore/DuneCommon/Service/ToolBasedChannelStatus/CMakeLists.txt
+index 2609eea..e68d34a 100644
+--- a/dunecore/DuneCommon/Service/ToolBasedChannelStatus/CMakeLists.txt
++++ b/dunecore/DuneCommon/Service/ToolBasedChannelStatus/CMakeLists.txt
+@@ -6,26 +6,36 @@
+ install_headers()
+ install_source()
+ 
+-art_make(SERVICE_LIBRARIES 
+-                           dunecore_DuneCommon_Service_ToolBasedChannelStatus
+-                           art::Framework_Services_Registry
+-                           art::Framework_Principal
+-                           art::Framework_Core
+-                           art::Persistency_Provenance
+-                           messagefacility::MF_MessageLogger
+-                           ROOT::Core
+-                           larevt::CalibrationDBI_Providers
+-                           larcoreobj::headers
+-                           larcore::headers
+-         LIB_LIBRARIES
+-           dunecore_ArtSupport
+-           larevt::CalibrationDBI_Providers
+-           larcoreobj::headers
+-           larcore::headers
+-           art::Persistency_Provenance
+-           canvas::canvas
+-           ROOT::HistPainter
+-           FFTW3::FFTW3
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_DuneCommon_Service_ToolBasedChannelStatus
++  SOURCE
++    ToolBasedChannelStatus.cxx
++    ToolBasedChannelStatusService.cxx
++  LIBRARIES
++    dunecore_ArtSupport
++    larevt::CalibrationDBI_Providers
++    larcoreobj::headers
++    larcore::headers
++    art::Persistency_Provenance
++    canvas::canvas
++    ROOT::HistPainter
++    FFTW3::FFTW3
++)
++
++cet_build_plugin(ToolBasedChannelStatusService art::service
++  LIBRARIES
++    dunecore_DuneCommon_Service_ToolBasedChannelStatus
++    art::Framework_Services_Registry
++    art::Framework_Principal
++    art::Framework_Core
++    art::Persistency_Provenance
++    messagefacility::MF_MessageLogger
++    ROOT::Core
++    larevt::CalibrationDBI_Providers
++    larcoreobj::headers
++    larcore::headers
+ )
+ 
++
+ add_subdirectory(test)
+diff --git a/dunecore/DuneCommon/Utility/CMakeLists.txt b/dunecore/DuneCommon/Utility/CMakeLists.txt
+index 4ac6230..f9e9d57 100644
+--- a/dunecore/DuneCommon/Utility/CMakeLists.txt
++++ b/dunecore/DuneCommon/Utility/CMakeLists.txt
+@@ -12,16 +12,43 @@ add_subdirectory(test)
+ #  message(STATUS "${_variableName}=${${_variableName}}")
+ #endforeach()
+ 
+-art_make(BASENAME_ONLY
+-         LIB_LIBRARIES
+-           dunecore_ArtSupport
+-           art::Persistency_Provenance
+-           canvas::canvas
+-           ROOT::HistPainter
+-           FFTW3::FFTW3
+-         PUBLIC ROOT::Core
+-         NO_PLUGINS
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_DuneCommon_Utility
++  SOURCE
++    DuneContextManager.cxx
++    DuneContextToolRedirector.cxx
++    DuneFFT.cxx
++    DuneTimeConverter.cxx
++    Fw2dFFT.cxx
++    FwFFT.cxx
++    GausRmsFitter.cxx
++    GausStepFitter.cxx
++    RootPalette.cxx
++    RootParFormula.cxx
++    SampleTailer.cxx
++    StringManipulator.cxx
++    TH1Manipulator.cxx
++    TPadManipulator.cxx
++    gausTF1.cxx
++    quietHistFit.cxx
++    shiftHistFit.cxx
++  LIBRARIES
++    dunecore_ArtSupport
++    art::Persistency_Provenance
++    canvas::canvas
++    ROOT::HistPainter
++    FFTW3::FFTW3
++    PUBLIC
++    ROOT::Core
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunecore_DuneCommon_Utility
++)
++
+ 
+ install_source()
+ install_headers()
+diff --git a/dunecore/DuneInterface/Data/CMakeLists.txt b/dunecore/DuneInterface/Data/CMakeLists.txt
+index a5d442d..cc4619f 100644
+--- a/dunecore/DuneInterface/Data/CMakeLists.txt
++++ b/dunecore/DuneInterface/Data/CMakeLists.txt
+@@ -7,11 +7,21 @@
+ 
+ add_subdirectory(test)
+ 
+-art_make(BASENAME_ONLY
+-  NO_PLUGINS
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_DuneInterface_Data
++  SOURCE
++    TpcData.cxx
+   LIBRARIES
+-  FFTW3::FFTW3
+-        )
++    FFTW3::FFTW3
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunecore_DuneInterface_Data
++)
++
+ 
+ # Including DataMap.h confers a transitive dependency on ROOT::Hist
+ cet_make_library(LIBRARY_NAME dunecore::DuneInterface_Data_DataMap INTERFACE
+diff --git a/dunecore/DuneInterface/Service/CMakeLists.txt b/dunecore/DuneInterface/Service/CMakeLists.txt
+index 204dd51..32142e8 100644
+--- a/dunecore/DuneInterface/Service/CMakeLists.txt
++++ b/dunecore/DuneInterface/Service/CMakeLists.txt
+@@ -5,6 +5,7 @@
+ #
+ # CMake instructions for DUNE service interface classes.
+ 
+-art_make()
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
+ 
+ install_headers()
+diff --git a/dunecore/DuneObj/CMakeLists.txt b/dunecore/DuneObj/CMakeLists.txt
+index 29d0714..aa55297 100644
+--- a/dunecore/DuneObj/CMakeLists.txt
++++ b/dunecore/DuneObj/CMakeLists.txt
+@@ -8,17 +8,30 @@ include_directories("${dunedetdataformats_DIR}/../../../include")
+         #        NO_DICTIONARY )
+ 
+       #art_dictionary( DICTIONARY_LIBRARIES dunedataobj_DuneBase )
+-art_make(
+-  LIB_LIBRARIES
+-                    ROOT::Core
+-		    messagefacility::MF_MessageLogger
+-		    cetlib::cetlib 
+-		    cetlib_except::cetlib_except
+-                    lardataobj::RecoBase
+-                    HDF5::HDF5
+-  DICT_LIBRARIES
+-  #  EXCLUDE OpDetDivRec.h OpDetDivRec.cc
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_DuneObj
++  SOURCE
++    CalibTreeRecord.cxx
++    OpDetDivRec.cxx
++    ProtoDUNEBeamSpill.cxx
++    ProtoDUNETimeStamp.cxx
++    SimpleBeamParticle.c++
++  LIBRARIES
++    ROOT::Core
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    HDF5::HDF5
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunecore_DuneObj
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunecore/DuneObjDumpers/CMakeLists.txt b/dunecore/DuneObjDumpers/CMakeLists.txt
+index cba77bb..559a3c0 100644
+--- a/dunecore/DuneObjDumpers/CMakeLists.txt
++++ b/dunecore/DuneObjDumpers/CMakeLists.txt
+@@ -1,8 +1,7 @@
+-art_make(
+-  LIB_LIBRARIES
+-    ROOT::EG
+-    ROOT::Core
+-  MODULE_LIBRARIES
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(DumpOpDetDivRecs art::module
++  LIBRARIES
+     dunecore::DuneObj
+     nusimdata::SimulationBase
+     art::Framework_Core
+@@ -15,7 +14,8 @@ art_make(
+     cetlib::cetlib
+     cetlib_except::cetlib_except
+     ROOT::EG
+-  )
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunecore/Geometry/CMakeLists.txt b/dunecore/Geometry/CMakeLists.txt
+index 55d7d64..987baf1 100644
+--- a/dunecore/Geometry/CMakeLists.txt
++++ b/dunecore/Geometry/CMakeLists.txt
+@@ -1,42 +1,73 @@
+ #MESSAGE( STATUS "Boost_SYSTEM_LIBRARY:         "  )
+ 
+-art_make( BASENAME_ONLY
+-          EXCLUDE AuxDetGeoObjectSorter35_tool.cc
+-                  AuxDetGeoObjectSorterYZX_tool.cc
+-                  CheckGeometry_module.cc
+-                  CheckCRPGeometry_module.cc
+-                  CheckDPhaseGeometry_module.cc
+-                  GeoObjectSorter35_tool.cc
+-                  GeoObjectSorterAPA_tool.cc
+-                  GeoObjectSorterCRM_tool.cc
+-                  GeoObjectSorterCRU_tool.cc
+-                  GeoObjectSorterCRU60D_tool.cc
+-                  GeoObjectSorterICEBERG_tool.cc
+-                  issue19191_module.cc
+-	  LIBRARY_NAME dunecore_Geometry
+-	  LIB_LIBRARIES larcorealg::Geometry
+-                     larcore::Geometry_Geometry_service
+-                        messagefacility::MF_MessageLogger
+-                        cetlib::cetlib 
+-			cetlib_except::cetlib_except
+-                        fhiclcpp::fhiclcpp
+-                        art::Framework_Services_Registry
+-                        art::Utilities
+-                        canvas::canvas
+-                        ROOT::Geom
+-                        nlohmann_json::nlohmann_json
+-                        dunecore::opdet_PDVDPDMapAlg
+-          SERVICE_LIBRARIES larcorealg::Geometry
+-                        larcore::Geometry_Geometry_service
+-                        dunecore_Geometry
+-                        fhiclcpp::fhiclcpp
+-                        cetlib::cetlib
+-			cetlib_except::cetlib_except
+-                        ROOT::Geom
+-                        ROOT::XMLIO
+-                        ROOT::Gdml
+-                        dunecore::opdet_PDVDPDMapAlg
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_Geometry
++  SOURCE
++    AdcChannelDataTester.cxx
++    AuxDetGeoObjectSorter35.cxx
++    AuxDetGeoObjectSorterYZX.cxx
++    CRPWireReadoutGeom.cxx
++    ChannelGeo.cxx
++    ColdBoxWireReadoutGeom.cxx
++    Comparators.cxx
++    DuneApaWireReadoutGeom.cxx
++    GeoObjectSorter35.cxx
++    GeoObjectSorterAPA.cxx
++    GeoObjectSorterCRM.cxx
++    GeoObjectSorterCRU.cxx
++    GeoObjectSorterCRU60D.cxx
++    GeoObjectSorterICEBERG.cxx
++    IcebergChannelGeo.cxx
++    ProtoDUNESPCRTSorter.cxx
++    ProtoDUNEWireReadoutGeom.cxx
++    ProtoDUNEWireReadoutGeomv7.cxx
++    ProtoDUNEWireReadoutGeomv8.cxx
++    WireReadout35Geom.cxx
++    WireReadout35OptGeom.cxx
++    WireReadoutAPAGeom.cxx
++    WireReadoutCRMGeom.cxx
++    WireReadoutCRUGeom.cxx
++    WireReadoutSorter35.cxx
++    WireReadoutSorterAPA.cxx
++    WireReadoutSorterCRU.cxx
++    WireReadoutSorterICEBERG.cxx
++    WireSelector.cxx
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    fhiclcpp::fhiclcpp
++    art::Framework_Services_Registry
++    art::Utilities
++    canvas::canvas
++    ROOT::Geom
++    nlohmann_json::nlohmann_json
++    dunecore::opdet_PDVDPDMapAlg
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunecore_Geometry
++)
++
++cet_build_plugin(DUNEWireReadout art::service BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    dunecore_Geometry
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++    dunecore::opdet_PDVDPDMapAlg
++)
++
+ 
+ cet_build_plugin ( CheckGeometry art::module
+                      larcorealg::Geometry
+diff --git a/dunecore/HDF5Utils/CMakeLists.txt b/dunecore/HDF5Utils/CMakeLists.txt
+index 3502370..ff2c911 100644
+--- a/dunecore/HDF5Utils/CMakeLists.txt
++++ b/dunecore/HDF5Utils/CMakeLists.txt
+@@ -19,64 +19,78 @@ art_make_library(LIBRARY_NAME HDF5Utils
+          z
+ )
+ 
+-simple_plugin(HDF5RawInput "source"
+-  dunepdlegacy::Overlays
+-  HDF5Utils
+-  art::Framework_Services_Registry
++cet_build_plugin(HDF5RawInput art::source
++  LIBRARIES
++    dunepdlegacy::Overlays
++    HDF5Utils
++    art::Framework_Services_Registry
+ )
+ 
+-simple_plugin(HDF5RawInput2 "source"
+-  HDF5Utils
+-  dunecore::dunedaqhdf5utils2
+-  art::Framework_Services_Registry
+-  dunecore::HDF5Utils_HDF5RawFile2Service_service
++
++cet_build_plugin(HDF5RawInput2 art::source
++  LIBRARIES
++    HDF5Utils
++    dunecore::dunedaqhdf5utils2
++    art::Framework_Services_Registry
++    dunecore::HDF5Utils_HDF5RawFile2Service_service
+ )
+ 
+-simple_plugin(HDF5RawInput3 "source"
+-  HDF5Utils
+-  dunecore::dunedaqhdf5utils3
+-  art::Framework_Services_Registry
+-  dunecore::HDF5Utils_HDF5RawFile3Service_service
++
++cet_build_plugin(HDF5RawInput3 art::source
++  LIBRARIES
++    HDF5Utils
++    dunecore::dunedaqhdf5utils3
++    art::Framework_Services_Registry
++    dunecore::HDF5Utils_HDF5RawFile3Service_service
+ )
+ 
+-simple_plugin(HDF5TPStreamInput2 "source"
+-  dunepdlegacy::Overlays
+-  HDF5Utils
+-  dunecore::dunedaqhdf5utils2
+-  art::Framework_Services_Registry
+-  dunecore::HDF5Utils_HDF5RawFile2Service_service
++
++cet_build_plugin(HDF5TPStreamInput2 art::source
++  LIBRARIES
++    dunepdlegacy::Overlays
++    HDF5Utils
++    dunecore::dunedaqhdf5utils2
++    art::Framework_Services_Registry
++    dunecore::HDF5Utils_HDF5RawFile2Service_service
+ )
+ 
+-simple_plugin(HDF5TPStreamInput3 "source"
+-  dunepdlegacy::Overlays
+-  HDF5Utils
+-  dunecore::dunedaqhdf5utils3
+-  art::Framework_Services_Registry
+-  dunecore::HDF5Utils_HDF5RawFile3Service_service
++
++cet_build_plugin(HDF5TPStreamInput3 art::source
++  LIBRARIES
++    dunepdlegacy::Overlays
++    HDF5Utils
++    dunecore::dunedaqhdf5utils3
++    art::Framework_Services_Registry
++    dunecore::HDF5Utils_HDF5RawFile3Service_service
+ )
+ 
+-simple_plugin(HDF5RawFile2Service "service"
+-              ${ART_PERSISTENCY_ROOTDB}
+-              art::Framework_Services_Registry
+-              ${persistency_lib}
+-              SQLite::SQLite3
+-              messagefacility::MF_MessageLogger
+-	      cetlib::cetlib
+-	      cetlib_except::cetlib_except
+-	      dunecore::dunedaqhdf5utils2
++
++cet_build_plugin(HDF5RawFile2Service art::service
++  LIBRARIES
++    ${ART_PERSISTENCY_ROOTDB}
++    art::Framework_Services_Registry
++    ${persistency_lib}
++    SQLite::SQLite3
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    dunecore::dunedaqhdf5utils2
+ )
+ 
+-simple_plugin(HDF5RawFile3Service "service"
+-              ${ART_PERSISTENCY_ROOTDB}
+-              art::Framework_Services_Registry
+-              ${persistency_lib}
+-              SQLite::SQLite3
+-              messagefacility::MF_MessageLogger
+-	      cetlib::cetlib
+-	      cetlib_except::cetlib_except
+-	      dunecore::dunedaqhdf5utils3
++
++cet_build_plugin(HDF5RawFile3Service art::service
++  LIBRARIES
++    ${ART_PERSISTENCY_ROOTDB}
++    art::Framework_Services_Registry
++    ${persistency_lib}
++    SQLite::SQLite3
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    dunecore::dunedaqhdf5utils3
+ )
+ 
++
+ add_subdirectory(dunedaqhdf5utils2)
+ add_subdirectory(dunedaqhdf5utils3)
+ 
+diff --git a/dunecore/HDF5Utils/dunedaqhdf5utils2/CMakeLists.txt b/dunecore/HDF5Utils/dunedaqhdf5utils2/CMakeLists.txt
+index 7fed65c..4b8175d 100644
+--- a/dunecore/HDF5Utils/dunedaqhdf5utils2/CMakeLists.txt
++++ b/dunecore/HDF5Utils/dunedaqhdf5utils2/CMakeLists.txt
+@@ -2,17 +2,23 @@ include_directories("${dunedaqdataformats_DIR}/../../../include")
+ include_directories("${dunedetdataformats_DIR}/../../../include")
+ include_directories("${nlohmann_json_DIR}/../../../include")
+ include_directories("${HighFive_DIR}/../../../include")
+-art_make(
+-	 LIBRARY_NAME dunedaqhdf5utils2
+-         LIB_LIBRARIES
+-	 cetlib::cetlib
+-         cetlib_except::cetlib_except
+-         messagefacility::MF_MessageLogger
+-         HDF5::HDF5
+-         pthread
+-         z
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunedaqhdf5utils2
++  SOURCE
++    HDF5FileLayout.cpp
++    HDF5RawDataFile.cpp
++    HDF5SourceIDHandler.cpp
++  LIBRARIES
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    messagefacility::MF_MessageLogger
++    HDF5::HDF5
++    pthread
++    z
+ )
+ 
++
+ install_headers()
+ install_source()
+ 
+diff --git a/dunecore/HDF5Utils/dunedaqhdf5utils3/CMakeLists.txt b/dunecore/HDF5Utils/dunedaqhdf5utils3/CMakeLists.txt
+index f9b22aa..29a5a64 100644
+--- a/dunecore/HDF5Utils/dunedaqhdf5utils3/CMakeLists.txt
++++ b/dunecore/HDF5Utils/dunedaqhdf5utils3/CMakeLists.txt
+@@ -2,17 +2,23 @@ include_directories("${dunedaqdataformats_DIR}/../../../include")
+ include_directories("${dunedetdataformats_DIR}/../../../include")
+ include_directories("${nlohmann_json_DIR}/../../../include")
+ include_directories("${HighFive_DIR}/../../../include")
+-art_make(
+-	 LIBRARY_NAME dunedaqhdf5utils3
+-         LIB_LIBRARIES
+-	 cetlib::cetlib
+-         cetlib_except::cetlib_except
+-         messagefacility::MF_MessageLogger
+-         HDF5::HDF5
+-         pthread
+-         z
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunedaqhdf5utils3
++  SOURCE
++    HDF5FileLayout.cpp
++    HDF5RawDataFile.cpp
++    HDF5SourceIDHandler.cpp
++  LIBRARIES
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    messagefacility::MF_MessageLogger
++    HDF5::HDF5
++    pthread
++    z
+ )
+ 
++
+ install_headers()
+ install_source()
+ 
+diff --git a/dunecore/ProducerUtils/CMakeLists.txt b/dunecore/ProducerUtils/CMakeLists.txt
+index 9d76d8a..0279ff1 100644
+--- a/dunecore/ProducerUtils/CMakeLists.txt
++++ b/dunecore/ProducerUtils/CMakeLists.txt
+@@ -1,5 +1,9 @@
+-art_make(
+-    LIB_LIBRARIES
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunecore_ProducerUtils
++  SOURCE
++    ProducerUtils.cc
++  LIBRARIES
+     ${ROOT_CORE}
+     ${ROOT_EVE}
+     larcore::Geometry_Geometry_service
+@@ -12,12 +16,13 @@ art_make(
+     larsim::MCCheater_ParticleInventoryService_service
+     art::Persistency_Provenance
+     art::Persistency_Common
+-    art::Utilities 
++    art::Utilities
+     art_root_io::tfile_support
+     messagefacility::MF_MessageLogger
+     cetlib::cetlib
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/dunecore/Utilities/test/CMakeLists.txt b/dunecore/Utilities/test/CMakeLists.txt
+index 32ae904..75b9d2e 100644
+--- a/dunecore/Utilities/test/CMakeLists.txt
++++ b/dunecore/Utilities/test/CMakeLists.txt
+@@ -1,21 +1,7 @@
+ cet_enable_asserts()
+ 
+-art_make( NO_PLUGINS
+-          BASENAME_ONLY
+-          LIBRARY_NAME  dunecore_Utilities
+-	  MODULE_LIBRARIES lardata::Utilities
+-			ROOT::Core
+-			art::Persistency_Common canvas
+-			art::Persistency_Provenance canvas
+-			art::Utilities canvas
+-			messagefacility::MF_MessageLogger
+-			
+-	                fhiclcpp::fhiclcpp
+-			cetlib::cetlib cetlib_except
+-                        ROOT::Geom
+-                        ROOT::XMLIO
+-                        ROOT::GDML
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
+ 
+ 
+ install_headers()

@@ -1,0 +1,93 @@
+# rattler-build recipe (v1 / CEP-13 format) for dunesim 10.21.1 (v10_21_01d00).
+#
+# dunesim is the DUNE detector-simulation package (event generators, space-charge,
+# electronics/readout sim). At the product level it depends on dunetrigger +
+# genie_xsec(optional) + genie_phyopt, but those are RUNTIME data / fcl-loaded plugins
+# — dunesim's CMakeLists find_package()s only the dunecore + larsoft + nu* stack (all
+# in dunecore's run-closure) + dunepdlegacy + ifdhc + Geant4/CLHEP. So it builds as a
+# dunecore-only consumer; GENIE cross-section/phyopt DATA and dunetrigger plugins are
+# resolved at job time, not at build (they are added as run deps by the dunesw
+# metapackage once the GENIE data packages are built). Shared dunecore-consumer build
+# contract (nlohmann inject + generator env + libtorch-cpu + -fpermissive + fftw etc.).
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: dunesim
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunesim/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: ebe05a73ebe3ba2689fb81f3dd76bd9bf9e230c51f07a9d7314257f109d15878
+  patches:
+    # Modernize deprecated cetmodules macros (art_make/cet_make/simple_plugin ->
+    # cet_make_library + art_dictionary + cet_build_plugin). Required under pixi-build:
+    # art_make's plugin glob drops sources whose absolute path contains ".pixi"
+    # (cet_exclude_files_from REGEX "(^|/)[.#].*"), silently building zero plugins.
+    - patches/0001-modernize-cmake.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # dunecore pulls its entire run-closure (art+larsoft+nu+ifdhc+externals) transitively.
+    - dunecore
+    # named directly by dunesim's CMakeLists; dunepdlegacy is a separate built leaf.
+    - dunepdlegacy
+    # build-visible externals (compiler/CMake-config providers + dunecore find_dep cascade)
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - artdaq_core
+    - dunedaqdataformats
+    - dunedetdataformats
+    - highfive
+    - trace
+  run:
+  run_exports:
+    - ${{ pin_subpackage('dunesim', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/dunesim/cmake/dunesimConfig.cmake
+        - lib/libdunesim_GapInfo.so
+
+about:
+  homepage: https://github.com/DUNE/dunesim
+  repository: https://github.com/DUNE/dunesim
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: dunesim -- DUNE detector simulation (generators, space charge, readout sim)
+  description: |
+    dunesim provides the DUNE offline detector simulation: neutrino/cosmic event
+    generators (GENIE/CRY/CORSIKA/atmospheric), space-charge services, and the
+    electronics/readout simulation, built on the dunecore base of the DUNE software
+    suite (dunesw). GENIE cross-section/physics-option data and the dunetrigger plugins
+    are runtime (fcl-loaded) dependencies, not build dependencies.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

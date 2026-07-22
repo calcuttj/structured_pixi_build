@@ -1,0 +1,3084 @@
+diff --git a/protoduneana/DataDump/CMakeLists.txt b/protoduneana/DataDump/CMakeLists.txt
+index 1523326..eaa48ce 100644
+--- a/protoduneana/DataDump/CMakeLists.txt
++++ b/protoduneana/DataDump/CMakeLists.txt
+@@ -1,30 +1,35 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  lardataobj::RawData
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(DataDump art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    lardataobj::RawData
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++)
++
+ if(DEFINED ENV{HEP_HPC_DIR})
+   add_subdirectory(hdf)
+ endif()
+diff --git a/protoduneana/DataDump/hdf/CMakeLists.txt b/protoduneana/DataDump/hdf/CMakeLists.txt
+index fce1112..8b53ef1 100644
+--- a/protoduneana/DataDump/hdf/CMakeLists.txt
++++ b/protoduneana/DataDump/hdf/CMakeLists.txt
+@@ -1,32 +1,37 @@
+ include_directories(${HEP_HPC_INCLUDE_DIRS})
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib
+-  cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  hep_hpc_hdf5
+-  ${HDF5_LIBRARIES}
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(DataDumpHDF art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    hep_hpc_hdf5
++    ${HDF5_LIBRARIES}
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/protoduneana/EventGenerator/CMakeLists.txt b/protoduneana/EventGenerator/CMakeLists.txt
+index 156f828..f1c5491 100644
+--- a/protoduneana/EventGenerator/CMakeLists.txt
++++ b/protoduneana/EventGenerator/CMakeLists.txt
+@@ -1,40 +1,46 @@
+ 
+ include_directories( $ENV{IFDHC_FQ_DIR}/inc )
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+-art_make( BASENAME_ONLY
+-          MODULE_LIBRARIES 
+-	  dunesim::EventGenerator_ProtoDUNEbeamDataProducts
+-          larcoreobj::SummaryData
+-          larcorealg::Geometry
+-          larcore::Geometry_Geometry_service
+-          nurandom::RandomUtils_NuRandomService_service
+-          larsim::Simulation lardataobj::Simulation
+-	  lardataobj::RecoBase
+-          nusimdata::SimulationBase
+-          art::Framework_Core
+-          art::Framework_Principal
+-          art::Framework_Services_Registry
+-          art::Framework_Services_Optional_RandomNumberGenerator_service
+-          art::Persistency_Common
+-          art::Persistency_Provenance
+-          art::Utilities 
+-	  canvas::canvas
+-          messagefacility::MF_MessageLogger
+-          hep_concurrency::hep_concurrency
+-          fhiclcpp::fhiclcpp
+-          cetlib::cetlib 
+-	  cetlib_except::cetlib_except
+-          CLHEP::CLHEP
+-          ROOT::Core ROOT::Tree ROOT::Hist
+-          SQLite::SQLite3
+-          ROOT::EG
+-          ifdh::ifdh 
+-	  duneprototypes::ProtoDUNEDataUtils
+-          ProtoDUNEUtilities
+-          art_root_io::tfile_support
+-	  ROOT::Core
+-          art_root_io::TFileService_service
+- )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(ProtoDUNEBeamTPCMatching art::module BASENAME_ONLY
++  LIBRARIES
++    dunesim::EventGenerator_ProtoDUNEbeamDataProducts
++    larcoreobj::SummaryData
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    nurandom::RandomUtils_NuRandomService_service
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    nusimdata::SimulationBase
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    hep_concurrency::hep_concurrency
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    SQLite::SQLite3
++    ROOT::EG
++    ifdh::ifdh
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
+ 
+ 
+ install_headers()
+diff --git a/protoduneana/TutorialExamples/MoreExamples/CMakeLists.txt b/protoduneana/TutorialExamples/MoreExamples/CMakeLists.txt
+index 92de160..6281ccb 100644
+--- a/protoduneana/TutorialExamples/MoreExamples/CMakeLists.txt
++++ b/protoduneana/TutorialExamples/MoreExamples/CMakeLists.txt
+@@ -1,31 +1,36 @@
+-art_make(
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  larreco::Calorimetry
+-  lardataobj::RecoBase
+-  lardataalg::DetectorInfo
+-  lardata::Utilities
+-  lardata::ArtDataHelper
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(BackTracker1 art::module
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/Utilities/BeamExample/CMakeLists.txt b/protoduneana/Utilities/BeamExample/CMakeLists.txt
+index 519eb8d..457ed67 100644
+--- a/protoduneana/Utilities/BeamExample/CMakeLists.txt
++++ b/protoduneana/Utilities/BeamExample/CMakeLists.txt
+@@ -1,28 +1,33 @@
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art::Persistency_Common
+-  ROOT::Core
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib 
+-  cetlib_except
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  ProtoDUNEAnaUtils
+-  duneprototypes::ProtoDUNEDataUtils
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(BeamExample art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    ROOT::Core
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib
++    cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ProtoDUNEAnaUtils
++    duneprototypes::ProtoDUNEDataUtils
++)
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/Utilities/CMakeLists.txt b/protoduneana/Utilities/CMakeLists.txt
+index 791d9af..3024833 100644
+--- a/protoduneana/Utilities/CMakeLists.txt
++++ b/protoduneana/Utilities/CMakeLists.txt
+@@ -1,51 +1,172 @@
+ 
+-art_make( LIBRARY_NAME ProtoDUNEUtilities
+-	  LIB_LIBRARIES
+-                        dunecore::ArtSupport
+-                        lardataobj::RawData
+-                        lardataobj::RecoBase
+-                        larreco::RecoAlg
+-                        larreco::Calorimetry
+-                        larreco::RecoAlg_PMAlg
+-                        larcorealg::Geometry
+-                        larcore::Geometry_Geometry_service
+-                        lardataalg::DetectorInfo
+-                        lardataalg::UtilitiesHeaders
+-                        lardata::ArtDataHelper
+-                        lardata::Utilities
+-                        larsim::Simulation 
+-                        lardataobj::Simulation
+-                        duneprototypes::ProtoDUNEDataUtils
+-                        geant4reweight::ReweightBaseLib
+-                        geant4reweight::PropBaseLib
+-                        dunecore::DuneObj
+-                        duneopdet::OpticalDetector
+-                        dunepdlegacy::Services_ChannelMap_PdspChannelMapService_service
+-                        larsim::MCCheater_PhotonBackTrackerService_service
+-                        larsim::MCCheater_BackTrackerService_service
+-                        larsim::MCCheater_ParticleInventoryService_service
+-                        nug4::ParticleNavigation 
+-                        nusimdata::SimulationBase
+-                        CLHEP::CLHEP
+-                        art::Framework_Core
+-                        art::Framework_Principal
+-                        art::Framework_Services_Registry
+-                        art_root_io::tfile_support
+-                        ROOT::Core
+-                        art_root_io::TFileService_service
+-                        art::Persistency_Common 
+-                        art::Persistency_Provenance
+-                        art::Utilities 
+-			canvas::canvas
+-                        messagefacility::MF_MessageLogger
+-                        fhiclcpp::fhiclcpp
+-                        cetlib::cetlib
+-			cetlib_except::cetlib_except
+-                        ROOT::Core ROOT::Tree ROOT::Hist
+-	  MODULE_LIBRARIES
+-          ProtoDUNEUtilities
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME ProtoDUNEUtilities
++  SOURCE
++    AbsCexReweighter.cc
++    G4ReweightUtils.cxx
++    ProtoDUNEBeamCuts.cxx
++    ProtoDUNEBeamlineUtils.cxx
++    ProtoDUNECalibration.cxx
++    ProtoDUNEDPCRPGeo.cxx
++    ProtoDUNEEmptyEventFinder.cxx
++    ProtoDUNEPFParticleUtils.cxx
++    ProtoDUNEShowerUtils.cxx
++    ProtoDUNESliceUtils.cxx
++    ProtoDUNETrackUtils.cxx
++    ProtoDUNETruthUtils.cxx
++  LIBRARIES
++    dunecore::ArtSupport
++    lardataobj::RawData
++    lardataobj::RecoBase
++    larreco::RecoAlg
++    larreco::Calorimetry
++    larreco::RecoAlg_PMAlg
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    lardataalg::DetectorInfo
++    lardataalg::UtilitiesHeaders
++    lardata::ArtDataHelper
++    lardata::Utilities
++    larsim::Simulation
++    lardataobj::Simulation
++    duneprototypes::ProtoDUNEDataUtils
++    geant4reweight::ReweightBaseLib
++    geant4reweight::PropBaseLib
++    dunecore::DuneObj
++    duneopdet::OpticalDetector
++    dunepdlegacy::Services_ChannelMap_PdspChannelMapService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    nug4::ParticleNavigation
++    nusimdata::SimulationBase
++    CLHEP::CLHEP
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++)
++
++cet_build_plugin(DEdx art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ECalibration art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(EdepCal art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(FakePedestal art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(G4RWExampleAnalyzer art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(HadCal art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoDUNEAnalCosmicTree art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoDUNEAnalTree art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoDUNEAnalysisTree art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoDUNEBeamTPCRecoEfficiency art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoDUNEBeamlineFilter art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoDUNEBeamlineReco art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoDUNEDPAnalCosmicTree art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoDUNETruthBeamFilter art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoDUNETruthBeamParticle art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(ProtoFlash art::module
++  LIBRARIES
++    ProtoDUNEUtilities
+ )
+ 
++cet_build_plugin(RecoEff art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(RecoHitsEff art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(RecoStats art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(SaveSpacePoints art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(UtilityExample art::module
++  LIBRARIES
++    ProtoDUNEUtilities
++)
++
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/Utilities/FitUtils/FitObjs/CMakeLists.txt b/protoduneana/Utilities/FitUtils/FitObjs/CMakeLists.txt
+index f7fd2a8..43ea94b 100644
+--- a/protoduneana/Utilities/FitUtils/FitObjs/CMakeLists.txt
++++ b/protoduneana/Utilities/FitUtils/FitObjs/CMakeLists.txt
+@@ -19,15 +19,15 @@
+ #  #  EXCLUDE OpDetDivRec.h OpDetDivRec.cc
+ #  )
+ 
+-cet_make(LIBRARIES PUBLIC 
+-		    messagefacility::MF_MessageLogger
+-		    cetlib::cetlib 
+-		    cetlib_except::cetlib_except
+-		    ROOT::Core
+-        DICT_LIBRARIES
+-                    ROOT::ROOTVecOps
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    ROOT::ROOTVecOps
+ )
+ 
+ 
++
+ install_headers()
+ install_source()
+diff --git a/protoduneana/horizontaldrift/michel/CMakeLists.txt b/protoduneana/horizontaldrift/michel/CMakeLists.txt
+index c88b325..743765b 100644
+--- a/protoduneana/horizontaldrift/michel/CMakeLists.txt
++++ b/protoduneana/horizontaldrift/michel/CMakeLists.txt
+@@ -1,35 +1,142 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  larreco::Calorimetry
+-  lardataobj::RecoBase
+-  lardataalg::DetectorInfo
+-  lardata::Utilities
+-  lardata::ArtDataHelper
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  dunecalib::Calib
+-  ProtoDUNEUtilities
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(MichelTimingDataDeconHD art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(MichelTimingMcDeconHD art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(Truechecks art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(peakBackTrack art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/singlephase/Analysis/CMakeLists.txt b/protoduneana/singlephase/Analysis/CMakeLists.txt
+index 34dee87..018575e 100644
+--- a/protoduneana/singlephase/Analysis/CMakeLists.txt
++++ b/protoduneana/singlephase/Analysis/CMakeLists.txt
+@@ -1,37 +1,42 @@
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  cetlib::cetlib
+-  cetlib_except::cetlib_except
+-  larsim::Simulation
+-  lardataobj::Simulation
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  lardata::ArtDataHelper
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  ProtoDUNEUtilities
+-  geant4reweight::ReweightBaseLib
+-  geant4reweight::PropBaseLib
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  hep_hpc_hdf5
+-  hep_hpc_Utilities
+-  ${HDF5_LIBRARIES}
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(PDSPAnalyzer art::module BASENAME_ONLY
++  LIBRARIES
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++    geant4reweight::PropBaseLib
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    hep_hpc_hdf5
++    hep_hpc_Utilities
++    ${HDF5_LIBRARIES}
++)
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/singlephase/EMTaskForce/CMakeLists.txt b/protoduneana/singlephase/EMTaskForce/CMakeLists.txt
+index 562c7e2..631d526 100644
+--- a/protoduneana/singlephase/EMTaskForce/CMakeLists.txt
++++ b/protoduneana/singlephase/EMTaskForce/CMakeLists.txt
+@@ -1,35 +1,210 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  larreco::Calorimetry
+-  lardataobj::RecoBase
+-  lardataalg::DetectorInfo
+-  lardata::Utilities
+-  lardata::ArtDataHelper
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  dunecalib::Calib
+-  ProtoDUNEUtilities
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(EMCNNCheckCosmics art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(EMCNNCheck art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(MichelTiming art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(ProtoDUNEPizeroAnaTree art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(ProtoDUNEelectronAnaTree art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(ProtoDUNEelectronWireAna art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    dunecalib::Calib
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/singlephase/PDCNN/CMakeLists.txt b/protoduneana/singlephase/PDCNN/CMakeLists.txt
+index 780b05e..6edf0ea 100644
+--- a/protoduneana/singlephase/PDCNN/CMakeLists.txt
++++ b/protoduneana/singlephase/PDCNN/CMakeLists.txt
+@@ -1,32 +1,69 @@
+-art_make(
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  larreco::Calorimetry
+-  lardataobj::RecoBase
+-  lardataalg::DetectorInfo
+-  lardata::Utilities
+-  lardata::ArtDataHelper
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  larrecodnn::ImagePatternAlgs_Keras
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(PDWaveformDumpPY art::module
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    larrecodnn::ImagePatternAlgs_Keras
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(PDWaveformDump art::module
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    larrecodnn::ImagePatternAlgs_Keras
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/singlephase/Pion/CMakeLists.txt b/protoduneana/singlephase/Pion/CMakeLists.txt
+index c711fa6..62a8d0e 100644
+--- a/protoduneana/singlephase/Pion/CMakeLists.txt
++++ b/protoduneana/singlephase/Pion/CMakeLists.txt
+@@ -1,35 +1,142 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  larsim::Simulation
+-  lardataobj::Simulation
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  lardata::ArtDataHelper
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  ProtoDUNEUtilities
+-  geant4reweight::ReweightBaseLib
+-  geant4reweight::PropBaseLib
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(PionAbsCexSelection art::module BASENAME_ONLY
++  LIBRARIES
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++    geant4reweight::PropBaseLib
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(PionCrossSectionAnalyzer art::module BASENAME_ONLY
++  LIBRARIES
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++    geant4reweight::PropBaseLib
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(PrimaryPionSelection art::module BASENAME_ONLY
++  LIBRARIES
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++    geant4reweight::PropBaseLib
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(TruthAnalyzer art::module BASENAME_ONLY
++  LIBRARIES
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++    geant4reweight::PropBaseLib
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/singlephase/T0Ana/CMakeLists.txt b/protoduneana/singlephase/T0Ana/CMakeLists.txt
+index 6045f80..81c7f28 100644
+--- a/protoduneana/singlephase/T0Ana/CMakeLists.txt
++++ b/protoduneana/singlephase/T0Ana/CMakeLists.txt
+@@ -1,34 +1,142 @@
+-art_make( MODULE_LIBRARIES
+-                        lardataobj::RawData
+-			larcorealg::Geometry
+-                        larcorealg::CoreUtils
+-			larcore::Geometry_Geometry_service
+-                        lardataobj::Simulation
+-                        nusimdata::SimulationBase
+-			lardataobj::RecoBase
+-			lardataobj::AnalysisBase
+-			larsim::MCCheater_ParticleInventoryService_service
+-			larsim::MCCheater_BackTrackerService_service
+-			larsim::MCCheater_PhotonBackTrackerService_service
+-                        art::Framework_Core
+-                        art::Framework_Principal
+-                        art::Framework_Services_Registry
+-                        art_root_io::tfile_support
+-                        ROOT::Core
+-                        art_root_io::TFileService_service
+-                        art::Persistency_Common
+-                        canvas::canvas
+-                        art::Persistency_Provenance
+-                        art::Utilities
+-                        messagefacility::MF_MessageLogger
+-                        cetlib::cetlib 
+-                        cetlib_except::cetlib_except
+-			ROOT::Core ROOT::Tree ROOT::Hist
+-                        ROOT::GenVector
+-                        ROOT::Geom
+-                        ProtoDUNEUtilities
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(CRTMatchTrackCaloAna art::module
++  LIBRARIES
++    lardataobj::RawData
++    larcorealg::Geometry
++    larcorealg::CoreUtils
++    larcore::Geometry_Geometry_service
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    lardataobj::RecoBase
++    lardataobj::AnalysisBase
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ROOT::GenVector
++    ROOT::Geom
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(CheckCRT art::module
++  LIBRARIES
++    lardataobj::RawData
++    larcorealg::Geometry
++    larcorealg::CoreUtils
++    larcore::Geometry_Geometry_service
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    lardataobj::RecoBase
++    lardataobj::AnalysisBase
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ROOT::GenVector
++    ROOT::Geom
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(CheckT0 art::module
++  LIBRARIES
++    lardataobj::RawData
++    larcorealg::Geometry
++    larcorealg::CoreUtils
++    larcore::Geometry_Geometry_service
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    lardataobj::RecoBase
++    lardataobj::AnalysisBase
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ROOT::GenVector
++    ROOT::Geom
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(T0RecoSCE art::module
++  LIBRARIES
++    lardataobj::RawData
++    larcorealg::Geometry
++    larcorealg::CoreUtils
++    larcore::Geometry_Geometry_service
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    lardataobj::RecoBase
++    lardataobj::AnalysisBase
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ROOT::GenVector
++    ROOT::Geom
++    ProtoDUNEUtilities
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/singlephase/XYZcalibration/CMakeLists.txt b/protoduneana/singlephase/XYZcalibration/CMakeLists.txt
+index e25e8a0..fb3b311 100644
+--- a/protoduneana/singlephase/XYZcalibration/CMakeLists.txt
++++ b/protoduneana/singlephase/XYZcalibration/CMakeLists.txt
+@@ -1,71 +1,48 @@
+-art_make(
+-  LIB_LIBRARIES
+-  lardataobj::RecoBase
+-  larana::OpticalDetector_OpHitFinder
+-  larsim::MCSTReco
+-  lardataobj::MCBase
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  larsim::PhotonPropagation_PhotonVisibilityService_service
+-  larana::OpticalDetector_OpDigiProperties_service
+-  lardata::Utilities
+-  nusimdata::SimulationBase
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  fhiclcpp::fhiclcpp
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  MODULE_LIBRARIES larana::OpticalDetector_OpDigiProperties_service
+-  larana::OpticalDetector_OpHitFinder
+-  larana::OpticalDetector
+-  larsim::PhotonPropagation_PhotonVisibilityService_service
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larevt::Filters
+-  lardata::RecoObjects
+-  lardataobj::RecoBase
+-  lardataobj::MCBase
+-  larreco::RecoAlg
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+-  lardata::Utilities
+-  lardataobj::RawData
+-  larreco::Calorimetry
+-  lardataobj::AnalysisBase
+-  nurandom::RandomUtils_NuRandomService_service
+-  nusimdata::SimulationBase
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  fhiclcpp::fhiclcpp
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  SERVICE_LIBRARIES
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  CLHEP
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(XYZcalibration art::module
++  LIBRARIES
++    larana::OpticalDetector_OpDigiProperties_service
++    larana::OpticalDetector_OpHitFinder
++    larana::OpticalDetector
++    larsim::PhotonPropagation_PhotonVisibilityService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larevt::Filters
++    lardata::RecoObjects
++    lardataobj::RecoBase
++    lardataobj::MCBase
++    larreco::RecoAlg
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardata::Utilities
++    lardataobj::RawData
++    larreco::Calorimetry
++    lardataobj::AnalysisBase
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    fhiclcpp::fhiclcpp
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++)
++
+ 
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+diff --git a/protoduneana/singlephase/diffusion/CMakeLists.txt b/protoduneana/singlephase/diffusion/CMakeLists.txt
+index b11f7bf..07a62ac 100644
+--- a/protoduneana/singlephase/diffusion/CMakeLists.txt
++++ b/protoduneana/singlephase/diffusion/CMakeLists.txt
+@@ -1,31 +1,96 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  ProtoDUNEUtilities
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(hitrms art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(hitrmsrawdigits art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(simpleMChitrms art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
+ 
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+diff --git a/protoduneana/singlephase/driftvel/CMakeLists.txt b/protoduneana/singlephase/driftvel/CMakeLists.txt
+index b11f7bf..f3063cd 100644
+--- a/protoduneana/singlephase/driftvel/CMakeLists.txt
++++ b/protoduneana/singlephase/driftvel/CMakeLists.txt
+@@ -1,31 +1,66 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  ProtoDUNEUtilities
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(DriftAna art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(driftvel art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
+ 
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+diff --git a/protoduneana/singlephase/efficiencystudy/CMakeLists.txt b/protoduneana/singlephase/efficiencystudy/CMakeLists.txt
+index f67a81d..9a7e778 100644
+--- a/protoduneana/singlephase/efficiencystudy/CMakeLists.txt
++++ b/protoduneana/singlephase/efficiencystudy/CMakeLists.txt
+@@ -1,33 +1,104 @@
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  larreco::Calorimetry
+-  lardataobj::RecoBase
+-  lardataalg::DetectorInfo
+-  lardata::Utilities
+-  lardata::ArtDataHelper
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  ProtoDUNEUtilities
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(BoxBeamHitsRemoval art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(HadronHitsRemoval art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
++cet_build_plugin(TruncatedTrackAnalyzer art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larreco::Calorimetry
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++)
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/singlephase/michelremoving/CMakeLists.txt b/protoduneana/singlephase/michelremoving/CMakeLists.txt
+index 5b34774..5850369 100644
+--- a/protoduneana/singlephase/michelremoving/CMakeLists.txt
++++ b/protoduneana/singlephase/michelremoving/CMakeLists.txt
+@@ -1,88 +1,49 @@
+-art_make( 
+-  LIB_LIBRARIES 
+-  lardataobj::RecoBase
+-  larana::OpticalDetector_OpHitFinder
+-  larsim::MCSTReco
+-  lardataobj::MCBase
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  larsim::PhotonPropagation_PhotonVisibilityService_service
+-  larana::OpticalDetector_OpDigiProperties_service
+-  lardata::Utilities
+-  nusimdata::SimulationBase
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  fhiclcpp::fhiclcpp
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  MODULE_LIBRARIES larana::OpticalDetector_OpDigiProperties_service
+-  larana::OpticalDetector_OpHitFinder
+-  larana::OpticalDetector
+-  larsim::PhotonPropagation_PhotonVisibilityService_service
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larevt::Filters
+-  lardata::RecoObjects
+-  lardataobj::RecoBase
+-  lardataobj::MCBase
+-  larreco::RecoAlg
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  larsim::Simulation 
+-  nug4::ParticleNavigation 
+-  lardataobj::Simulation
+-  lardata::Utilities
+-  lardataobj::RawData
+-  larreco::Calorimetry
+-  lardataobj::AnalysisBase
+-  nurandom::RandomUtils_NuRandomService_service
+-  nusimdata::SimulationBase
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  fhiclcpp::fhiclcpp
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  ProtoDUNEUtilities
+-  SERVICE_LIBRARIES
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  fhiclcpp::fhiclcpp
+-  CLHEP
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(michelremoving art::module
++  LIBRARIES
++    larana::OpticalDetector_OpDigiProperties_service
++    larana::OpticalDetector_OpHitFinder
++    larana::OpticalDetector
++    larsim::PhotonPropagation_PhotonVisibilityService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larevt::Filters
++    lardata::RecoObjects
++    lardataobj::RecoBase
++    lardataobj::MCBase
++    larreco::RecoAlg
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardata::Utilities
++    lardataobj::RawData
++    larreco::Calorimetry
++    lardataobj::AnalysisBase
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    fhiclcpp::fhiclcpp
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ProtoDUNEUtilities
++)
++
+ 
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+diff --git a/protoduneana/singlephase/pduneslice/CMakeLists.txt b/protoduneana/singlephase/pduneslice/CMakeLists.txt
+index cf34d5b..71e66a6 100644
+--- a/protoduneana/singlephase/pduneslice/CMakeLists.txt
++++ b/protoduneana/singlephase/pduneslice/CMakeLists.txt
+@@ -1,15 +1,30 @@
+ include_directories(${HEP_HPC_INCLUDE_DIRS})
+-art_make(BASENAME_ONLY
+-  TOOL_LIBRARIES
+-  art::Framework_Core
+-  larcorealg::Geometry
+-  lardata::Utilities
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  hep_hpc_hdf5
+-  ${HDF5_LIBRARIES}
+-  larrecodnn::ImagePatternAlgs_Keras
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(Hit3D art::tool BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    larcorealg::Geometry
++    lardata::Utilities
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    hep_hpc_hdf5
++    ${HDF5_LIBRARIES}
++    larrecodnn::ImagePatternAlgs_Keras
++)
++
++cet_build_plugin(SaveSPS art::tool BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    larcorealg::Geometry
++    lardata::Utilities
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    hep_hpc_hdf5
++    ${HDF5_LIBRARIES}
++    larrecodnn::ImagePatternAlgs_Keras
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/protoduneana/singlephase/pionanalysis/CMakeLists.txt b/protoduneana/singlephase/pionanalysis/CMakeLists.txt
+index ade8b1c..822d32a 100644
+--- a/protoduneana/singlephase/pionanalysis/CMakeLists.txt
++++ b/protoduneana/singlephase/pionanalysis/CMakeLists.txt
+@@ -1,33 +1,70 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardataalg::DetectorInfo
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  ProtoDUNEUtilities
+-  duneprototypes::ProtoDUNEDataUtils
+-  geant4reweight::ReweightBaseLib
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(mcsXsection art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ProtoDUNEUtilities
++    duneprototypes::ProtoDUNEDataUtils
++    geant4reweight::ReweightBaseLib
++)
++
++cet_build_plugin(pionanalysis art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    ProtoDUNEUtilities
++    duneprototypes::ProtoDUNEDataUtils
++    geant4reweight::ReweightBaseLib
++)
++
+ 
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+diff --git a/protoduneana/singlephase/pionanalysismc/CMakeLists.txt b/protoduneana/singlephase/pionanalysismc/CMakeLists.txt
+index b174581..46ee9c5 100644
+--- a/protoduneana/singlephase/pionanalysismc/CMakeLists.txt
++++ b/protoduneana/singlephase/pionanalysismc/CMakeLists.txt
+@@ -1,31 +1,36 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  ProtoDUNEUtilities
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(pionanalysismc art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/protoduneana/singlephase/protonanalysis/CMakeLists.txt b/protoduneana/singlephase/protonanalysis/CMakeLists.txt
+index 7aab79d..e416131 100644
+--- a/protoduneana/singlephase/protonanalysis/CMakeLists.txt
++++ b/protoduneana/singlephase/protonanalysis/CMakeLists.txt
+@@ -1,35 +1,210 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  lardataobj::Simulation
+-  lardataalg::DetectorInfo
+-  lardata::ArtDataHelper
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  ProtoDUNEUtilities
+-  geant4reweight::ReweightBaseLib
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(proton4gen art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    lardataobj::Simulation
++    lardataalg::DetectorInfo
++    lardata::ArtDataHelper
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++)
++
++cet_build_plugin(protonanalysis art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    lardataobj::Simulation
++    lardataalg::DetectorInfo
++    lardata::ArtDataHelper
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++)
++
++cet_build_plugin(protonbeamana art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    lardataobj::Simulation
++    lardataalg::DetectorInfo
++    lardata::ArtDataHelper
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++)
++
++cet_build_plugin(protonmc art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    lardataobj::Simulation
++    lardataalg::DetectorInfo
++    lardata::ArtDataHelper
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++)
++
++cet_build_plugin(protonmccnn art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    lardataobj::Simulation
++    lardataalg::DetectorInfo
++    lardata::ArtDataHelper
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++)
++
++cet_build_plugin(protonmcnorw art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    lardataobj::Simulation
++    lardataalg::DetectorInfo
++    lardata::ArtDataHelper
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    geant4reweight::ReweightBaseLib
++)
++
+ 
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+diff --git a/protoduneana/singlephase/truepion/CMakeLists.txt b/protoduneana/singlephase/truepion/CMakeLists.txt
+index eba9507..1c390d7 100644
+--- a/protoduneana/singlephase/truepion/CMakeLists.txt
++++ b/protoduneana/singlephase/truepion/CMakeLists.txt
+@@ -1,33 +1,102 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  larsim::Simulation
+-  lardataobj::Simulation
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  ProtoDUNEUtilities
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(TrueEdep art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(WireChgAna art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(truepion art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
+ 
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+diff --git a/protoduneana/singlephase/truepionXsection/CMakeLists.txt b/protoduneana/singlephase/truepionXsection/CMakeLists.txt
+index c5abcd1..e9c5dc0 100644
+--- a/protoduneana/singlephase/truepionXsection/CMakeLists.txt
++++ b/protoduneana/singlephase/truepionXsection/CMakeLists.txt
+@@ -1,34 +1,39 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  ProtoDUNEUtilities
+-  larsim::Simulation
+-  lardataobj::Simulation
+-  lardataobj::RawData
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(truepionXsection art::module BASENAME_ONLY
++  LIBRARIES
++    lardataobj::RecoBase
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RawData
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
+ 
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+diff --git a/protoduneana/singlephase/velocity/CMakeLists.txt b/protoduneana/singlephase/velocity/CMakeLists.txt
+index 083208b..e0453ed 100644
+--- a/protoduneana/singlephase/velocity/CMakeLists.txt
++++ b/protoduneana/singlephase/velocity/CMakeLists.txt
+@@ -1,32 +1,99 @@
+ 
+-art_make(BASENAME_ONLY
+-  MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardataalg::DetectorInfo
+-  lardata::Utilities
+-  larcorealg::Geometry
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_PhotonBackTrackerService_service           
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  duneprototypes::ProtoDUNEDataUtils
+-  ProtoDUNEUtilities
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(diffusioncathodet0 art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(hitrmsfinding art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
++cet_build_plugin(velocity art::module BASENAME_ONLY
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    lardata::Utilities
++    larcorealg::Geometry
++    nusimdata::SimulationBase
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    duneprototypes::ProtoDUNEDataUtils
++    ProtoDUNEUtilities
++)
++
+ 
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+diff --git a/protoduneana/verticaldrift/michel/CMakeLists.txt b/protoduneana/verticaldrift/michel/CMakeLists.txt
+index 9030727..7ad8450 100644
+--- a/protoduneana/verticaldrift/michel/CMakeLists.txt
++++ b/protoduneana/verticaldrift/michel/CMakeLists.txt
+@@ -1,45 +1,46 @@
+-art_make( MODULE_LIBRARIES
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core ROOT::Tree ROOT::Hist
+-  art_root_io::TFileService_service
+-  art::Persistency_Common 
+-  art::Persistency_Provenance
+-  art::Utilities 
+-  canvas::canvas
+-  messagefacility::MF_MessageLogger
+-  fhiclcpp::fhiclcpp
+-  cetlib::cetlib
+-  cetlib_except::cetlib_except
+-  
+-  larcore::Geometry_Geometry_service
+-  larcorealg::Geometry
+-  lardata::RecoObjects
+-  lardata::ArtDataHelper
+-  lardataobj::RawData
+-  lardataobj::RecoBase
+-  lardataobj::MCBase
+-  lardataobj::AnalysisBase
+-  lardataobj::Simulation
+-  nusimdata::SimulationBase  
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
+ 
+-  larsim::Simulation
+-  larsim::Utils
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_PhotonBackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  
+-  nug4::ParticleNavigation
+-
+-  larreco::RecoAlg
+-  larpandora::LArPandoraInterface
+-  dunereco::AnaUtils
+-	
+-  protoduneana::ProtoDUNEUtilities
++cet_build_plugin(MichelAnalysis art::module
++  LIBRARIES
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Hist
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    lardata::RecoObjects
++    lardata::ArtDataHelper
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardataobj::MCBase
++    lardataobj::AnalysisBase
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    larsim::Simulation
++    larsim::Utils
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    nug4::ParticleNavigation
++    larreco::RecoAlg
++    larpandora::LArPandoraInterface
++    dunereco::AnaUtils
++    protoduneana::ProtoDUNEUtilities
+ )
+ 
++
+ cet_remove_compiler_flags(CXX -pedantic)
+ 
+ install_headers()

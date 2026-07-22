@@ -1,0 +1,381 @@
+diff --git a/dunedataprep/CalData/CMakeLists.txt b/dunedataprep/CalData/CMakeLists.txt
+index cc54674..5c670e4 100644
+--- a/dunedataprep/CalData/CMakeLists.txt
++++ b/dunedataprep/CalData/CMakeLists.txt
+@@ -1,26 +1,214 @@
+ 
+-art_make( BASENAME_ONLY
+-          MODULE_LIBRARIES larcorealg::Geometry
+-	                dunecore::Geometry
+-			larcore::Geometry_Geometry_service
+-	                lardata::Utilities
+-			larevt::Filters
+-			lardataobj::RawData
+-			lardataobj::RecoBase
+-			lardata::ArtDataHelper
+-			lardataalg::DetectorInfo
+-			dunecore::SignalShapingServiceDUNEDPhase_service
+-                        dunecore::SignalShapingServiceDUNE_service
+-			ROOT::Core
+-			ROOT::Gpad
+-			art::Persistency_Common
+-			art::Persistency_Provenance
+-			art::Utilities canvas::canvas
+-			messagefacility::MF_MessageLogger
+-			art_root_io::tfile_support
+-	                fhiclcpp::fhiclcpp
+-			cetlib::cetlib cetlib_except::cetlib_except
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(CalGausHFDUNE10kt art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    lardataalg::DetectorInfo
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    ROOT::Gpad
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(CalGausHFDUNE35t art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    lardataalg::DetectorInfo
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    ROOT::Gpad
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(CalWireDUNE10kt art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    lardataalg::DetectorInfo
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    ROOT::Gpad
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(CalWireDUNE35t art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    lardataalg::DetectorInfo
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    ROOT::Gpad
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(CalWireDUNEDPhase art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    lardataalg::DetectorInfo
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    ROOT::Gpad
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(DeconvGausHFDUNE10kt art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    lardataalg::DetectorInfo
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    ROOT::Gpad
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(DeconvGausHFDUNE35t art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    lardataalg::DetectorInfo
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    ROOT::Gpad
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(UnstickADCCodes art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    lardataalg::DetectorInfo
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    ROOT::Gpad
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
+ 
+ # install_headers()
+ install_fhicl()
+diff --git a/dunedataprep/DataPrep/Module/CMakeLists.txt b/dunedataprep/DataPrep/Module/CMakeLists.txt
+index 2d0e1cb..1ba0534 100644
+--- a/dunedataprep/DataPrep/Module/CMakeLists.txt
++++ b/dunedataprep/DataPrep/Module/CMakeLists.txt
+@@ -1,26 +1,56 @@
+ 
+-art_make( BASENAME_ONLY
+-          MODULE_LIBRARIES larcorealg::Geometry
+-	                dunecore::Geometry
+-	                dunecore::DuneCommon_Utility
+-	                dunecore::ArtSupport
+-			larcore::Geometry_Geometry_service
+-	                lardata::Utilities
+-			larevt::Filters
+-			lardataobj::RawData
+-			lardataobj::RecoBase
+-			lardata::ArtDataHelper
+-			dunecore::SignalShapingServiceDUNEDPhase_service
+-                        dunecore::SignalShapingServiceDUNE_service
+-			ROOT::Core
+-			art::Persistency_Common
+-			art::Persistency_Provenance
+-			art::Utilities canvas::canvas
+-			messagefacility::MF_MessageLogger
+-			
+-	                fhiclcpp::fhiclcpp
+-			cetlib::cetlib cetlib_except::cetlib_except
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(DataPrepByApaModule art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    dunecore::DuneCommon_Utility
++    dunecore::ArtSupport
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++cet_build_plugin(DataPrepModule art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    dunecore::DuneCommon_Utility
++    dunecore::ArtSupport
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    dunecore::SignalShapingServiceDUNE_service
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
+ 
+ # install_headers()
+ install_fhicl()
+diff --git a/dunedataprep/DataPrep/Utility/CMakeLists.txt b/dunedataprep/DataPrep/Utility/CMakeLists.txt
+index 8b96a15..40134cf 100644
+--- a/dunedataprep/DataPrep/Utility/CMakeLists.txt
++++ b/dunedataprep/DataPrep/Utility/CMakeLists.txt
+@@ -3,22 +3,36 @@
+ #find_library( WIRECELL_AUX_LIB     NAMES WireCellAux     PATHS ENV WIRECELL_LIB ${WIRECELL_LIB} NO_DEFAULT_PATH )
+ #include_directories($ENV{WIRECELL_INC})
+ 
+-art_make(BASENAME_ONLY
+-         LIB_LIBRARIES
+-         dunecore::ArtSupport
+-         dunecore::DuneCommon_Utility
+-	 larcorealg::Geometry
+-	 larcore::Geometry_Geometry_service	
+-         art::Utilities
+-	 art::Framework_Services_Registry
+-         canvas::canvas
+-         cetlib::cetlib
+-	 cetlib_except::cetlib_except
+-	 fhiclcpp::fhiclcpp
+-         WireCell::Aux
+- #        ${WIRECELL_AUX_LIB}
+-         NO_PLUGINS
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunedataprep_DataPrep_Utility
++  SOURCE
++    AdcMultiChannelPlotter.cc
++    DetectorChannelInfo.cc
++    DpWctFrameConverter.cxx
++    ParabolicInterpolator.cxx
++    StickyCodeMetrics.cxx
++    TickModTreeData.cxx
++  LIBRARIES
++    dunecore::ArtSupport
++    dunecore::DuneCommon_Utility
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    art::Utilities
++    art::Framework_Services_Registry
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    fhiclcpp::fhiclcpp
++    WireCell::Aux
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunedataprep_DataPrep_Utility
++)
++
+ 
+ install_source()
+ install_headers()

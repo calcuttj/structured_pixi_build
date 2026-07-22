@@ -1,0 +1,95 @@
+# rattler-build recipe (v1 / CEP-13 format) for duneopdet 10.21.1 (v10_21_01d00).
+#
+# duneopdet is the DUNE optical-detector (photon) sim/reco package: photon
+# propagation, OpDet response, OpHit/OpFlash finding. It is a dunecore-only leaf but
+# find_package()s a wide larsoft slice (larsim/larana/larreco/larevt/lardata +
+# nurandom + larsimdnn) EXPORT — all arriving through dunecore's run-closure, with
+# larsimdnn/eigen/hdf5 named directly. tensorflow is optional (find_package w/o
+# REQUIRED) and intentionally OFF (matches the larsoft ML-externals decision).
+# build.sh is the shared dunecore-consumer contract.
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: duneopdet
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/duneopdet/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: e3a0b42c1b6a9230afb7630440ec9de09a50a34f878df7461c017425d1b1225b
+  patches:
+    # Modernize deprecated cetmodules macros (art_make/cet_make/simple_plugin
+    # -> cet_make_library + art_dictionary + cet_build_plugin). Under pixi-build
+    # art_make's plugin glob drops sources beneath ".pixi" -> zero plugins built.
+    - patches/0001-modernize-cmake.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # dunecore pulls its entire run-closure (art+larsoft+nu+externals) transitively.
+    - dunecore
+    # larsoft components named directly by duneopdet (optional larsimdnn included)
+    - larsimdnn
+    # build-visible externals (compiler/CMake-config providers)
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - eigen
+    - hdf5
+    - nlohmann_json           # OpticalDetector plugins link nlohmann_json::nlohmann_json
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - artdaq_core
+    - dunedaqdataformats
+    - dunedetdataformats
+    - dunepdlegacy
+    - highfive
+    - trace
+  run:
+  run_exports:
+    - ${{ pin_subpackage('duneopdet', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - duneopdet/OpticalDetector/DUNEOpDetResponse.h
+      files:
+        - lib/duneopdet/cmake/duneopdetConfig.cmake
+        - lib/libduneopdet_OpticalDetector.so
+
+about:
+  homepage: https://github.com/DUNE/duneopdet
+  repository: https://github.com/DUNE/duneopdet
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: duneopdet -- DUNE optical-detector (photon) simulation and reconstruction
+  description: |
+    duneopdet provides the DUNE offline photon-detector code: photon propagation
+    (semi-analytic / library visibility models), optical-detector response, and
+    OpHit/OpFlash reconstruction, built on the dunecore base of the DUNE software
+    suite (dunesw).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

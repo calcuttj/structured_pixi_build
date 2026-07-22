@@ -1,0 +1,103 @@
+# rattler-build recipe (v1 / CEP-13 format) for dunereco 10.21.1 (v10_21_01d00).
+#
+# dunereco is the DUNE reconstruction package (FD/ND selections, CVN/DL interfaces,
+# energy reco, ...). Product deps: dunecore + duneprototypes(GREEN) + larcv2. **larcv2
+# is NOT a build dependency** — dunereco's CMakeLists never references it (only its
+# ups/product_deps does); the DL-image code paths that would use larcv2 are gated OFF
+# (caffe/Triton/TensorFlow find_package()s are QUIET/flagged). So dunereco builds
+# without larcv2 (a runtime/optional external). Its real build deps — larrecodnn/
+# larpandora/GENIE/hep_hpc/GSL/Eigen3/Range-v3/HDF5/Geant4 — are all in dunecore's
+# closure or already packaged. Shared dunecore-consumer build contract + a
+# find_ups_product(dunepdlegacy)->find_package conversion.
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: dunereco
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunereco/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: b1be7a9a00860bc048b13f572f075e50e1dbacc240769015db6f7fb6030588db
+  patches:
+    # Modernize deprecated cetmodules macros (art_make/cet_make/simple_plugin
+    # -> cet_make_library + art_dictionary + cet_build_plugin). Under pixi-build
+    # art_make's plugin glob drops sources beneath ".pixi" -> zero plugins built.
+    - patches/0001-modernize-cmake.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # dunecore run-closure (art+larsoft+larrecodnn+larpandora+nu*+GENIE+externals).
+    - dunecore
+    - duneprototypes
+    - dunepdlegacy
+    # larrecodnn is find_package()d directly by dunereco but is NOT in dunecore's
+    # find_dependency closure -> must be explicit in host.
+    - larrecodnn
+    # externals named directly by dunereco's CMakeLists
+    - hep_hpc
+    - gsl
+    - eigen
+    - hdf5
+    - nlohmann_json
+    # build-visible externals (compiler/CMake-config providers + dunecore find_dep cascade)
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - artdaq_core
+    - dunecalib
+    - dunedaqdataformats
+    - dunedetdataformats
+    - duneopdet
+    - dunesim
+    - highfive
+    - trace
+  run:
+  run_exports:
+    - ${{ pin_subpackage('dunereco', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/dunereco/cmake/dunerecoConfig.cmake
+        - lib/libdunereco_*.so
+
+about:
+  homepage: https://github.com/DUNE/dunereco
+  repository: https://github.com/DUNE/dunereco
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: dunereco -- DUNE event reconstruction (selections, energy reco, DL interfaces)
+  description: |
+    dunereco provides the DUNE offline event reconstruction: far- and near-detector
+    event selections, neutrino-energy reconstruction, and interfaces to DL/CVN
+    inference, built on the duneprototypes / dunecore layers of the DUNE software suite
+    (dunesw). The larcv2-backed DL-image paths are optional and built OFF here.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,61 @@
+# rattler-build recipe (v1 / CEP-13 format) for dunedetdataformats.
+#
+# dunedetdataformats is NOT a source package — it is DUNE's "offline-versioned"
+# redistribution of DUNE-DAQ/detdataformats: a set of header files
+# (include/detdataformats/**) plus a ready-made, relocatable INTERFACE CMake
+# package config (lib/cmake/dunedetdataformats/) and a UPS .table. There is no
+# CMakeLists.txt and nothing to compile. dunecore does
+# `find_package(dunedetdataformats REQUIRED EXPORT)` and #includes the headers.
+#
+# So the "build" is just: install include/ and lib/cmake/ into $PREFIX. The
+# shipped CMake config computes its prefix relative to lib/cmake/... (relocatable)
+# and the imported target is INTERFACE (header-only) — the stray
+# `_IMPORT_PREFIX = $ENV{H5CPP_DIR}` in -targets.cmake is dead code (it only feeds
+# a glob for per-config target files that this distribution does not contain).
+
+context:
+  version: "4.4.6"
+  parts: ${{ version | split('.') }}
+  # DUNE-DAQ tags are NOT major-padded: v4_4_6 (unlike LArSoft's v04_04_06).
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ parts[1] ~ "_" ~ parts[2] }}
+
+package:
+  name: dunedetdataformats
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunedetdataformats/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 2de636a659f4dadd48cf2381181b6ae4f8f7d3b184f9fd59dac20dfe0b3916b6
+
+build:
+  number: 0
+  # No compiled content — pure header + CMake-config install → noarch.
+  noarch: generic
+  script: build.sh
+
+requirements:
+  run_exports:
+    - ${{ pin_subpackage('dunedetdataformats', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - detdataformats/DetID.hpp
+        - detdataformats/DAQHeader.hpp
+      files:
+        - lib/cmake/dunedetdataformats/dunedetdataformats-config.cmake
+
+about:
+  homepage: https://github.com/DUNE/dunedetdataformats
+  repository: https://github.com/DUNE/dunedetdataformats
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: dunedetdataformats -- DUNE offline-versioned detector data formats (header-only)
+  description: |
+    DUNE's offline-versioned redistribution of the DUNE-DAQ detector raw-data
+    format headers (detdataformats). Header-only: ships the C++ headers and a
+    relocatable INTERFACE CMake package config. Consumed by dunecore (dunesw).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

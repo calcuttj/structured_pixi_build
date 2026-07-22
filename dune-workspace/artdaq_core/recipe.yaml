@@ -1,0 +1,75 @@
+# rattler-build recipe (v1 / CEP-13 format) for artdaq_core 3.10.2.
+#
+# artdaq_core is the core data-format + utility layer of the artdaq DAQ software.
+# In the dunesw stack it is pulled in by dunepdlegacy (which #includes artdaq-core
+# raw-event/fragment types). It is an art/cetmodules build on top of the art
+# stack + TRACE. Headers install under include/artdaq-core/**; the CMake package
+# is `artdaq_core` (find_package(artdaq_core)).
+
+context:
+  version: "3.10.2"
+  parts: ${{ version | split('.') }}
+  # art-daq tag: major/minor as-is, patch zero-padded to 2 -> v3_10_02.
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ parts[1] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: artdaq_core
+  version: ${{ version }}
+
+source:
+  url: https://github.com/art-daq/artdaq_core/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 423deb4385edae9d6a9322197f4ed42bcf3cdaebb931d640bc3f7f23124d8a52
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - trace                      # find_package(TRACE REQUIRED EXPORT)
+    - canvas_root_io             # find_package (ROOT dictionaries)
+    - canvas                     # find_package
+    - messagefacility            # find_package
+    - fhiclcpp                   # find_package
+    - cetlib                     # find_package
+    - cetlib_except              # transitive
+    - libboost-devel             # find_package(Boost date_time/filesystem/thread)
+    - tbb-devel                  # cetlib/canvas config chain -> TBBConfig
+    - range-v3                   # fhiclcpp/cetlib config chain -> find_dependency(Range-v3)
+    - root_base                  # ROOT (canvas_root_io dictionaries)
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('artdaq_core', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - artdaq-core/Utilities/TimeUtils.hh
+        - artdaq-core/Data/Fragment.hh
+      files:
+        - lib/artdaq_core/cmake/artdaq_coreConfig.cmake
+
+about:
+  homepage: https://github.com/art-daq/artdaq_core
+  repository: https://github.com/art-daq/artdaq_core
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: artdaq_core -- core data formats and utilities of the artdaq DAQ toolkit
+  description: |
+    artdaq_core provides the core raw-event/fragment data products and utility
+    classes of the Fermilab artdaq data-acquisition software, built on the art
+    framework, canvas_root_io and TRACE. Packaged here to satisfy dunepdlegacy
+    (and thus dunecore) in the dunesw conda stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

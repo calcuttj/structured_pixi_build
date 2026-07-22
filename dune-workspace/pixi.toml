@@ -1,0 +1,73 @@
+[workspace]
+authors = ["Jacob Calcutt <jcalcutt@bnl.gov>"]
+# Local channels FIRST so their FNAL-layout builds outrank conda-forge under
+# strict channel priority. Critical for `cry`: conda-forge ships cry-1.7 with a
+# standard include/cry/ layout, but the FNAL FindCRY.cmake (run via larsim/larana
+# Config find_dependency) expects CRYHOME/src/CRYSetup.h — only the larsoft-channel
+# cry build provides that. CF-first shadowed it and broke dunecore's configure.
+channels = ["file:///nfs/data/1/calcuttj/wirecell_pixi_test/conda/structured_pixi_build/larsoft-channel", "file:///nfs/data/1/calcuttj/wirecell_pixi_test/conda/structured_pixi_build/art-channel", "file:///nfs/data/1/calcuttj/wirecell_pixi_test/conda/structured_pixi_build/wct-channel", "conda-forge"]
+name = "dune-workspace"
+platforms = ["linux-64"]
+version = "0.1.0"
+preview = ["pixi-build"]
+
+# Central variant pins (the pixi-build-rattler-build backend ignores each recipe's
+# conda_build_config.yaml, so every pin lives here). Matches art/wct/larsoft
+# workspaces so the DUNE layer is co-installable with those channels.
+[workspace.build-variants]
+c_stdlib = ["sysroot"]
+c_stdlib_version = ["2.17"]
+libboost_devel = ["1.90"]
+libboost_headers = ["1.90"]
+libboost_python_devel = ["1.90"]
+# ROOT: recipes dep root_base 6.36.* + a bare root_cxx_standard (zip_keys in CF
+# pinning); single-valued here = one combo, so no zip_keys entry needed.
+root_base = ["6.36.6"]
+root_cxx_standard = ["20"]
+# geant4 11.4.2 has no py3.14 build but current CF root_base 6.36.06 is np2py314;
+# pin python 3.13 so root_base + geant4 co-resolve.
+python = ["3.13"]
+# larsoft/WCT stack is on hdf5 1.14 (current CF drifted to 2.x).
+hdf5 = ["1.14"]
+# gcc 14: the art/wct/larsoft channel binaries carry `libgcc/libstdcxx >=14`
+# (built with gcc 14). Pin the DUNE layer to 14 too so the toolchain matches
+# regardless of CF's current default (which may have advanced to 15).
+c_compiler_version = ["14"]
+cxx_compiler_version = ["14"]
+fortran_compiler_version = ["14"]
+
+[tasks]
+
+[dependencies]
+artdaq_core = { path = "artdaq_core" }
+dune_pardata = { path = "dune_pardata" }
+duneana = { path = "duneana" }
+duneanaobj = { path = "duneanaobj" }
+dunecalib = { path = "dunecalib" }
+dunecore = { path = "dunecore" }
+dunedaqdataformats = { path = "dunedaqdataformats" }
+dunedataprep = { path = "dunedataprep" }
+dunedetdataformats = { path = "dunedetdataformats" }
+duneexamples = { path = "duneexamples" }
+duneopdet = { path = "duneopdet" }
+dunepdlegacy = { path = "dunepdlegacy" }
+duneprototypes = { path = "duneprototypes" }
+dunereco = { path = "dunereco" }
+dunesim = { path = "dunesim" }
+dunesw = { path = "dunesw" }
+dunetrigger = { path = "dunetrigger" }
+duneutil = { path = "duneutil" }
+edepsim = { path = "edepsim" }
+geant4reweight = { path = "geant4reweight" }
+genie_phyopt = { path = "genie_phyopt" }
+genie_xsec = { path = "genie_xsec" }
+highfive = { path = "highfive" }
+larcv2 = { path = "larcv2" }
+# nd_cafmaker DROPPED from the default env: it hard-pins duneanaobj ==4.0.0, which
+# conflicts with the dunesw v10_21_01d00 suite's 3.16.0-era StandardRecord API.
+# Build it separately against duneanaobj 4.0.0 (its own ND track). Member dir + its
+# pixi.toml are kept for that future separate env.
+protoduneana = { path = "protoduneana" }
+srproxy = { path = "srproxy" }
+trace = { path = "trace" }
+python = "3.13.*"

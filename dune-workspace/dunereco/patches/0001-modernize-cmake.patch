@@ -1,0 +1,2552 @@
+diff --git a/dunereco/AnaUtils/CMakeLists.txt b/dunereco/AnaUtils/CMakeLists.txt
+index bc71404..c607bbb 100644
+--- a/dunereco/AnaUtils/CMakeLists.txt
++++ b/dunereco/AnaUtils/CMakeLists.txt
+@@ -1,7 +1,20 @@
+-art_make(
+-    LIB_LIBRARIES larcorealg::Geometry
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_AnaUtils
++  SOURCE
++    DUNEAnaClusterUtils.cxx
++    DUNEAnaEventUtils.cxx
++    DUNEAnaHitUtils.cxx
++    DUNEAnaPFParticleUtils.cxx
++    DUNEAnaShowerUtils.cxx
++    DUNEAnaSliceUtils.cxx
++    DUNEAnaSpacePointUtils.cxx
++    DUNEAnaTrackUtils.cxx
++  LIBRARIES
++    larcorealg::Geometry
+     larcore::Geometry_Geometry_service
+-    larsim::Simulation lardataobj::Simulation
++    larsim::Simulation
++    lardataobj::Simulation
+     lardataalg::DetectorInfo
+     lardataobj::RawData
+     lardataobj::RecoBase
+@@ -21,6 +34,7 @@ art_make(
+     dunereco_TrackPID_products
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/dunereco/CVN/art/CMakeLists.txt b/dunereco/CVN/art/CMakeLists.txt
+index 86a9dce..88b754b 100644
+--- a/dunereco/CVN/art/CMakeLists.txt
++++ b/dunereco/CVN/art/CMakeLists.txt
+@@ -10,43 +10,205 @@ else(DEFINED ENV{TENSORFLOW_DIR})
+ set (EXCLUDE_TF TFNetHandler.cxx)
+ endif (DEFINED ENV{TENSORFLOW_DIR})
+ include_directories(${HEP_HPC_INCLUDE_DIRS})
+-art_make(BASENAME_ONLY
+-#  LIBRARY_NAME      CVNArt
+-  EXCLUDE ${EXCLUDE_TF}
+-  LIB_LIBRARIES 
+-  dunereco::CVN_func
+-  dunereco::CVN_tf
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  art_root_io::TFileService_service
+-  ROOT::Core
+-  art::Persistency_Common
+-  art::Persistency_Provenance
+-  art::Utilities 
+-  canvas::canvas
+-  messagefacility::MF_MessageLogger
+-  z
+-  fhiclcpp::fhiclcpp
+-  cetlib::cetlib cetlib_except::cetlib_except
+-  ROOT::Core
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_ParticleInventoryService_service
+-  GSL::gsl
+-  hep_hpc_hdf5
+-  hep_hpc_Utilities
+-  HDF5::HDF5
+-  MVAAlg
+-  Boost::filesystem
+-  MODULE_LIBRARIES 
+-  dunereco::CVN_func
+-  dunereco::CVN_tf
+-  dunereco::CVN_art
+-  stdc++fs
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_CVN_art
++  SOURCE
++    PixelMapProducer.cxx
++    PixelMapSimProducer.cxx
++    PixelMapWireProducer.cxx
++    TFNetHandler.cxx
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    art_root_io::TFileService_service
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    z
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Core
++    lardataobj::RecoBase
++    lardata::Utilities
++    nusimdata::SimulationBase
++    larsim::MCCheater_ParticleInventoryService_service
++    GSL::gsl
++    hep_hpc_hdf5
++    hep_hpc_Utilities
++    HDF5::HDF5
++    MVAAlg
++    Boost::filesystem
++)
++
++cet_build_plugin(CVNEvaluator art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNEventDumpProtoDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNEventDump art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNMapperProtoDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNMapperSim art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNMapperWire art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNMapper art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNSparseMapper3D art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNSparseMapper art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNSparseROOT art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNValidation art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNZlibMakerProtoDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(CVNZlibMaker art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(GCNGraphMaker2D art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(GCNGraphMakerProtoDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(GCNGraphMaker art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(GCNH5 art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(GCNHitGraphMaker art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(GCNZlibMakerProtoDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
++cet_build_plugin(GCNZlibMaker art::module BASENAME_ONLY
++  LIBRARIES
++    dunereco::CVN_func
++    dunereco::CVN_tf
++    dunereco::CVN_art
++    stdc++fs
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunereco/CVN/func/CMakeLists.txt b/dunereco/CVN/func/CMakeLists.txt
+index 7812e04..83e487e 100644
+--- a/dunereco/CVN/func/CMakeLists.txt
++++ b/dunereco/CVN/func/CMakeLists.txt
+@@ -2,27 +2,51 @@
+ 
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+-art_make( BASENAME_ONLY
+-#  LIBRARY_NAME     CVNFunc
+-  LIB_LIBRARIES    nusimdata::SimulationBase
+-  larcorealg::Geometry
+-  larcorealg::GeoAlgo
+-  lardataobj::RecoBase
+-  larsim::MCCheater_BackTrackerService_service 
+-  larsim::MCCheater_ParticleInventoryService_service
+-  art::Persistency_Provenance
+-  art::Framework_Principal
+-  messagefacility::MF_MessageLogger
+-  art::Persistency_Common
+-  art::Persistency_Provenance
+-  art::Utilities
+-  cetlib::cetlib
+-  canvas::canvas
+-  Boost::filesystem            
+-  ROOT::Hist  
+-  DICT_LIBRARIES   lardataobj::RecoBase
+-  dunereco_CVN_func
+-  ) ### MIGRATE ACTION-RECOMMENDED (migrate-3.22.02) - deprecated: use art_make_library(), art_dictonary(), and cet_build_plugin() with explicit source lists and plugin base types
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_CVN_func
++  SOURCE
++    AssignLabels.cxx
++    Boundary.cxx
++    CVNImageUtils.cxx
++    CVNProtoDUNEUtils.cxx
++    GCNFeatureUtils.cxx
++    GCNGraph.cxx
++    GCNGraphNode.cxx
++    GCNParticleFlow.cxx
++    HitType.cxx
++    InteractionType.cxx
++    PixelMap.cxx
++    Result.cxx
++    SparsePixelMap.cxx
++    TrainingData.cxx
++  LIBRARIES
++    nusimdata::SimulationBase
++    larcorealg::Geometry
++    larcorealg::GeoAlgo
++    lardataobj::RecoBase
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    art::Persistency_Provenance
++    art::Framework_Principal
++    messagefacility::MF_MessageLogger
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    cetlib::cetlib
++    canvas::canvas
++    Boost::filesystem
++    ROOT::Hist
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunereco_CVN_func
++    lardataobj::RecoBase
++    dunereco_CVN_func
++)
++ ### MIGRATE ACTION-RECOMMENDED (migrate-3.22.02) - deprecated: use art_make_library(), art_dictonary(), and cet_build_plugin() with explicit source lists and plugin base types
+ 
+ install_headers()
+ install_source()
+diff --git a/dunereco/CVN/tf/CMakeLists.txt b/dunereco/CVN/tf/CMakeLists.txt
+index 990aa9d..adc59b4 100644
+--- a/dunereco/CVN/tf/CMakeLists.txt
++++ b/dunereco/CVN/tf/CMakeLists.txt
+@@ -2,12 +2,18 @@ include_directories ( $ENV{TENSORFLOW_INC}/absl )
+ 
+ cet_add_compiler_flags(CXX -Wno-pedantic)
+ 
+-art_make(BASENAME_ONLY
+-  LIB_LIBRARIES
+-  pthread
+-  TensorFlow::cc
+-  TensorFlow::framework
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_CVN_tf
++  SOURCE
++    tf_bundle.cc
++    tf_graph.cc
++  LIBRARIES
++    pthread
++    TensorFlow::cc
++    TensorFlow::framework
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunereco/DUNEPandora/CMakeLists.txt b/dunereco/DUNEPandora/CMakeLists.txt
+index 7b68738..cfe631e 100644
+--- a/dunereco/DUNEPandora/CMakeLists.txt
++++ b/dunereco/DUNEPandora/CMakeLists.txt
+@@ -3,28 +3,8 @@
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+ 
+-art_make( BASENAME_ONLY
+-          LIBRARY_NAME  DUNEPandora
+-          LIB_LIBRARIES larpandora_LArPandoraInterface
+-                        lardataobj_RecoBase
+-                        larcorealg_Geometry
+-                        larcore_Geometry_Geometry_service
+-                        larsim_Simulation nug4::ParticleNavigation lardataobj_Simulation
+-			larpandoracontent::LArPandoraContent
+-                        PandoraPFA::PandoraSDK
+-                        PandoraPFA::PandoraMonitoring
+-                        nusimdata::SimulationBase
+-                        ROOT::Core
+-                        art::Persistency_Common canvas
+-                        art::Persistency_Provenance canvas
+-                        art::Utilities canvas
+-                        messagefacility::MF_MessageLogger
+-                        fhiclcpp::fhiclcpp
+-                        cetlib::cetlib cetlib_except
+-                        ROOT::Geom
+-			
+-          MODULE_LIBRARIES DUNEPandora
+-          )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunereco/FDSelections/CMakeLists.txt b/dunereco/FDSelections/CMakeLists.txt
+index e81bf86..01762da 100644
+--- a/dunereco/FDSelections/CMakeLists.txt
++++ b/dunereco/FDSelections/CMakeLists.txt
+@@ -4,32 +4,52 @@ add_subdirectory(FDSelectionData)
+ 
+ if(( DEFINED ENV{TENSORFLOW_DIR} ) AND ( DEFINED ENV{TRITON_DIR} ))
+   
+-art_make( LIBRARY_NAME FDSelection
+-	  LIB_LIBRARIES larcorealg::Geometry
+-	  	        larcore::Geometry_Geometry_service
+-		          larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+- 	  	       larsim::MCCheater_BackTrackerService_service
+-         	  larsim::MCCheater_ParticleInventoryService_service
+-	  	        lardata::Utilities
+-	  	        larevt::Filters
+-	  	        lardataobj::RawData
+-	  	        lardataobj::RecoBase
+-	  	        lardata::RecoObjects 
+-#larreco_Deprecated
+-	  	        larreco::RecoAlg
+-         			larreco::Calorimetry
+-	  	        larpandora::LArPandoraInterface
+-          	        nusimdata::SimulationBase
+-            larsim::Utils
+-            NeutrinoEnergyRecoAlg
+-            PandrizzleAlg
+-            PandizzleAlg
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME FDSelection
++  SOURCE
++    FDSelectionUtils.cc
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::RecoObjects
++    larreco::RecoAlg
++    larreco::Calorimetry
++    larpandora::LArPandoraInterface
++    nusimdata::SimulationBase
++    larsim::Utils
++    NeutrinoEnergyRecoAlg
++    PandrizzleAlg
++    PandizzleAlg
++)
++
++cet_build_plugin(CCNuSelection art::module
++  LIBRARIES
++    FDSelection
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++)
++
++cet_build_plugin(PandoraNuSelection art::module
++  LIBRARIES
++    FDSelection
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++)
+ 
+-MODULE_LIBRARIES FDSelection
+-	  	           art::Persistency_Common
+-	  	           art::Persistency_Provenance 
+-	  	           art::Utilities canvas::canvas
+-        )
+ 
+     endif ()
+     
+diff --git a/dunereco/FDSelections/FDSelectionData/CMakeLists.txt b/dunereco/FDSelections/FDSelectionData/CMakeLists.txt
+index 4800fcf..53195d4 100644
+--- a/dunereco/FDSelections/FDSelectionData/CMakeLists.txt
++++ b/dunereco/FDSelections/FDSelectionData/CMakeLists.txt
+@@ -1,9 +1,19 @@
+ # this will create both the library and the dictionary
+-art_make(
+-  LIB_LIBRARIES
+-     ROOT::GenVector #LorentzVector
+-  DICT_LIBRARIES
+-     lardataobj::headers #just for associations
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_FDSelections_FDSelectionData
++  SOURCE
++    PandoraNuSelection.cxx
++  LIBRARIES
++    ROOT::GenVector
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunereco_FDSelections_FDSelectionData
++    lardataobj::headers
++)
++
+ install_source()
+ install_headers()
+diff --git a/dunereco/FDSelections/pandizzle/CMakeLists.txt b/dunereco/FDSelections/pandizzle/CMakeLists.txt
+index 26fbb94..6f011a9 100644
+--- a/dunereco/FDSelections/pandizzle/CMakeLists.txt
++++ b/dunereco/FDSelections/pandizzle/CMakeLists.txt
+@@ -1,28 +1,29 @@
+-art_make(LIBRARY_NAME     PandizzleAlg
+-         LIB_LIBRARIES    larcorealg::Geometry
+-                          larcore::Geometry_Geometry_service
+-                          larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+-                          larsim::MCCheater_BackTrackerService_service
+-                          larsim::MCCheater_ParticleInventoryService_service
+-                          lardata::Utilities
+-                          larevt::Filters
+-                          lardataobj::RawData
+-                          lardataobj::RecoBase
+-                          lardata::RecoObjects 
+-                          larreco::RecoAlg
+-                          larreco::Calorimetry
+-                          larpandora::LArPandoraInterface
+-                          nusimdata::SimulationBase
+-                          larsim::Utils
+-                          NeutrinoEnergyRecoAlg
+-         MODULE_LIBRARIES PandizzleAlg
+-                          #dune_TrackPID
+-                          dune_TrackPID_algorithms
+-                          dune_TrackPID_products
+-                          art::Persistency_Common
+-                          art::Persistency_Provenance
+-                          art::Utilities
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME PandizzleAlg
++  SOURCE
++    PandizzleAlg.cxx
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::RecoObjects
++    larreco::RecoAlg
++    larreco::Calorimetry
++    larpandora::LArPandoraInterface
++    nusimdata::SimulationBase
++    larsim::Utils
++    NeutrinoEnergyRecoAlg
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunereco/FDSelections/pandrizzle/CMakeLists.txt b/dunereco/FDSelections/pandrizzle/CMakeLists.txt
+index 441715b..0c82c0b 100644
+--- a/dunereco/FDSelections/pandrizzle/CMakeLists.txt
++++ b/dunereco/FDSelections/pandrizzle/CMakeLists.txt
+@@ -1,29 +1,30 @@
+-art_make( LIBRARY_NAME PandrizzleAlg
+-          LIB_LIBRARIES larcorealg::Geometry
+-                        larcore::Geometry_Geometry_service
+-                        larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+-                        larsim::MCCheater_BackTrackerService_service
+-                        larsim::MCCheater_ParticleInventoryService_service
+-                        lardata::Utilities
+-                        larevt::Filters
+-                        lardataobj::RawData
+-                        lardataobj::RecoBase
+-                        lardata::RecoObjects 
+-                        ROOT::Tree
+-                        larreco::RecoAlg
+-                        larreco::Calorimetry
+-                        larpandora::LArPandoraInterface
+-                        nusimdata::SimulationBase
+-                        larsim::Utils
+-                        NeutrinoEnergyRecoAlg
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME PandrizzleAlg
++  SOURCE
++    PandrizzleAlg.cxx
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::RecoObjects
++    ROOT::Tree
++    larreco::RecoAlg
++    larreco::Calorimetry
++    larpandora::LArPandoraInterface
++    nusimdata::SimulationBase
++    larsim::Utils
++    NeutrinoEnergyRecoAlg
++)
+ 
+-       MODULE_LIBRARIES PandrizzleAlg
+-                        dune_TrackPID_algorithms
+-                        dune_TrackPID_products
+-                        art::Persistency_Common
+-                        art::Persistency_Provenance
+-                        art::Utilities
+-        )
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunereco/FDSelections/tools/CMakeLists.txt b/dunereco/FDSelections/tools/CMakeLists.txt
+index e870c01..4954b31 100644
+--- a/dunereco/FDSelections/tools/CMakeLists.txt
++++ b/dunereco/FDSelections/tools/CMakeLists.txt
+@@ -1,47 +1,45 @@
+-simple_plugin(LongestRecoVertexTrackSelector "tool"
+-                      dunereco_AnaUtils
+-                      lardataobj::RecoBase
+-                      larpandora::LArPandoraInterface
+-                      art::Persistency_Common 
+-                      art::Persistency_Provenance 
+-
+-                       
+-             )
+-
+-simple_plugin(HighestPandrizzleScoreRecoVertexShowerSelector "tool"
+-                      lardataobj::RecoBase
+-                      larpandora::LArPandoraInterface
+-                      art::Persistency_Common 
+-                      art::Persistency_Provenance 
+-
+-                       
+-
+-                      PandrizzleAlg    
+-                      #dune_FDSelections_pandizzle
+-             )
+-
+-
+-simple_plugin(HighestPandizzleScoreRecoVertexTrackSelector "tool"
+-                      lardataobj::RecoBase
+-                      larpandora::LArPandoraInterface
+-                      art::Persistency_Common 
+-                      art::Persistency_Provenance 
+-
+-                       
+-                      PandizzleAlg
+-             )
+-
+-simple_plugin(HighestEnergyRecoVertexShowerSelector "tool"
+-                      lardataobj::RecoBase
+-                      larcorealg::Geometry
+-                      larcore::Geometry_Geometry_service
+-                      larreco::RecoAlg
+-                      larpandora::LArPandoraInterface
+-                      dunereco_AnaUtils
+-                      art::Persistency_Common 
+-                      art::Persistency_Provenance 
+-
+-                       
+-             )
++cet_build_plugin(LongestRecoVertexTrackSelector art::tool
++  LIBRARIES
++    dunereco_AnaUtils
++    lardataobj::RecoBase
++    larpandora::LArPandoraInterface
++    art::Persistency_Common
++    art::Persistency_Provenance
++)
++
++
++cet_build_plugin(HighestPandrizzleScoreRecoVertexShowerSelector art::tool
++  LIBRARIES
++    lardataobj::RecoBase
++    larpandora::LArPandoraInterface
++    art::Persistency_Common
++    art::Persistency_Provenance
++    PandrizzleAlg
++)
++
++
++
++cet_build_plugin(HighestPandizzleScoreRecoVertexTrackSelector art::tool
++  LIBRARIES
++    lardataobj::RecoBase
++    larpandora::LArPandoraInterface
++    art::Persistency_Common
++    art::Persistency_Provenance
++    PandizzleAlg
++)
++
++
++cet_build_plugin(HighestEnergyRecoVertexShowerSelector art::tool
++  LIBRARIES
++    lardataobj::RecoBase
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larreco::RecoAlg
++    larpandora::LArPandoraInterface
++    dunereco_AnaUtils
++    art::Persistency_Common
++    art::Persistency_Provenance
++)
++
+              
+ install_fhicl()
+diff --git a/dunereco/FDSensOpt/FDSensOptData/CMakeLists.txt b/dunereco/FDSensOpt/FDSensOptData/CMakeLists.txt
+index 9f863bc..43c3449 100644
+--- a/dunereco/FDSensOpt/FDSensOptData/CMakeLists.txt
++++ b/dunereco/FDSensOpt/FDSensOptData/CMakeLists.txt
+@@ -1,9 +1,21 @@
+ # this will create both the library and the dictionary
+-art_make(
+-  LIB_LIBRARIES
+-     ROOT::GenVector #LorentzVector
+-  DICT_LIBRARIES
+-     lardataobj::RecoBase #just for associations
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_FDSensOpt_FDSensOptData
++  SOURCE
++    AngularRecoOutput.cxx
++    EnergyRecoOutput.cxx
++    MVASelectPID.cxx
++  LIBRARIES
++    ROOT::GenVector
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunereco_FDSensOpt_FDSensOptData
++    lardataobj::RecoBase
++)
++
+ install_source()
+ install_headers()
+diff --git a/dunereco/FDSensOpt/IniSegAlg/CMakeLists.txt b/dunereco/FDSensOpt/IniSegAlg/CMakeLists.txt
+index 7da1712..ca79d02 100644
+--- a/dunereco/FDSensOpt/IniSegAlg/CMakeLists.txt
++++ b/dunereco/FDSensOpt/IniSegAlg/CMakeLists.txt
+@@ -1,26 +1,32 @@
+ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+ 
+-art_make( BASENAME_ONLY
+-          LIBRARY_NAME  IniSegAlg
+-          LIB_LIBRARIES larcorealg::Geometry
+-                        larcore::Geometry_Geometry_service
+-                        larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+-                        lardataobj::RawData
+-                        lardataobj::RecoBase
+-			larreco::RecoAlg
+-			larreco::RecoAlg_PMAlg
+-                        lardata::Utilities
+-                        nusimdata::SimulationBase
+-                        art::Persistency_Common
+-                        ROOT::Core
+-                        art::Persistency_Provenance
+-			art_root_io::tfile_support
+-                        art::Utilities
+-                        fhiclcpp::fhiclcpp
+-			messagefacility::MF_MessageLogger
+-                        cetlib::cetlib
+-			
+-          )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME IniSegAlg
++  SOURCE
++    IniSegAlg.cxx
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardataobj::RawData
++    lardataobj::RecoBase
++    larreco::RecoAlg
++    larreco::RecoAlg_PMAlg
++    lardata::Utilities
++    nusimdata::SimulationBase
++    art::Persistency_Common
++    ROOT::Core
++    art::Persistency_Provenance
++    art_root_io::tfile_support
++    art::Utilities
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunereco/FDSensOpt/MVAAlg/CMakeLists.txt b/dunereco/FDSensOpt/MVAAlg/CMakeLists.txt
+index 92399a9..0b5705e 100644
+--- a/dunereco/FDSensOpt/MVAAlg/CMakeLists.txt
++++ b/dunereco/FDSensOpt/MVAAlg/CMakeLists.txt
+@@ -1,32 +1,39 @@
+ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+ 
+-art_make( BASENAME_ONLY
+-  LIBRARY_NAME  MVAAlg
+-  LIB_LIBRARIES larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+-  lardataalg::DetectorInfo
+-  lardataobj::RawData
+-  lardataobj::RecoBase
+-  lardata::ArtDataHelper
+-  larreco::RecoAlg
+-  larreco::RecoAlg_PMAlg
+-  lardata::Utilities
+-  larreco::Calorimetry
+-  IniSegAlg
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  nusimdata::SimulationBase
+-  art::Persistency_Common
+-  ROOT::Core
+-  art::Persistency_Common
+-  art::Persistency_Provenance
+-  art::Utilities
+-  art::Framework_Principal
+-  fhiclcpp::fhiclcpp
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME MVAAlg
++  SOURCE
++    MVAAlg.cxx
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardataalg::DetectorInfo
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larreco::RecoAlg
++    larreco::RecoAlg_PMAlg
++    lardata::Utilities
++    larreco::Calorimetry
++    IniSegAlg
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    nusimdata::SimulationBase
++    art::Persistency_Common
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    art::Framework_Principal
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunereco/FDSensOpt/NeutrinoAngularRecoAlg/CMakeLists.txt b/dunereco/FDSensOpt/NeutrinoAngularRecoAlg/CMakeLists.txt
+index ad03be0..e1b590e 100644
+--- a/dunereco/FDSensOpt/NeutrinoAngularRecoAlg/CMakeLists.txt
++++ b/dunereco/FDSensOpt/NeutrinoAngularRecoAlg/CMakeLists.txt
+@@ -1,41 +1,49 @@
+ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+ 
+-art_make( BASENAME_ONLY
+-  LIBRARY_NAME  NeutrinoAngularRecoAlg
+-  LIB_LIBRARIES 
+-  larcorealg::Geometry
+-  dunereco::AnaUtils
+-  larcore::Geometry_Geometry_service
+-  larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+-  lardataobj::RawData
+-  lardataobj::RecoBase
+-  lardata::ArtDataHelper
+-  larreco::RecoAlg
+-  larreco::RecoAlg_PMAlg
+-  lardata::Utilities
+-  larreco::Calorimetry
+-  IniSegAlg
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  nusimdata::SimulationBase
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Persistency_Common 
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  art::Persistency_Provenance
+-  art::Utilities canvas::canvas
+-  fhiclcpp::fhiclcpp
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib cetlib_except::cetlib_except
+-  ROOT::TMVA
+-  ROOT::EG
+-  ROOT::Minuit
+-  ROOT::Minuit2
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME NeutrinoAngularRecoAlg
++  SOURCE
++    NeutrinoAngularRecoAlg.cc
++  LIBRARIES
++    larcorealg::Geometry
++    dunereco::AnaUtils
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larreco::RecoAlg
++    larreco::RecoAlg_PMAlg
++    lardata::Utilities
++    larreco::Calorimetry
++    IniSegAlg
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    nusimdata::SimulationBase
++    art::Framework_Core
++    art::Framework_Principal
++    art::Persistency_Common
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::TMVA
++    ROOT::EG
++    ROOT::Minuit
++    ROOT::Minuit2
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunereco/FDSensOpt/NeutrinoEnergyRecoAlg/CMakeLists.txt b/dunereco/FDSensOpt/NeutrinoEnergyRecoAlg/CMakeLists.txt
+index 01a2ff8..155b43a 100644
+--- a/dunereco/FDSensOpt/NeutrinoEnergyRecoAlg/CMakeLists.txt
++++ b/dunereco/FDSensOpt/NeutrinoEnergyRecoAlg/CMakeLists.txt
+@@ -1,31 +1,38 @@
+ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+ 
+-art_make( BASENAME_ONLY
+-  LIBRARY_NAME  NeutrinoEnergyRecoAlg
+-  LIB_LIBRARIES 
+-  larcorealg::Geometry
+-  dunereco_AnaUtils
+-  larcore::Geometry_Geometry_service
+-  larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+-  lardataobj::RawData
+-  lardataobj::RecoBase
+-  lardata::ArtDataHelper
+-  larreco::RecoAlg
+-  larreco::RecoAlg_PMAlg
+-  lardata::Utilities
+-  larreco::Calorimetry
+-  IniSegAlg
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  nusimdata::SimulationBase
+-  ROOT::Core
+-  art::Persistency_Common
+-  art::Persistency_Provenance
+-  art::Utilities
+-  fhiclcpp::fhiclcpp
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME NeutrinoEnergyRecoAlg
++  SOURCE
++    NeutrinoEnergyRecoAlg.cc
++    NeutrinoEnergyRecoPIDAlg.cc
++  LIBRARIES
++    larcorealg::Geometry
++    dunereco_AnaUtils
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larreco::RecoAlg
++    larreco::RecoAlg_PMAlg
++    lardata::Utilities
++    larreco::Calorimetry
++    IniSegAlg
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunereco/FDSensOpt/ParticleSelectionAlg/CMakeLists.txt b/dunereco/FDSensOpt/ParticleSelectionAlg/CMakeLists.txt
+index c669580..dc8f113 100644
+--- a/dunereco/FDSensOpt/ParticleSelectionAlg/CMakeLists.txt
++++ b/dunereco/FDSensOpt/ParticleSelectionAlg/CMakeLists.txt
+@@ -1,26 +1,30 @@
+ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+ 
+-art_make( BASENAME_ONLY
+-  LIBRARY_NAME  ParticleSelectionAlg
+-  LIB_LIBRARIES 
+-  larcorealg::Geometry
+-  dunereco_AnaUtils
+-  larcore::Geometry_Geometry_service
+-  larsim::Simulation 
+-  lardataobj::RawData
+-  lardataobj::RecoBase
+-  lardata::ArtDataHelper
+-  larreco::RecoAlg
+-  larpandora::LArPandoraInterface
+-  lardata::Utilities
+-  ROOT::Core
+-  art::Persistency_Common
+-  art::Persistency_Provenance
+-  art::Utilities
+-  fhiclcpp::fhiclcpp
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib 
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME ParticleSelectionAlg
++  SOURCE
++    ParticleSelectionAlg.cc
++  LIBRARIES
++    larcorealg::Geometry
++    dunereco_AnaUtils
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larreco::RecoAlg
++    larpandora::LArPandoraInterface
++    lardata::Utilities
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunereco/HitFinderDUNE/CMakeLists.txt b/dunereco/HitFinderDUNE/CMakeLists.txt
+index a67dcd6..0f0fabc 100644
+--- a/dunereco/HitFinderDUNE/CMakeLists.txt
++++ b/dunereco/HitFinderDUNE/CMakeLists.txt
+@@ -1,45 +1,239 @@
+ 
+-art_make( BASENAME_ONLY
+-          LIBRARY_NAME     HitFinderDUNE
+-          LIB_LIBRARIES    lardataobj::RecoBase
+-                           lardataalg::DetectorInfo
+-                           larreco::RecoAlg
+-                           larreco::RecoAlg_PMAlg
+-                           larevt::Filters
+-                           larcorealg::Geometry
+-                           larcore::Geometry_Geometry_service
+-                           lardata::RecoObjects
+-                           larsim::MCCheater_BackTrackerService_service
+-                           larsim::MCCheater_ParticleInventoryService_service
+-                           lardata::Utilities
+-                           nusimdata::SimulationBase
+-                           ROOT::Core
+-			   ROOT::Hist
+-                           art::Persistency_Common
+-                           art::Persistency_Provenance
+-                           art::Utilities
+-			   art::Framework_Services_Registry
+-                           messagefacility::MF_MessageLogger
+-                           fhiclcpp::fhiclcpp
+-                           cetlib::cetlib
+-                           CLHEP::CLHEP
+-         MODULE_LIBRARIES  HitFinderDUNE
+-                           lardataobj::RecoBase
+-                           lardata::ArtDataHelper
+-                           larcorealg::Geometry
+-                           larcore::Geometry_Geometry_service
+-                           larsim::MCCheater_BackTrackerService_service
+-                           larsim::MCCheater_ParticleInventoryService_service
+-                           lardata::Utilities
+-                           nurandom::RandomUtils_NuRandomService_service
+-                           nusimdata::SimulationBase
+-                           ROOT::Core
+-                           art::Persistency_Common 
+-                           art::Utilities 
+-                           messagefacility::MF_MessageLogger
+-                           fhiclcpp::fhiclcpp
+-                           cetlib::cetlib
+-         )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME HitFinderDUNE
++  SOURCE
++    APAGeometryAlg.cxx
++    DisambigAlg35t.cxx
++    DisambigAlgProtoDUNESP.cxx
++    HitLineFitAlg.cxx
++    RMSHitFinderAlg.cxx
++    TimeBasedDisambig.cxx
++  LIBRARIES
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    larreco::RecoAlg
++    larreco::RecoAlg_PMAlg
++    larevt::Filters
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::RecoObjects
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nusimdata::SimulationBase
++    ROOT::Core
++    ROOT::Hist
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    art::Framework_Services_Registry
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    CLHEP::CLHEP
++)
++
++cet_build_plugin(ClusterHitTime art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
++cet_build_plugin(DisambigFromSpacePoints art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
++cet_build_plugin(EmLikeHits art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
++cet_build_plugin(HitFinder35t art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
++cet_build_plugin(HitFinderProtoDUNESP art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
++cet_build_plugin(HitHandScan art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
++cet_build_plugin(HitRepeater art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
++cet_build_plugin(NumberOfHitsFilter art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
++cet_build_plugin(ShowerHitSeparator art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
++cet_build_plugin(disambigcheck art::module BASENAME_ONLY
++  LIBRARIES
++    HitFinderDUNE
++    lardataobj::RecoBase
++    lardata::ArtDataHelper
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    lardata::Utilities
++    nurandom::RandomUtils_NuRandomService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Utilities
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunereco/InfillChannels/art/CMakeLists.txt b/dunereco/InfillChannels/art/CMakeLists.txt
+index bfe2bc1..3fb3abc 100644
+--- a/dunereco/InfillChannels/art/CMakeLists.txt
++++ b/dunereco/InfillChannels/art/CMakeLists.txt
+@@ -4,29 +4,60 @@ find_package(Torch REQUIRED)
+ # using SYSTEM to prevent multiple "error: extra ‘;’ [-Werror=pedantic]" errors 
+ include_directories(SYSTEM ${TORCH_INCLUDE_DIRS})
+ 
+-art_make(
+-        MODULE_LIBRARIES
+-                larcore::headers
+-                lardataobj::RecoBase
+-                lardataobj::RawData
+-                larcorealg::Geometry
+-                lardataalg::DetectorInfo
+-                larevt::CalibrationDBI_Providers
+-                lardata::headers
+-                dunepdlegacy::Overlays
+-                art_root_io::tfile_support
+-                art::Persistency_Common
+-                art::Persistency_Provenance
+-                art::Utilities canvas::canvas
+-                cetlib::cetlib cetlib_except::cetlib_except
+-                ROOT::Core
+-                messagefacility::MF_MessageLogger
+-                fhiclcpp::fhiclcpp
+-                CLHEP::CLHEP
+-                torch
+-                torch_cpu
+-                c10
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(InfillChannels art::module
++  LIBRARIES
++    larcore::headers
++    lardataobj::RecoBase
++    lardataobj::RawData
++    larcorealg::Geometry
++    lardataalg::DetectorInfo
++    larevt::CalibrationDBI_Providers
++    lardata::headers
++    dunepdlegacy::Overlays
++    art_root_io::tfile_support
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Core
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    CLHEP::CLHEP
++    torch
++    torch_cpu
++    c10
++)
++
++cet_build_plugin(MakeInfillTrainingData art::module
++  LIBRARIES
++    larcore::headers
++    lardataobj::RecoBase
++    lardataobj::RawData
++    larcorealg::Geometry
++    lardataalg::DetectorInfo
++    larevt::CalibrationDBI_Providers
++    lardata::headers
++    dunepdlegacy::Overlays
++    art_root_io::tfile_support
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Core
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    CLHEP::CLHEP
++    torch
++    torch_cpu
++    c10
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunereco/LowEUtils/CMakeLists.txt b/dunereco/LowEUtils/CMakeLists.txt
+index 7fd0ad9..3145f2d 100644
+--- a/dunereco/LowEUtils/CMakeLists.txt
++++ b/dunereco/LowEUtils/CMakeLists.txt
+@@ -1,9 +1,14 @@
+ # for classes_def.xml!!
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+-art_make(BASENAME_ONLY ALLOW_UNDERSCORES
+-  LIBRARY_NAME LowEUtils
+-  LIB_LIBRARIES
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME LowEUtils
++  SOURCE
++    LowECluster.cxx
++    LowEEvent.cxx
++    LowEUtils.cc
++  LIBRARIES
+     fhiclcpp::fhiclcpp
+     lardata::Utilities
+     lardataobj::RecoBase
+@@ -22,38 +27,96 @@ art_make(BASENAME_ONLY ALLOW_UNDERSCORES
+     art_root_io::TFileService_service
+     art::Framework_Services_Optional_RandomNumberGenerator_service
+     art::Persistency_Common
+-    art::Utilities 
++    art::Utilities
+     canvas::canvas
+-    cetlib::cetlib 
+-    cetlib_except::cetlib_except 
++    cetlib::cetlib
++    cetlib_except::cetlib_except
+     Boost::filesystem
+-  
+-  SERVICE_LIBRARIES
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    LowEUtils
++)
++
++cet_build_plugin(PerPlaneCluster art::module BASENAME_ONLY
++  LIBRARIES
++    LowEUtils
++    dunecore::DuneObj
++    dunecore::ProducerUtils
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
+     art::Framework_Core
+     art::Framework_Principal
+     art::Framework_Services_Registry
+-    art::Persistency_Common
+-    art::Utilities 
+     art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
+     art_root_io::TFileService_service
+-    Boost::filesystem
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
+     canvas::canvas
+-    cetlib::cetlib cetlib_except::cetlib_except
++    cetlib::cetlib
++    cetlib_except::cetlib_except
+     CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++)
++
++cet_build_plugin(SolarCluster art::module BASENAME_ONLY
++  LIBRARIES
++    LowEUtils
++    dunecore::DuneObj
+     dunecore::ProducerUtils
+-    duneopdet::OpticalDetector
+-    fhiclcpp::fhiclcpp
+-    larcore::Geometry_Geometry_service
+-    larcorealg::Geometry
+-    lardata::headers
+     lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
+     larsim::MCCheater_BackTrackerService_service
+     larsim::MCCheater_PhotonBackTrackerService_service
+     larsim::MCCheater_ParticleInventoryService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
+     messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
+     ROOT::Core
+-  
+-  MODULE_LIBRARIES LowEUtils
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++)
++
++cet_build_plugin(SolarEvent art::module BASENAME_ONLY
++  LIBRARIES
++    LowEUtils
+     dunecore::DuneObj
+     dunecore::ProducerUtils
+     lardataalg::DetectorInfo
+@@ -79,15 +142,16 @@ art_make(BASENAME_ONLY ALLOW_UNDERSCORES
+     art::Framework_Services_Optional_RandomNumberGenerator_service
+     art::Persistency_Provenance
+     art::Persistency_Common
+-    art::Utilities 
++    art::Utilities
+     canvas::canvas
+-    cetlib::cetlib 
++    cetlib::cetlib
+     cetlib_except::cetlib_except
+     CLHEP::CLHEP
+     Boost::filesystem
+     FFTW3::FFTW3
+ )
+ 
++
+ add_subdirectory(fcl)
+ 
+ install_headers()
+diff --git a/dunereco/PointResTree/CMakeLists.txt b/dunereco/PointResTree/CMakeLists.txt
+index ce13f0e..61a9ba1 100644
+--- a/dunereco/PointResTree/CMakeLists.txt
++++ b/dunereco/PointResTree/CMakeLists.txt
+@@ -1,24 +1,25 @@
+ 
+-simple_plugin(PointResTree "module"
+-		larcore::Geometry_Geometry_service
+-		larcorealg::Geometry
+-		larsim::Simulation
+-		lardataobj::RawData
+-		lardataobj::RecoBase
+-		lardataalg::DetectorInfo
+-		larreco::Calorimetry
+-		larsim::MCCheater_BackTrackerService_service
+-		larsim::MCCheater_ParticleInventoryService_service
+-		nusimdata::SimulationBase
+-		art::Persistency_Common
+-		art::Persistency_Provenance
+-		art::Utilities
+-		art_root_io::tfile_support
+-		ROOT::Tree
+-		dunereco_AnaUtils
+-
++cet_build_plugin(PointResTree art::module
++  LIBRARIES
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    larsim::Simulation
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardataalg::DetectorInfo
++    larreco::Calorimetry
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    nusimdata::SimulationBase
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    art_root_io::tfile_support
++    ROOT::Tree
++    dunereco_AnaUtils
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/dunereco/RecoAlgDUNE/CMakeLists.txt b/dunereco/RecoAlgDUNE/CMakeLists.txt
+index c77db4f..b05e8ad 100644
+--- a/dunereco/RecoAlgDUNE/CMakeLists.txt
++++ b/dunereco/RecoAlgDUNE/CMakeLists.txt
+@@ -1,37 +1,6 @@
+ 
+-art_make(
+-	  LIBRARY_NAME  dunereco_RecoAlgDUNE
+-          LIB_LIBRARIES larsim_MCCheater_BackTrackerService_service
+-           larsim_MCCheater_ParticleInventoryService_service
+-                        lardataobj_RecoBase
+-                        lardata_ArtDataHelper
+-                        larsim_Simulation nug4::ParticleNavigation lardataobj_Simulation
+-                        larevt_Filters
+-                        larcorealg_Geometry
+-                        larcore_Geometry_Geometry_service
+-                        lardata_RecoObjects
+-                        lardataobj_AnalysisBase
+-			larreco_Calorimetry
+-                        lardata_Utilities
+-                        larreco_RecoAlg_ClusterRecoUtil
+-			larreco_RecoAlg_CMTool_CMToolBase
+-			larreco_RecoAlg_CMTool_CMTAlgMerge
+-			larreco_RecoAlg_CMTool_CMTAlgPriority
+-			larreco_RecoAlg_CMTool_CMTAlgMatch
+-			larreco_RecoAlg_CMTool_CMToolApp
+-			larreco_RecoAlg_PMAlg
+-                        nusimdata::SimulationBase
+-			ROOT::Core
+-			art::Persistency_Common canvas
+-			art::Persistency_Provenance canvas
+-			art::Utilities canvas
+-			messagefacility::MF_MessageLogger
+-	                fhiclcpp::fhiclcpp
+-			cetlib::cetlib cetlib_except
+-			CLHEP::CLHEP
+-                        Boost::filesystem
+-                        
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
+ 
+ #add_subdirectory(Cluster3DAlgs)
+ 
+diff --git a/dunereco/RecoAlgDUNE/Cluster3DAlgs/CMakeLists.txt b/dunereco/RecoAlgDUNE/Cluster3DAlgs/CMakeLists.txt
+index 3c8fc43..6ff64a3 100644
+--- a/dunereco/RecoAlgDUNE/Cluster3DAlgs/CMakeLists.txt
++++ b/dunereco/RecoAlgDUNE/Cluster3DAlgs/CMakeLists.txt
+@@ -1,26 +1,41 @@
+ 
+-art_make( 
+-	  LIBRARY_NAME  dunereco_RecoAlgDUNE_Cluster3DAlgs
+-          LIB_LIBRARIES larreco_VertexFinder_HarrisVertexFinder_module
+-                        lardataobj_RecoBase
+-                        larsim_Simulation nug4::ParticleNavigation lardataobj_Simulation
+-                        larevt_Filters
+-                        larcorealg_Geometry
+-                        larcore_Geometry_Geometry_service
+-                        lardata_RecoObjects
+-                        lardataobj_AnalysisBase
+-                        lardata_Utilities
+-			ROOT::Core
+-			art::Persistency_Common canvas
+-			art::Persistency_Provenance canvas
+-			art::Utilities canvas
+-			messagefacility::MF_MessageLogger
+-	                fhiclcpp::fhiclcpp
+-			cetlib::cetlib cetlib_except
+-			CLHEP::CLHEP
+-                        Boost::filesystem
+-                        
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_RecoAlgDUNE_Cluster3DAlgs
++  SOURCE
++    DBScanAlg_DUNE35t.cxx
++    HoughSeedFinderAlg.cxx
++    PCASeedFinderAlg.cxx
++    ParallelHitsSeedFinderAlg.cxx
++    PrincipalComponentsAlg.cxx
++    SkeletonAlg.cxx
++  LIBRARIES
++    larreco_VertexFinder_HarrisVertexFinder_module
++    lardataobj_RecoBase
++    larsim_Simulation
++    nug4::ParticleNavigation
++    lardataobj_Simulation
++    larevt_Filters
++    larcorealg_Geometry
++    larcore_Geometry_Geometry_service
++    lardata_RecoObjects
++    lardataobj_AnalysisBase
++    lardata_Utilities
++    ROOT::Core
++    art::Persistency_Common
++    canvas
++    art::Persistency_Provenance
++    canvas
++    art::Utilities
++    canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunereco/RegCNN/art/CMakeLists.txt b/dunereco/RegCNN/art/CMakeLists.txt
+index bc10083..342bda4 100644
+--- a/dunereco/RegCNN/art/CMakeLists.txt
++++ b/dunereco/RegCNN/art/CMakeLists.txt
+@@ -16,33 +16,64 @@ endfunction()
+ message(STATUS "Torch include: ${TORCH_INCLUDE_DIRS}")
+ dump_cmake_variables("TORCH")
+ 
+-art_make(BASENAME_ONLY
+-  LIBRARY_NAME      RegCNNArt
+-  EXCLUDE ${EXCLUDE_TF}
+-  LIB_LIBRARIES RegCNNFunc
+-  ROOT::Core
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  torch
+-  torch_cpu
+-  c10
+-  messagefacility::MF_MessageLogger
+-  fhiclcpp::fhiclcpp
+-  cetlib::cetlib cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larpandora::LArPandoraInterface
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  MVAAlg
+-  larreco::RecoAlg
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  MODULE_LIBRARIES  RegCNNFunc
+-  RegCNNArt
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME RegCNNArt
++  SOURCE
++    RegCNNNumuHandler.cxx
++    RegCNNVtxHandler.cxx
++    RegPixelMap3DProducer.cxx
++    RegPixelMapProducer.cxx
++    TFRegNetHandler.cxx
++  LIBRARIES
++    RegCNNFunc
++    ROOT::Core
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    torch
++    torch_cpu
++    c10
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larpandora::LArPandoraInterface
++    nusimdata::SimulationBase
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    MVAAlg
++    larreco::RecoAlg
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++)
++
++cet_build_plugin(RegCNNEvaluator art::module BASENAME_ONLY
++  LIBRARIES
++    RegCNNFunc
++    RegCNNArt
++)
++
++cet_build_plugin(RegCNNEventDump art::module BASENAME_ONLY
++  LIBRARIES
++    RegCNNFunc
++    RegCNNArt
++)
++
++cet_build_plugin(RegCNNMapper art::module BASENAME_ONLY
++  LIBRARIES
++    RegCNNFunc
++    RegCNNArt
++)
++
++cet_build_plugin(RegCNNPyTorch art::module BASENAME_ONLY
++  LIBRARIES
++    RegCNNFunc
++    RegCNNArt
++)
++
+ 
+ # use add or remove
+ ##cet_set_compiler_flags(DIAGS CAUTIOUS
+diff --git a/dunereco/RegCNN/func/CMakeLists.txt b/dunereco/RegCNN/func/CMakeLists.txt
+index f3bf182..70ae2f8 100644
+--- a/dunereco/RegCNN/func/CMakeLists.txt
++++ b/dunereco/RegCNN/func/CMakeLists.txt
+@@ -5,25 +5,44 @@ include_directories( $ENV{TENSORFLOW_INC}/absl )
+ 
+ cet_add_compiler_flags(CXX -Wno-pedantic)
+ 
+-art_make( BASENAME_ONLY
+-  LIBRARY_NAME     RegCNNFunc
+-  LIB_LIBRARIES    nusimdata::SimulationBase
+-  lardataobj::RecoBase
+-  larcorealg::Geometry
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib cetlib_except::cetlib_except
+-  ${ROOT_HIST}
+-  ${ROOT_CORE}
+-  ${ROOT_GRAF}
+-  ${ROOT_GRAF3D}
+-  Boost::filesystem
+-  TensorFlow::framework
+-  TensorFlow::cc
+-  DICT_LIBRARIES   lardataobj::RecoBase
+-  RegCNNFunc
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME RegCNNFunc
++  SOURCE
++    HitType.cxx
++    RegCNNBoundary.cxx
++    RegCNNBoundary3D.cxx
++    RegCNNImageUtils.cxx
++    RegCNNResult.cxx
++    RegCNN_TF_Graph.cc
++    RegPixelMap.cxx
++    RegPixelMap3D.cxx
++  LIBRARIES
++    nusimdata::SimulationBase
++    lardataobj::RecoBase
++    larcorealg::Geometry
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ${ROOT_HIST}
++    ${ROOT_CORE}
++    ${ROOT_GRAF}
++    ${ROOT_GRAF3D}
++    Boost::filesystem
++    TensorFlow::framework
++    TensorFlow::cc
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    RegCNNFunc
++    lardataobj::RecoBase
++    RegCNNFunc
++)
++
+ 
+ install_headers()
+ install_source()
+diff --git a/dunereco/RegCNN/macro/CMakeLists.txt b/dunereco/RegCNN/macro/CMakeLists.txt
+index beeb8e3..c369450 100644
+--- a/dunereco/RegCNN/macro/CMakeLists.txt
++++ b/dunereco/RegCNN/macro/CMakeLists.txt
+@@ -1,25 +1,52 @@
+ 
+-art_make(MODULE_LIBRARIES
+-  ROOT::Core
+-  dunereco_AnaUtils
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art_root_io::tfile_support
+-  ROOT::Tree
+-  messagefacility::MF_MessageLogger
+-  fhiclcpp::fhiclcpp
+-  cetlib::cetlib
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larreco::RecoAlg
+-  larreco::Calorimetry
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+-  larpandora::LArPandoraInterface
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(RegCNNAna art::module
++  LIBRARIES
++    ROOT::Core
++    dunereco_AnaUtils
++    canvas::canvas
++    art::Persistency_Provenance
++    art_root_io::tfile_support
++    ROOT::Tree
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    lardataobj::RecoBase
++    lardata::Utilities
++    nusimdata::SimulationBase
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    larreco::Calorimetry
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larpandora::LArPandoraInterface
++)
++
++cet_build_plugin(RegCNNVertexAna art::module
++  LIBRARIES
++    ROOT::Core
++    dunereco_AnaUtils
++    canvas::canvas
++    art::Persistency_Provenance
++    art_root_io::tfile_support
++    ROOT::Tree
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    lardataobj::RecoBase
++    lardata::Utilities
++    nusimdata::SimulationBase
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larreco::RecoAlg
++    larreco::Calorimetry
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larpandora::LArPandoraInterface
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunereco/SNSlicer/CMakeLists.txt b/dunereco/SNSlicer/CMakeLists.txt
+index 25f04bf..3f1bae4 100644
+--- a/dunereco/SNSlicer/CMakeLists.txt
++++ b/dunereco/SNSlicer/CMakeLists.txt
+@@ -20,13 +20,11 @@ cet_build_plugin(SNSlicer art::module LIBRARIES
+                         messagefacility::MF_MessageLogger
+ )
+ 
+-cet_make( LIBRARIES lardataobj_RawData
+-                    canvas_Persistency_Common
+-                    canvas_Persistency_Provenance
+-                    canvas_Utilities
+-                    messagefacility::MF_MessageLogger
+-                    cetlib::cetlib
+-                    NO_DICTIONARY )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(SNSlicer art::module
++)
++
+ 
+ 
+ art_dictionary( DICTIONARY_LIBRARIES ) # dunereco_SNSlicer )
+diff --git a/dunereco/TrackFinderDUNE/CMakeLists.txt b/dunereco/TrackFinderDUNE/CMakeLists.txt
+index 5d3b477..be76d31 100644
+--- a/dunereco/TrackFinderDUNE/CMakeLists.txt
++++ b/dunereco/TrackFinderDUNE/CMakeLists.txt
+@@ -1,23 +1,29 @@
+-art_make( BASENAME_ONLY
+-          MODULE_LIBRARIES larreco::RecoAlg
+-                           lardataalg::DetectorInfo
+-                           lardataobj::RecoBase
+-                           larcorealg::Geometry
+-                           larcore::Geometry_Geometry_service
+-                           lardata::Utilities
+-                           larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+-                           larsim::MCCheater_BackTrackerService_service
+-                           larsim::MCCheater_ParticleInventoryService_service
+-                           nusimdata::SimulationBase
+-                           ROOT::Core
+-			   ROOT::Hist
+-                           art::Persistency_Common
+-                           art::Utilities
+-			   art_root_io::tfile_support
+-                           messagefacility::MF_MessageLogger
+-                           fhiclcpp::fhiclcpp
+-                           cetlib::cetlib
+-         )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(TrackAnaCT art::module BASENAME_ONLY
++  LIBRARIES
++    larreco::RecoAlg
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::Utilities
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    nusimdata::SimulationBase
++    ROOT::Core
++    ROOT::Hist
++    art::Persistency_Common
++    art::Utilities
++    art_root_io::tfile_support
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunereco/TrackPID/algorithms/CMakeLists.txt b/dunereco/TrackPID/algorithms/CMakeLists.txt
+index 79d6e2e..c7215d7 100644
+--- a/dunereco/TrackPID/algorithms/CMakeLists.txt
++++ b/dunereco/TrackPID/algorithms/CMakeLists.txt
+@@ -1,15 +1,21 @@
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+-art_make( 
+-    LIB_LIBRARIES larcorealg::Geometry
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_TrackPID_algorithms
++  SOURCE
++    CTPHelper.cxx
++  LIBRARIES
++    larcorealg::Geometry
+     larcore::Geometry_Geometry_service
+-    larsim::Simulation lardataobj::Simulation
++    larsim::Simulation
++    lardataobj::Simulation
+     lardataobj::RawData
+     lardataobj::RecoBase
+     lardataobj::AnalysisBase
+     lardata::Utilities
+     nusimdata::SimulationBase
+-    larsim::MCCheater_BackTrackerService_service           
++    larsim::MCCheater_BackTrackerService_service
+     larsim::MCCheater_ParticleInventoryService_service
+     art::Framework_Core
+     art::Framework_Principal
+@@ -23,12 +29,14 @@ art_make(
+     canvas::canvas
+     messagefacility::MF_MessageLogger
+     fhiclcpp::fhiclcpp
+-    cetlib::cetlib cetlib_except::cetlib_except
++    cetlib::cetlib
++    cetlib_except::cetlib_except
+     dunereco_AnaUtils
+     dunereco_TrackPID_tf
+     dunereco_TrackPID_products
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/dunereco/TrackPID/modules/CMakeLists.txt b/dunereco/TrackPID/modules/CMakeLists.txt
+index 742f0ee..1979419 100644
+--- a/dunereco/TrackPID/modules/CMakeLists.txt
++++ b/dunereco/TrackPID/modules/CMakeLists.txt
+@@ -1,7 +1,10 @@
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+-art_make( 
+-    MODULE_LIBRARIES larcorealg::Geometry
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(CTPEvaluator art::module
++  LIBRARIES
++    larcorealg::Geometry
+     larcore::Geometry_Geometry_service
+     larsim::Simulation
+     lardataobj::Simulation
+@@ -10,9 +13,10 @@ art_make(
+     lardataobj::AnalysisBase
+     lardata::Utilities
+     nusimdata::SimulationBase
+-    larsim::MCCheater_BackTrackerService_service           
++    larsim::MCCheater_BackTrackerService_service
+     larsim::MCCheater_ParticleInventoryService_service
+-    ROOT::Core ROOT::Tree
++    ROOT::Core
++    ROOT::Tree
+     art::Persistency_Common
+     art::Persistency_Provenance
+     art::Utilities
+@@ -25,9 +29,38 @@ art_make(
+     dunereco_TrackPID_tf
+     dunereco_TrackPID_algorithms
+     dunereco_TrackPID_products
+-#    MODULE_LIBRARIES dunereco_TrackPID
+ )
+ 
++cet_build_plugin(CTPTrackDump art::module
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RawData
++    lardataobj::RecoBase
++    lardataobj::AnalysisBase
++    lardata::Utilities
++    nusimdata::SimulationBase
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    ROOT::Core
++    ROOT::Tree
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    dunereco_AnaUtils
++    dunereco_TrackPID_tf
++    dunereco_TrackPID_algorithms
++    dunereco_TrackPID_products
++)
++
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/dunereco/TrackPID/products/CMakeLists.txt b/dunereco/TrackPID/products/CMakeLists.txt
+index 9d855da..3cb89d1 100644
+--- a/dunereco/TrackPID/products/CMakeLists.txt
++++ b/dunereco/TrackPID/products/CMakeLists.txt
+@@ -1,31 +1,21 @@
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+-art_make(
+-    DICT_LIBRARIES lardataobj::TrackingTypes
+-#    larcorealg_Geometry
+-#    larcore_Geometry_Geometry_service
+-#    larsim_Simulation lardataobj_Simulation
+-#    lardataobj_RawData
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_TrackPID_products
++  SOURCE
++    CTPResult.cxx
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunereco_TrackPID_products
++    lardataobj::TrackingTypes
+     lardataobj::RecoBase
+-#    lardataobj_AnalysisBase
+-#    lardata_Utilities
+-#    nusimdata::SimulationBase
+-#    larsim_MCCheater_BackTrackerService_service
+-#    larsim_MCCheater_ParticleInventoryService_service
+-#    art::Framework_Core
+-#    art::Framework_Principal
+-#    art::Framework_Services_Registry
+-#    art_root_io::tfile_support ROOT::Core
+-#    art_root_io::TFileService_service
+-#    art::Persistency_Common
+-#    art::Persistency_Provenance
+-#    art::Utilities
+-#    canvas::canvas
+-#    messagefacility::MF_MessageLogger
+-#    fhiclcpp::fhiclcpp
+-#    cetlib::cetlib cetlib_except
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/dunereco/TrackPID/tf/CMakeLists.txt b/dunereco/TrackPID/tf/CMakeLists.txt
+index a710ebe..4942497 100644
+--- a/dunereco/TrackPID/tf/CMakeLists.txt
++++ b/dunereco/TrackPID/tf/CMakeLists.txt
+@@ -3,12 +3,17 @@ include_directories ( $ENV{TENSORFLOW_INC}/absl )
+ 
+ cet_add_compiler_flags(CXX -Wno-pedantic)
+ 
+-art_make(BASENAME_ONLY
+-  LIB_LIBRARIES
+-  pthread
+-  TensorFlow::cc
+-  TensorFlow::framework
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunereco_TrackPID_tf
++  SOURCE
++    CTPGraph.cc
++  LIBRARIES
++    pthread
++    TensorFlow::cc
++    TensorFlow::framework
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunereco/TransformerCVN/art/CMakeLists.txt b/dunereco/TransformerCVN/art/CMakeLists.txt
+index 8247369..d20a7d8 100644
+--- a/dunereco/TransformerCVN/art/CMakeLists.txt
++++ b/dunereco/TransformerCVN/art/CMakeLists.txt
+@@ -16,38 +16,51 @@ endfunction()
+ message(STATUS "Torch include: ${TORCH_INCLUDE_DIRS}")
+ dump_cmake_variables("TORCH")
+ 
+-art_make(BASENAME_ONLY
+-  LIBRARY_NAME      TransformerCVNArt
+-  EXCLUDE ${EXCLUDE_TF}
+-  LIB_LIBRARIES
+-      RegCNNFunc
+-      TransformerCVNFunc
+-  ROOT::Core
+-  canvas::canvas
+-  art::Persistency_Provenance
+-  art::Utilities
+-  torch
+-  torch_cpu
+-  c10
+-  messagefacility::MF_MessageLogger
+-  fhiclcpp::fhiclcpp
+-  cetlib::cetlib cetlib_except::cetlib_except
+-  lardataobj::RecoBase
+-  lardata::Utilities
+-  larpandora::LArPandoraInterface
+-  nusimdata::SimulationBase
+-  larsim::MCCheater_BackTrackerService_service           
+-  larsim::MCCheater_ParticleInventoryService_service
+-  MVAAlg
+-  larreco::RecoAlg
+-  larcorealg::Geometry
+-  larcore::Geometry_Geometry_service
+- 
+-  MODULE_LIBRARIES
+-      RegCNNFunc
+-      TransformerCVNFunc
+-  TransformerCVNArt
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME TransformerCVNArt
++  SOURCE
++    TransformerPixelMapProducer.cxx
++  LIBRARIES
++    RegCNNFunc
++    TransformerCVNFunc
++    ROOT::Core
++    canvas::canvas
++    art::Persistency_Provenance
++    art::Utilities
++    torch
++    torch_cpu
++    c10
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    lardataobj::RecoBase
++    lardata::Utilities
++    larpandora::LArPandoraInterface
++    nusimdata::SimulationBase
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    MVAAlg
++    larreco::RecoAlg
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++)
++
++cet_build_plugin(TransformerCVNEvaluator art::module BASENAME_ONLY
++  LIBRARIES
++    RegCNNFunc
++    TransformerCVNFunc
++    TransformerCVNArt
++)
++
++cet_build_plugin(TransformerCVNMapper art::module BASENAME_ONLY
++  LIBRARIES
++    RegCNNFunc
++    TransformerCVNFunc
++    TransformerCVNArt
++)
++
+ 
+ # use add or remove
+ ##cet_set_compiler_flags(DIAGS CAUTIOUS
+diff --git a/dunereco/TransformerCVN/func/CMakeLists.txt b/dunereco/TransformerCVN/func/CMakeLists.txt
+index 1b9cfd3..0fa4f2b 100644
+--- a/dunereco/TransformerCVN/func/CMakeLists.txt
++++ b/dunereco/TransformerCVN/func/CMakeLists.txt
+@@ -3,20 +3,34 @@
+ 
+ cet_add_compiler_flags(CXX -Wno-pedantic)
+ 
+-art_make( BASENAME_ONLY
+-  LIBRARY_NAME     TransformerCVNFunc
+-  LIB_LIBRARIES
+-      nusimdata::SimulationBase
+-      RegCNNFunc
+-  lardataobj::RecoBase
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib cetlib_except::cetlib_except
+-  Boost::filesystem
+-  DICT_LIBRARIES   lardataobj::RecoBase
+-  TransformerCVNFunc
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME TransformerCVNFunc
++  SOURCE
++    TransformerCVNPID.cxx
++    TransformerCVNPType.cxx
++    TransformerCVNResult.cxx
++    TransformerPixelMap.cxx
++  LIBRARIES
++    nusimdata::SimulationBase
++    RegCNNFunc
++    lardataobj::RecoBase
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    Boost::filesystem
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    TransformerCVNFunc
++    lardataobj::RecoBase
++    TransformerCVNFunc
++)
++
+ 
+ install_headers()
+ install_source()
+diff --git a/dunereco/VLNets/art/data_generators/CMakeLists.txt b/dunereco/VLNets/art/data_generators/CMakeLists.txt
+index c4d53ac..d730335 100644
+--- a/dunereco/VLNets/art/data_generators/CMakeLists.txt
++++ b/dunereco/VLNets/art/data_generators/CMakeLists.txt
+@@ -1,13 +1,18 @@
+-art_make(
+-    LIBRARY_NAME VLNDataGenerators
+-    ALLOW_UNDERSCORES
+-    MODULE_LIBRARIES
+-        VLNData
+-        VLNVarExtractors
+-        VLNDataGenerators
+-    BASENAME_ONLY
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME VLNDataGenerators
++  SOURCE
++    utils.cxx
++)
++
++cet_build_plugin(VLNEnergyDataGen art::module BASENAME_ONLY
++  LIBRARIES
++    VLNData
++    VLNVarExtractors
++    VLNDataGenerators
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/dunereco/VLNets/art/evaluators/CMakeLists.txt b/dunereco/VLNets/art/evaluators/CMakeLists.txt
+index 3360203..e5d765d 100644
+--- a/dunereco/VLNets/art/evaluators/CMakeLists.txt
++++ b/dunereco/VLNets/art/evaluators/CMakeLists.txt
+@@ -1,13 +1,22 @@
+-art_make(
+-    LIBRARY_NAME VLNEvaluators
+-    MODULE_LIBRARIES
+-        VLNData
+-        VLNModels
+-        VLNVarExtractors
+-        VLNDataGenerators
+-    BASENAME_ONLY
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(VLNEnergyAnalyzer art::module BASENAME_ONLY
++  LIBRARIES
++    VLNData
++    VLNModels
++    VLNVarExtractors
++    VLNDataGenerators
++)
++
++cet_build_plugin(VLNEnergyProducer art::module BASENAME_ONLY
++  LIBRARIES
++    VLNData
++    VLNModels
++    VLNVarExtractors
++    VLNDataGenerators
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/dunereco/VLNets/art/products/CMakeLists.txt b/dunereco/VLNets/art/products/CMakeLists.txt
+index 925625f..43be2ab 100644
+--- a/dunereco/VLNets/art/products/CMakeLists.txt
++++ b/dunereco/VLNets/art/products/CMakeLists.txt
+@@ -1,10 +1,10 @@
+-art_make(
+-    LIBRARY_NAME VLNProducts
+-    LIB_LIBRARIES
+-        VLNData
+-    BASENAME_ONLY
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++include(ArtDictionary)
++art_dictionary(
+ )
+ 
++
+ install_headers()
+ install_source()
+ 

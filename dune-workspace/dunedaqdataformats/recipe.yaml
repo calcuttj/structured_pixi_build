@@ -1,0 +1,55 @@
+# rattler-build recipe (v1 / CEP-13 format) for dunedaqdataformats.
+#
+# Same shape as dunedetdataformats: DUNE's "offline-versioned" redistribution of
+# DUNE-DAQ/daqdataformats — header-only (include/daqdataformats/v*/**, keeping
+# multiple format versions side-by-side) + a relocatable INTERFACE CMake package
+# config (lib/cmake/dunedaqdataformats/) + a UPS .table. No CMakeLists/source; the
+# "build" just installs include/ and lib/cmake/ into $PREFIX. dunecore does
+# `find_package(dunedaqdataformats REQUIRED EXPORT)` and #includes the headers.
+
+context:
+  version: "4.4.5"
+  parts: ${{ version | split('.') }}
+  # DUNE-DAQ tags are NOT major-padded: v4_4_5.
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ parts[1] ~ "_" ~ parts[2] }}
+
+package:
+  name: dunedaqdataformats
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunedaqdataformats/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: fee62823c3a829331f417fc25b59f5203bb0ce4cf7e95d2ea3dbcd11ceb0b10c
+
+build:
+  number: 0
+  noarch: generic
+  script: build.sh
+
+requirements:
+  run_exports:
+    - ${{ pin_subpackage('dunedaqdataformats', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - daqdataformats/v4_4_0/Fragment.hpp
+        - daqdataformats/v4_4_0/SourceID.hpp
+      files:
+        - lib/cmake/dunedaqdataformats/dunedaqdataformats-config.cmake
+
+about:
+  homepage: https://github.com/DUNE/dunedaqdataformats
+  repository: https://github.com/DUNE/dunedaqdataformats
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: dunedaqdataformats -- DUNE offline-versioned DAQ data formats (header-only)
+  description: |
+    DUNE's offline-versioned redistribution of the DUNE-DAQ daqdataformats
+    headers (Fragment/TriggerRecord/SourceID/... kept in per-version subdirs).
+    Header-only: ships the C++ headers and a relocatable INTERFACE CMake package
+    config. Consumed by dunecore (dunesw).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

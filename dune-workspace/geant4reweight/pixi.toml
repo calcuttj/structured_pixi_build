@@ -1,0 +1,9 @@
+[package]
+name = "geant4reweight"
+version = "01.21.03"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]

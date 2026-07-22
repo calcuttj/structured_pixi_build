@@ -1,0 +1,95 @@
+# rattler-build recipe (v1 / CEP-13 format) for duneana 10.21.1 (v10_21_01d00).
+#
+# duneana is the DUNE analysis package (CAFMaker, AnaTree, and various analysis
+# modules). Product deps: dunereco + duneopdet + duneanaobj (all GREEN). Its CAFMaker/
+# AnaTree genuinely link duneanaobj::StandardRecord{,Flat} (a real build dep, unlike
+# larcv2 in dunereco). Its CMakeLists also find_package()s dunecore/larsoft/nu*/GENIE
+# (closure) + larfinder. Shared dunecore-consumer build contract.
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: duneana
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/duneana/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: d4fa60a4ea67bf215b6cff271fe8eec23eb3ca61b456a2d68e5164165e954660
+  patches:
+    # Modernize deprecated cetmodules macros (art_make/cet_make/simple_plugin
+    # -> cet_make_library + art_dictionary + cet_build_plugin). Under pixi-build
+    # art_make's plugin glob drops sources beneath ".pixi" -> zero plugins built.
+    - patches/0001-modernize-cmake.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # dunecore run-closure (art+larsoft+nu*+GENIE+externals) transitively.
+    - dunecore
+    # product deps + directly-named packages not in dunecore's closure
+    - dunereco
+    - duneopdet
+    - duneanaobj
+    - dunepdlegacy
+    - larfinder
+    # build-visible externals (compiler/CMake-config providers + dunecore find_dep cascade)
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - artdaq_core
+    - dunecalib
+    - dunedaqdataformats
+    - dunedetdataformats
+    - duneprototypes
+    - dunesim
+    - highfive
+    - srproxy
+    - trace
+  run:
+  run_exports:
+    - ${{ pin_subpackage('duneana', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/duneana/cmake/duneanaConfig.cmake
+        - lib/libduneana_*.so
+
+about:
+  homepage: https://github.com/DUNE/duneana
+  repository: https://github.com/DUNE/duneana
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: duneana -- DUNE analysis code (CAFMaker, AnaTree, analysis modules)
+  description: |
+    duneana provides the DUNE offline analysis code: the CAFMaker that writes Common
+    Analysis Files (CAF) from reconstructed events (via the duneanaobj StandardRecord),
+    AnaTree ntuple makers, and assorted analysis modules, built on the dunereco /
+    duneopdet layers of the DUNE software suite (dunesw).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

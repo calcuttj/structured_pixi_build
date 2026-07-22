@@ -1,0 +1,9 @@
+[package]
+name = "trace"
+version = "3.17.11"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]

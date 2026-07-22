@@ -1,0 +1,97 @@
+# rattler-build recipe (v1 / CEP-13 format) for dunetrigger 10.21.1 (v10_21_01d00).
+#
+# dunetrigger is the DUNE trigger-primitive / trigger-sim package (gates dunesim). It
+# vendors the DUNE-DAQ `triggeralgs` library and builds art tools/modules on top. It
+# is a dunecore-only consumer at the product level (product_deps: dunecore + cetmodules)
+# but its CMakeLists find_package()s the nu* stack + dunedaqdataformats/dunedetdataformats
+# + HDF5 (all in dunecore's run-closure / already packaged), and uses the legacy UPS
+# macro find_ups_product() for nlohmann_json + TRACE — converted to find_package() in
+# build.sh (both ship CMake Configs in conda). Shared dunecore-consumer build contract.
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: dunetrigger
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunetrigger/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 853a8bd220f4b20a90382eb6da8bbe61033f5a9ab0595999e8180e36c960303a
+  patches:
+    # Modernize deprecated cetmodules macros (art_make/cet_make/simple_plugin
+    # -> cet_make_library + art_dictionary + cet_build_plugin). Under pixi-build
+    # art_make's plugin glob drops sources beneath ".pixi" -> zero plugins built.
+    - patches/0001-modernize-cmake.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # dunecore pulls its entire run-closure (art+larsoft+nu+externals) transitively.
+    - dunecore
+    # named directly by dunetrigger's CMakeLists (in dunecore's closure but explicit)
+    - dunedaqdataformats
+    - dunedetdataformats
+    - nufinder
+    # find_ups_product -> find_package (converted in build.sh); need their Configs/headers
+    - nlohmann_json
+    - trace
+    - hdf5
+    # build-visible externals (compiler/CMake-config providers + dunecore find_dep cascade)
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - artdaq_core
+    - dunepdlegacy
+    - highfive
+  run:
+  run_exports:
+    - ${{ pin_subpackage('dunetrigger', upper_bound='x.x') }}
+
+tests:
+  # dunetrigger installs NO CMake package config (no cet_cmake_config in its
+  # CMakeLists) — it is a pure plugin + fcl package, consumed at runtime via
+  # CET_PLUGIN_PATH / fcl, never find_package()d. So test the built plugins, not a Config.
+  - package_contents:
+      files:
+        - lib/libtriggeralgs_module.so
+        - lib/libdunetrigger_TriggerSim_TPAlgTools_TPAlgTPCRunningSum_tool.so
+
+about:
+  homepage: https://github.com/DUNE/dunetrigger
+  repository: https://github.com/DUNE/dunetrigger
+  license: Apache-2.0
+  # NOTE: dunetrigger v10_21_01d00 ships no LICENSE file in-tree (unlike its siblings),
+  # so no license_file is packaged; license is Apache-2.0 per the DUNE suite convention.
+  summary: dunetrigger -- DUNE trigger-primitive / trigger simulation (gates dunesim)
+  description: |
+    dunetrigger provides the DUNE offline trigger simulation: the vendored DUNE-DAQ
+    triggeralgs library (trigger-primitive / activity / candidate makers) plus the art
+    tools and modules that drive it, built on the dunecore base of the DUNE software
+    suite (dunesw). Required by dunesim.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

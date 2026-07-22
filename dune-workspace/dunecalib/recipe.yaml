@@ -1,0 +1,85 @@
+# rattler-build recipe (v1 / CEP-13 format) for dunecalib 10.21.1 (v10_21_01d00).
+#
+# dunecalib is a dunecore-only leaf of the DUNE offline software (dunesw):
+# calibration services + condition-database interfaces built on dunecore. Its
+# CMakeLists find_package()s cetmodules/art/ROOT/larcore/larcorealg/nuevdb/libwda/
+# Geant4 — all of which arrive transitively through dunecore's run-closure (dunecore
+# in host pulls its whole run_exports-accumulated art+larsoft+externals closure).
+# The build.sh is the same dunecore-consumer contract (generator env / libtorch-cpu /
+# -fpermissive / fhiclcpp coding.h / WERROR+Boost-system drops / fftw ignore-path).
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  # DUNE suite tag: 2-padded fields + d00 patch-series suffix -> v10_21_01d00.
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: dunecalib
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunecalib/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 0fb6a17a668c4ac41da22fb43afcd55c7f0a98d056b853bb727a95dc40597774
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # dunecore pulls its entire run-closure (art+larsoft+nu+externals) transitively.
+    - dunecore
+    # build-visible externals (compiler/CMake-config providers)
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - artdaq_core
+    - dunedaqdataformats
+    - dunedetdataformats
+    - dunepdlegacy
+    - highfive
+    - trace
+  run:
+  run_exports:
+    - ${{ pin_subpackage('dunecalib', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - dunecalib/Calib/XYZCalib.h
+      files:
+        - lib/dunecalib/cmake/dunecalibConfig.cmake
+        - lib/libdunecalib_Calib.so
+
+about:
+  homepage: https://github.com/DUNE/dunecalib
+  repository: https://github.com/DUNE/dunecalib
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: dunecalib -- DUNE calibration services and condition-database interfaces
+  description: |
+    dunecalib provides the DUNE offline calibration services (space-charge /
+    lifetime / XYZ calibrations) and condition-database (ConInt) interfaces, built
+    on the dunecore base of the DUNE software suite (dunesw).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

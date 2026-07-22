@@ -1,0 +1,11 @@
+--- a/src/CAF.cxx	2026-07-08 13:50:30.122705019 -0700
++++ b/src/CAF.cxx	2026-07-08 13:55:17.402851876 -0700
+@@ -28,7 +28,7 @@
+     // this compared to the default, and the files are only slightly larger.
+     flatCAFFile = new TFile( std::regex_replace(filename, std::regex("\\.root"), ".flat.root").c_str(),
+                              "RECREATE", "",
+-                             ROOT::CompressionSettings(ROOT::kLZ4, 1));
++                             ROOT::CompressionSettings(ROOT::RCompressionSetting::EAlgorithm::kLZ4, 1));
+ 
+     flatCAFTree = new TTree("cafTree", "cafTree");
+ 

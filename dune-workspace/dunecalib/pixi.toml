@@ -1,0 +1,21 @@
+[package]
+name = "dunecalib"
+version = "10.21.1"
+
+[package.build]
+backend = { name = "pixi-build-rattler-build", version = "0.*" }
+
+[package.build.config]
+extra-input-globs = ["build.sh"]
+
+# Inter-member SOURCE deps = transitive sibling closure (a sibling's
+# run_export pins propagate into this build's host env); binary deps
+# (larsoft/art/root_base/geant4/... from channels) stay in recipe.yaml only.
+[package.host-dependencies]
+artdaq_core = { path = "../artdaq_core" }
+dunecore = { path = "../dunecore" }
+dunedaqdataformats = { path = "../dunedaqdataformats" }
+dunedetdataformats = { path = "../dunedetdataformats" }
+dunepdlegacy = { path = "../dunepdlegacy" }
+highfive = { path = "../highfive" }
+trace = { path = "../trace" }

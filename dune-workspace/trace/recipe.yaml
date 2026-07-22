@@ -1,0 +1,74 @@
+# rattler-build recipe (v1 / CEP-13 format) for TRACE 3.17.11.
+#
+# TRACE is FNAL's low-overhead tracing/logging library. dunesw pulls it in via
+# artdaq_core, whose CMake does `find_package(TRACE REQUIRED EXPORT)` and uses the
+# header-only INTERFACE targets TRACE::TRACE and TRACE::MF (the latter bridges to
+# MessageFacility, so messagefacility must be present for that target to build).
+#
+# TRACE builds with cetmodules (creates the INTERFACE libs + a proper TRACEConfig
+# via cet_cmake_config) and compiles a small trace_cntl utility (src_utility), so
+# this is an arch build, not noarch. NOTE: TRACE's CMakeLists unsets
+# CMAKE_C/CXX_COMPILER on Linux *if they are set as CMake cache vars* — so we must
+# NOT pass -DCMAKE_C_COMPILER/-DCMAKE_CXX_COMPILER; the conda compilers come in via
+# $CC/$CXX (as in the larsoft recipes), which TRACE leaves untouched.
+
+context:
+  version: "3.17.11"
+  parts: ${{ version | split('.') }}
+  # art-daq tags are not major-padded: v3_17_11.
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ parts[1] ~ "_" ~ parts[2] }}
+
+package:
+  name: trace
+  version: ${{ version }}
+
+source:
+  url: https://github.com/art-daq/TRACE/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: ecda7af224aa24701d012746c9dbdc5d155e98df4ba17adc3957cf5e5a2588d3
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # provides messagefacility::MF_MessageLogger so TRACE::MF (tracemf.h) builds;
+    # artdaq_core uses tracemf.h. Its run_exports pull the runtime libs.
+    - messagefacility
+    # messagefacilityConfig -> find_dependency(cetlib) -> find_dependency(TBB) needs
+    # TBBConfig.cmake, which only the -devel/config package provides (run_exports pull
+    # runtime `tbb`, not `tbb-devel`). Same pattern as the larsoft recipes.
+    - tbb-devel
+  run:
+  run_exports:
+    - ${{ pin_subpackage('trace', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - TRACE/trace.h
+        - TRACE/tracemf.h
+
+about:
+  homepage: https://github.com/art-daq/TRACE
+  repository: https://github.com/art-daq/TRACE
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: TRACE -- FNAL low-overhead tracing/logging library (artdaq_core dependency)
+  description: |
+    TRACE is a low-overhead diagnostic tracing library from Fermilab, used by the
+    artdaq DAQ software. It provides header-only C/C++ tracing macros plus a
+    trace_cntl control utility. Packaged here to satisfy artdaq_core (and thus
+    dunepdlegacy / dunecore) in the dunesw conda stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

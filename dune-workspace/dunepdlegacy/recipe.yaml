@@ -1,0 +1,87 @@
+# rattler-build recipe (v1 / CEP-13 format) for dunepdlegacy 1.1.4.
+#
+# dunepdlegacy holds legacy DUNE (ProtoDUNE-SP) raw-data overlays + the PDSP
+# channel-map service. dunecore does `find_package(dunepdlegacy REQUIRED)` and
+# links dunepdlegacy::Overlays + the PdspChannelMapService service, so it is a
+# hard *build* dependency (real libraries, not header-only).
+#
+# UPSTREAM QUIRK: this tag still uses the legacy **cetbuildtools** build system
+# (find_package(cetbuildtools); find_ups_product/find_ups_boost/art_make/
+# simple_plugin/art_dictionary). We port it to cetmodules at build time — swap
+# find_package(cetbuildtools) -> find_package(cetmodules); cetmodules 3.25 ships
+# compat shims for every one of those macros (share/cetmodules/Modules/compat/**),
+# so nothing else in the CMakeLists needs to change. The vestigial
+# `cet_find_library(SIGC ...)` (never referenced by any target/source) is removed
+# so we don't drag in libsigc++.
+
+context:
+  version: "1.1.4"
+  parts: ${{ version | split('.') }}
+  # DUNE tag: major as-is, minor+patch zero-padded to 2 -> v1_01_04.
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: dunepdlegacy
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunepdlegacy/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 9662e6c2b3e7d4abc2d0e45ac249251359d6595e0a757ebb965521a9bcb043da
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - artdaq_core                # find_ups_product(artdaq_core) (overlays)
+    - trace                      # artdaq_coreConfig find_dependency(TRACE)
+    - art                        # find_ups_product(art) + simple_plugin services
+    - art_root_io                # art plugins / dictionaries
+    - canvas                     # transitive / dictionaries
+    - canvas_root_io             # art_dictionary
+    - cetlib                     # find_ups_product(cetlib)
+    - cetlib_except              # transitive
+    - fhiclcpp                   # transitive (services)
+    - hep_concurrency            # transitive
+    - gallery                    # find_ups_product(gallery)
+    - messagefacility            # find_ups_product(messagefacility)
+    - libboost-devel             # find_ups_boost()
+    - tbb-devel                  # cetlib/canvas config chain -> TBBConfig
+    - range-v3                   # fhiclcpp/cetlib config chain -> Range-v3
+    - root_base                  # ROOT (dictionaries)
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('dunepdlegacy', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - dunepdlegacy/Services/ChannelMap/PdspChannelMapService.h
+      files:
+        - lib/dunepdlegacy/cmake/dunepdlegacyConfig.cmake
+
+about:
+  homepage: https://github.com/DUNE/dunepdlegacy
+  repository: https://github.com/DUNE/dunepdlegacy
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: dunepdlegacy -- legacy DUNE ProtoDUNE-SP raw-data overlays + PDSP channel map
+  description: |
+    dunepdlegacy provides legacy DUNE (ProtoDUNE Single-Phase) raw-data overlay
+    classes (RCE data access) and the PdspChannelMapService. Built on the art
+    stack + artdaq_core. Required by dunecore in the dunesw conda stack. The
+    upstream legacy cetbuildtools build is ported to cetmodules at build time.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,74 @@
+# rattler-build recipe (v1 / CEP-13 format) for geant4reweight 01.21.03 (v01_21_03).
+#
+# geant4reweight (NuSoftHEP/Geant4Reweight) provides hadronic-reinteraction reweighting
+# built on Geant4 + ROOT + the art utility libs (cetlib/cetlib_except/fhiclcpp). It
+# gates protoduneana, which links geant4reweight::ReweightBaseLib / PropBaseLib. Clean
+# standalone cetmodules build (no UPS subdir, no larsoft/generator contract).
+
+context:
+  version: "01.21.03"
+  parts: ${{ version | split('.') }}
+  # tag = v<pp>_<pp>_<pp> from the 3 fields (already 2-padded): v01_21_03
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] }}
+
+package:
+  name: geant4reweight
+  version: ${{ version }}
+
+source:
+  url: https://github.com/NuSoftHEP/Geant4Reweight/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 9fca9038d079ea0bdd0321458caa9050fd110c9d5841bac902c8e7a2886f5f80
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - cetlib
+    - cetlib_except
+    - fhiclcpp
+    - geant4
+    - clhep
+    - root_base
+    - root_cxx_standard
+    - libboost-devel
+    # ROOT's Config find_dependency cascade needs these at configure time
+    - tbb-devel
+    - range-v3
+  run:
+  run_exports:
+    - ${{ pin_subpackage('geant4reweight', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - geant4reweight/PredictionBase/G4CascadeDetectorConstruction.hh
+      files:
+        - lib/geant4reweight/cmake/geant4reweightConfig.cmake
+        - lib/libReweightBaseLib.so
+
+about:
+  homepage: https://github.com/NuSoftHEP/Geant4Reweight
+  repository: https://github.com/NuSoftHEP/Geant4Reweight
+  license: Apache-2.0
+  # NuSoftHEP/Geant4Reweight v01_21_03 ships no LICENSE file in-tree; no license_file
+  # is packaged. License is Apache-2.0 per the FNAL/NuSoftHEP suite convention.
+  summary: geant4reweight -- Geant4 hadronic-reinteraction reweighting (gates protoduneana)
+  description: |
+    geant4reweight provides tools to reweight Geant4 hadronic reinteractions and
+    propagate the associated systematic uncertainties, used by the ProtoDUNE pion/proton
+    cross-section analyses in protoduneana. Built on Geant4, ROOT, and the art utility
+    libraries (cetlib/cetlib_except/fhiclcpp).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

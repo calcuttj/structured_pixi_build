@@ -1,0 +1,61 @@
+--- a/CMakeLists.txt	2026-07-08 13:29:21.608326665 -0700
++++ b/CMakeLists.txt	2026-07-08 13:29:46.512689031 -0700
+@@ -37,14 +37,30 @@
+ # Versions are pinned by ndcaf_setup_deps.sh; env vars (and CMAKE_PREFIX_PATH for
+ # the cetmodules-built packages) are set by UPS at runtime.
+ 
+-# ROOT — always via ROOTConfig.cmake (ships with ROOT >= 6)
+-find_package(ROOT 6 REQUIRED COMPONENTS Core MathMore Geom EGPythia6 GenVector)
++# ROOT — always via ROOTConfig.cmake (ships with ROOT >= 6). ROOT >= 6.40 no
++# longer ships the EGPythia6 component (the pythia6 interface was removed after
++# 6.28), so it is dropped from the COMPONENTS list here and provided instead by
++# the tpythia6 package as deps::egpythia6 below.
++find_package(ROOT 6 REQUIRED COMPONENTS Core MathMore Geom GenVector)
++
++# EGPythia6: modern ROOT no longer builds it, but the tpythia6 UPS/conda product
++# ships libEGPythia6.so. Wrap it as an imported target used in place of the
++# former ROOT::EGPythia6 (PYTHIA6_LIBRARY points at the dir holding both
++# libPythia6.so and libEGPythia6.so).
++find_library(
++  EGPYTHIA6_LIB_PATH
++  NAMES EGPythia6
++  PATHS "$ENV{PYTHIA6_LIBRARY}"
++  NO_DEFAULT_PATH)
++add_library(deps::egpythia6 INTERFACE IMPORTED)
++set_target_properties(deps::egpythia6 PROPERTIES INTERFACE_LINK_LIBRARIES
++                                                 "${EGPYTHIA6_LIB_PATH}")
+ 
+ # UPS ships sqlite as libsqlite3_ups.so (not libsqlite3.so) and the SL7 base
+ # image only has libsqlite3.so.0. Pre-populate the FindSQLite3 cache so
+ # fhiclcpp -> cetlib's find_dependency(SQLite3) finds the UPS install.
+ find_library(SQLite3_LIBRARY
+-  NAMES sqlite3_ups
++  NAMES sqlite3
+   PATHS "$ENV{SQLITE_FQ_DIR}/lib"
+   NO_DEFAULT_PATH)
+ find_path(SQLite3_INCLUDE_DIR
+@@ -150,11 +166,11 @@
+ find_library(
+   CURL_LIB_PATH
+   NAMES curl
+-  PATHS /usr/lib64
++  PATHS "$ENV{CURL_FQ_DIR}/lib"
+   NO_DEFAULT_PATH)
+ add_library(deps::curl INTERFACE IMPORTED)
+ set_target_properties(
+-  deps::curl PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "/usr/include/curl"
++  deps::curl PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "$ENV{CURL_FQ_DIR}/include"
+                         INTERFACE_LINK_LIBRARIES "${CURL_LIB_PATH}")
+ 
+ # SANDReco — optional, auto-detected from environment (both modes)
+--- a/src/CMakeLists.txt	2026-07-08 13:29:21.608326665 -0700
++++ b/src/CMakeLists.txt	2026-07-08 13:29:51.748765225 -0700
+@@ -47,7 +47,7 @@
+          ROOT::Core
+          ROOT::MathMore
+          ROOT::Geom
+-         ROOT::EGPythia6
++         deps::egpythia6
+          ROOT::GenVector
+          Boost::program_options
+          fhiclcpp::fhiclcpp

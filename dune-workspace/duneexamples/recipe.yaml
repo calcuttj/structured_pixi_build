@@ -1,0 +1,83 @@
+# rattler-build recipe (v1 / CEP-13 format) for duneexamples 10.21.1 (v10_21_01d00).
+#
+# duneexamples is the DUNE example/tutorial package: a small DuneExample class+ROOT
+# dictionary and a set of gallery scripts. Unlike the other dunecore-only leaves its
+# top CMakeLists find_package()s ONLY art/art_root_io/canvas_root_io/Boost/ROOT (it
+# does NOT find_package(dunecore) at build time) — so the host is minimal and it does
+# not hit the dunecore-target / nlohmann_json contract. dunecore is kept in host as
+# the declared product dependency (its run_export makes it a run dep for the metapkg).
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: duneexamples
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/duneexamples/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: fea1982f3760fdfed49bd2708a6c99afde261d28e58b56a82c64573b967b96ce
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # declared product dependency (run_export -> run dep); not find_package()d at build
+    - dunecore
+    # build-time find_package()s
+    - art
+    - art_root_io
+    - canvas
+    - canvas_root_io
+    - root_base
+    - root_cxx_standard
+    - libboost-devel
+    # externals the art/ROOT Config find_dependency cascade needs at configure time
+    - tbb-devel                   # find_package(TBB)
+    - range-v3                    # find_package(Range-v3)
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - artdaq_core
+    - dunedaqdataformats
+    - dunedetdataformats
+    - dunepdlegacy
+    - highfive
+    - trace
+  run:
+  run_exports:
+    - ${{ pin_subpackage('duneexamples', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - duneexamples/DuneExample/MyClass.h
+      files:
+        - lib/duneexamples/cmake/duneexamplesConfig.cmake
+        - lib/libduneexamples_DuneExample_dict.so
+
+about:
+  homepage: https://github.com/DUNE/duneexamples
+  repository: https://github.com/DUNE/duneexamples
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: duneexamples -- DUNE example/tutorial code and gallery scripts
+  description: |
+    duneexamples collects DUNE offline example and tutorial code: a small
+    demonstration data class with a ROOT dictionary and a set of gallery analysis
+    scripts, built on the dunecore base of the DUNE software suite (dunesw).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

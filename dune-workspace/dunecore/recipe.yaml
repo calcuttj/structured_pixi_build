@@ -1,0 +1,138 @@
+# rattler-build recipe (v1 / CEP-13 format) for dunecore 10.21.1 (v10_21_01d00).
+#
+# dunecore is the base of the DUNE offline software (dunesw). It is a large
+# art/cetmodules build that find_package()s the full LArSoft reco/sim stack
+# (larana/larreco/larpandora/larsim/... EXPORT) plus the DUNE-specific leaves we
+# built for this milestone: artdaq_core, TRACE, dunepdlegacy, dune{det,daq}
+# dataformats, HighFive (2.4.x), and conda-forge PostgreSQL/SQLite3/FFTW3/
+# nlohmann_json/HDF5. Because it re-reaches the larsoft components' Configs, it
+# inherits the same find_dependency env/-D contract as the larsoft metapackage
+# (GENIE/MARLEY/CRY/dk2nu/rstartree/libwda generator env; libtorch-cpu Torch_DIR;
+# PandoraMonitoring -D vars; FFTW3 CMAKE_IGNORE_PATH) — see build.sh.
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  # DUNE suite tag: 2-padded fields + d00 patch-series suffix -> v10_21_01d00.
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: dunecore
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunecore/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 28afecab52d9e00d99b346639a1eae9ad0bc18b2fc2031dc1d2e6043f91260ec
+  patches:
+    # Modernize deprecated cetmodules macros: replace art_make()/cet_make()/
+    # simple_plugin() with explicit cet_make_library() (explicit SOURCE lists),
+    # build_dictionary(), and cet_build_plugin(). art_make globs plugin sources and
+    # passes the absolute paths through cet_exclude_files_from REGEX "(^|/)[.#].*",
+    # which under pixi-build (build tree lives beneath ".pixi/") drops every plugin
+    # source -> no plugins get built. The explicit commands never glob, so they are
+    # immune to the ".pixi" path (and it's the recommended LArSoft migration anyway).
+    - patches/0001-modernize-cmake.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # --- art stack ---
+    - art
+    - art_root_io
+    - canvas
+    - canvas_root_io
+    - cetlib
+    - cetlib_except
+    - fhiclcpp
+    - messagefacility
+    - hep_concurrency
+    - gallery
+    # --- DUNE leaves built for this milestone ---
+    - artdaq_core
+    - trace
+    - dunepdlegacy
+    - dunedaqdataformats
+    - dunedetdataformats
+    # --- LArSoft components dunecore find_package()s (EXPORT); their run_exports
+    #     pull the rest of the lar*/nu*/generator closure + externals ---
+    - larcore
+    - larcorealg
+    - larcoreobj
+    - lardata
+    - lardataalg
+    - lardataobj
+    - larevt
+    - larana
+    - larreco
+    - larsim
+    - larpandora
+    # --- nu / generator stack (named directly by dunecore) ---
+    - nufinder
+    - nuevdb
+    - nug4
+    - nugen
+    - nurandom
+    - nusimdata
+    - nutools
+    - genie
+    - ifdh_art
+    - ifdhc
+    # --- core externals / CMake-config providers ---
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - eigen
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - hdf5
+    - highfive
+    - nlohmann_json
+    - libpq                       # find_package(PostgreSQL)
+    - libsqlite                   # find_package(SQLite3)
+    - fftw                        # find_package(FFTW3) via cetmodules FindFFTW3
+    # ROOT dictionaries (DuneInterface_Data/Tool, FclRunDataTool) pull Vc SIMD
+    # symbols (Vc_1::Common::checkLibraryAbi) via ROOT math headers; libVc.a comes
+    # from the conda-forge `vector-classes` package. Without it -> undefined refs.
+    - vector-classes
+    # larpandora/larreco re-export Torch; force the CPU build (CUDA TorchConfig trap)
+    - libtorch * cpu*
+  run:
+  run_exports:
+    - ${{ pin_subpackage('dunecore', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      include:
+        - dunecore/Geometry/ChannelGeo.h
+      files:
+        - lib/dunecore/cmake/dunecoreConfig.cmake
+        - lib/libdunecore_Geometry.so
+
+about:
+  homepage: https://github.com/DUNE/dunecore
+  repository: https://github.com/DUNE/dunecore
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: dunecore -- base of the DUNE offline software suite (dunesw)
+  description: |
+    dunecore is the foundational package of the DUNE offline software (dunesw):
+    detector geometry, channel maps, DAQ raw-data interfaces/decoding, common
+    utilities and services, built on the LArSoft stack plus the DUNE data-format
+    and artdaq layers. First DUNE-suite milestone of the dunesw conda packaging.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

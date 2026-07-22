@@ -1,0 +1,116 @@
+# rattler-build recipe (v1 / CEP-13 format) for DUNE ND_CAFMaker 5.1.0.
+#
+# ND_CAFMaker (github.com/DUNE/ND_CAFMaker) builds the near-detector Common
+# Analysis File maker: libND_CAFMaker.so + the makeCAF executable. Its upstream
+# CMake is UPS-oriented (cmake/FindUPSPackage.cmake resolves each external via
+# $ENV{<PKG>_INC}/<PKG>_LIB/<PKG>_FQ_DIR set by ndcaf_setup_deps.sh). For the
+# conda build those env vars are pointed at $PREFIX in build.sh, and a small
+# patch fixes the three spots that can't be redirected by env alone:
+#   * SQLite3   — NAMES sqlite3_ups -> sqlite3 (conda ships libsqlite3.so)
+#   * curl      — hard-coded /usr/lib64 + /usr/include/curl -> $CURL_FQ_DIR
+#   * EGPythia6 — ROOT >= 6.40 dropped the component; link tpythia6's
+#                 libEGPythia6.so as deps::egpythia6 in its place
+# No git release tag exists for 5.1.0, so the source is pinned to the main commit.
+
+context:
+  version: "5.1.0"
+  git_rev: edbd52f6ab76d8639ec400e589527001004a1135
+
+package:
+  name: nd_cafmaker
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/ND_CAFMaker/archive/${{ git_rev }}.tar.gz
+  sha256: 9a69a32ca523029370ad107682bf373a0d1c35b3a61191a6ad8ce018f99df92c
+  patches:
+    - patches/0001-conda-ups-port.patch
+    # ROOT 6.36 removed the deprecated top-level ROOT::kLZ4 alias; swap to
+    # ROOT::RCompressionSetting::EAlgorithm::kLZ4 (valid in all ROOT >= 6.28).
+    # TODO: revisit a clean recipe-level ROOT-version guard if pre-6.28 support
+    # is ever needed.
+    - patches/0002-root636-kLZ4-compression-enum.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    # ROOT (Core/MathMore/Geom/GenVector) — root_base, not the `root` metapackage.
+    - root_base
+    - root_cxx_standard
+    # DUNE near-detector externals. ND_CAFMaker 5.1.0 targets the duneanaobj
+    # v04_00_00 StandardRecord schema (ndcaf_setup_deps.sh), so pin 4.0.0 (the
+    # branch also carries 3.16.0 for dunesw).
+    - duneanaobj ==4.0.0
+    - edepsim
+    - srproxy
+    # fhiclcpp (used with NO_ART). The art-suite fhiclcpp package's metadata omits
+    # its cetlib/cetlib_except run-deps, and fhiclcppConfig.cmake ->
+    # find_dependency(cetlib/cetlib_except) + cetlibConfig -> SQLite3/OpenSSL, so
+    # list them here explicitly. makeCAF also link-pulls libcetlib via the
+    # fhiclcpp::fhiclcpp interface, hence they are in run: too.
+    - fhiclcpp
+    - cetlib
+    - cetlib_except
+    - hep_concurrency
+    - openssl
+    - libboost-devel
+    - tbb-devel
+    # GENIE toolkit (via genie-config) + Pythia6 / EGPythia6 (tpythia6).
+    - genie
+    - pythia6
+    - tpythia6
+    # Plain externals resolved from conda-forge.
+    - hdf5
+    - log4cpp
+    - gsl
+    - lhapdf
+    - nlohmann_json
+    - libxml2
+    - libcurl
+    - sqlite
+  run:
+    # FNAL products whose recipes may not carry a run_export; makeCAF links/loads
+    # them at runtime. (root_base/edepsim/duneanaobj/boost/hdf5/... come in via
+    # their weak run_exports.)
+    - genie
+    - pythia6
+    - tpythia6
+    # art-suite fhiclcpp lacks run_exports for these; makeCAF links them via the
+    # fhiclcpp::fhiclcpp interface target.
+    - fhiclcpp
+    - cetlib
+    - cetlib_except
+    - hep_concurrency
+
+tests:
+  - package_contents:
+      bin:
+        - makeCAF
+      lib:
+        - ND_CAFMaker
+
+about:
+  homepage: https://github.com/DUNE/ND_CAFMaker
+  repository: https://github.com/DUNE/ND_CAFMaker
+  summary: DUNE near-detector Common Analysis File (CAF) maker
+  description: |
+    ND_CAFMaker produces DUNE near-detector Common Analysis Files (CAFs) from
+    edep-sim + GENIE truth and the ND reconstruction outputs (ML/DLP, MINERvA,
+    TMS, Pandora, SAND). This conda package builds libND_CAFMaker and the makeCAF
+    executable against the conda art/larsoft stack.
+  license: Apache-2.0
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - calcuttj

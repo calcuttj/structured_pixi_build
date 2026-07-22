@@ -1,0 +1,1754 @@
+diff --git a/duneopdet/LowEPDSUtils/CMakeLists.txt b/duneopdet/LowEPDSUtils/CMakeLists.txt
+index 7e44809..a9c5647 100644
+--- a/duneopdet/LowEPDSUtils/CMakeLists.txt
++++ b/duneopdet/LowEPDSUtils/CMakeLists.txt
+@@ -1,25 +1,9 @@
+-art_make(BASENAME_ONLY ALLOW_UNDERSCORES
+-  LIBRARY_NAME LowEPDSUtils
+-  LIB_LIBRARIES
+-    ${ROOT_CORE}
+-    ${ROOT_EVE}
+-    larcore::Geometry_Geometry_service
+-    larcorealg::Geometry
+-    lardata::Utilities
+-    lardataobj::RawData
+-    lardataobj::RecoBase
+-    larsim::MCCheater_BackTrackerService_service
+-    larsim::MCCheater_PhotonBackTrackerService_service
+-    larsim::MCCheater_ParticleInventoryService_service
+-    art::Persistency_Provenance
+-    art::Persistency_Common
+-    art::Utilities 
+-    art_root_io::tfile_support
+-    messagefacility::MF_MessageLogger
+-    cetlib::cetlib
+-    dunecore::ProducerUtils
+-  
+-  SERVICE_LIBRARIES
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME LowEPDSUtils
++  SOURCE
++    AdjOpHitsUtils.cc
++  LIBRARIES
+     ${ROOT_CORE}
+     ${ROOT_EVE}
+     larcore::Geometry_Geometry_service
+@@ -32,13 +16,16 @@ art_make(BASENAME_ONLY ALLOW_UNDERSCORES
+     larsim::MCCheater_ParticleInventoryService_service
+     art::Persistency_Provenance
+     art::Persistency_Common
+-    art::Utilities 
++    art::Utilities
+     art_root_io::tfile_support
+     messagefacility::MF_MessageLogger
+     cetlib::cetlib
+     dunecore::ProducerUtils
+-  
+-  MODULE_LIBRARIES LowEPDSUtils
++)
++
++cet_build_plugin(SolarOpFlash art::module BASENAME_ONLY
++  LIBRARIES
++    LowEPDSUtils
+     ${ROOT_CORE}
+     ${ROOT_EVE}
+     larcore::Geometry_Geometry_service
+@@ -51,12 +38,13 @@ art_make(BASENAME_ONLY ALLOW_UNDERSCORES
+     larsim::MCCheater_ParticleInventoryService_service
+     art::Persistency_Provenance
+     art::Persistency_Common
+-    art::Utilities 
++    art::Utilities
+     art_root_io::tfile_support
+     messagefacility::MF_MessageLogger
+     cetlib::cetlib
+     dunecore::ProducerUtils
+-  )
++)
++
+ 
+ add_subdirectory(fcl)
+ 
+diff --git a/duneopdet/OpticalDetector/Ana/CMakeLists.txt b/duneopdet/OpticalDetector/Ana/CMakeLists.txt
+index 38eb108..00f6c5a 100644
+--- a/duneopdet/OpticalDetector/Ana/CMakeLists.txt
++++ b/duneopdet/OpticalDetector/Ana/CMakeLists.txt
+@@ -1,73 +1,149 @@
+ include_directories("${dunedetdataformats_DIR}/../../../include")
+ 
+-art_make(
+-        MODULE_LIBRARIES
+-        dunecore::DuneObj
+-        lardataalg::DetectorInfo
+-        lardataobj::RecoBase
+-        lardata::headers
+-        larana::OpticalDetector
+-        larana::OpticalDetector_OpHitFinder
+-        larcorealg::Geometry
+-        larcore::Geometry_Geometry_service
+-        duneopdet::OpticalDetector
+-        larsim::MCCheater_ParticleInventoryService_service
+-        larsim::MCCheater_PhotonBackTrackerService_service
+-        nusimdata::SimulationBase
+-        nurandom::RandomUtils_NuRandomService_service
+-        fhiclcpp::fhiclcpp
+-        messagefacility::MF_MessageLogger
+-        art::Framework_Core
+-        art::Framework_Principal
+-        art::Framework_Services_Registry
+-        art_root_io::tfile_support
+-        ROOT::Core
+-	ROOT::Tree
+-	ROOT::Graf
+-        art_root_io::TFileService_service
+-        art::Framework_Services_Optional_RandomNumberGenerator_service
+-        art::Persistency_Provenance
+-        art::Persistency_Common
+-        art::Utilities
+-	canvas::canvas
+-        cetlib::cetlib
+-	cetlib_except::cetlib_except
+-	CLHEP::CLHEP
+-        Boost::filesystem
+-        FFTW3::FFTW3
+-        dunecore::opdet_PDVDPDMapAlg
+-	nlohmann_json::nlohmann_json
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
+ 
+-        LIB_LIBRARIES
+-        lardataobj::RecoBase
+-        larcorealg::Geometry
+-        larcore::Geometry_Geometry_service
+-        larana::OpticalDetector_OpHitFinder
+-        larreco::PhotonCalibrator
+-        nusimdata::SimulationBase
+-        fhiclcpp::fhiclcpp
+-        messagefacility::MF_MessageLogger
+-        art::Framework_Core
+-        art::Framework_Principal
+-        art::Framework_Services_Registry
+-        art_root_io::tfile_support
+-        art_root_io::TFileService_service
+-        art::Framework_Services_Optional_RandomNumberGenerator_service
+-        art::Persistency_Common
+-        art::Utilities
+-	canvas::canvas
+-        cetlib::cetlib
+-	cetlib_except::cetlib_except
+-        Boost::filesystem
+-         MODULE_LIBRARIES
+-        duneopdet::OpticalDetector
+-	art::Persistency_Provenance
+-	ROOT::Geom
+-	ROOT::XMLIO
+-	ROOT::Gdml
+-	ROOT::Core ROOT::Hist ROOT::Tree
++cet_build_plugin(HitDumper art::module
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++    duneopdet::OpticalDetector
++    art::Persistency_Provenance
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++    ROOT::Core
++    ROOT::Hist
++    ROOT::Tree
+ )
+ 
++cet_build_plugin(OpDetAnalyzer art::module
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++    duneopdet::OpticalDetector
++    art::Persistency_Provenance
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++    ROOT::Core
++    ROOT::Hist
++    ROOT::Tree
++)
++
++cet_build_plugin(RawWaveformAna art::module
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++    duneopdet::OpticalDetector
++    art::Persistency_Provenance
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++    ROOT::Core
++    ROOT::Hist
++    ROOT::Tree
++)
++
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/duneopdet/OpticalDetector/BackTrackingTests/CMakeLists.txt b/duneopdet/OpticalDetector/BackTrackingTests/CMakeLists.txt
+index b054944..8e45c55 100644
+--- a/duneopdet/OpticalDetector/BackTrackingTests/CMakeLists.txt
++++ b/duneopdet/OpticalDetector/BackTrackingTests/CMakeLists.txt
+@@ -1,31 +1,36 @@
+ 
+-art_make( BASENAME_ONLY MODULE_LIBRARIES
+-  larcore::Geometry_Geometry_service
+-  larcorealg::Geometry
+-  lardataobj::RawData
+-  lardataobj::AnalysisBase
+-  dunecore::DuneObj
+-  larsim::MCCheater_BackTrackerService_service
+-  larsim::MCCheater_ParticleInventoryService_service
+-  larsim::MCCheater_PhotonBackTrackerService_service
+-  larsim::Simulation 
+-  nug4::ParticleNavigation 
+-  lardataobj::Simulation
+-  nusimdata::SimulationBase	
+-  art::Framework_Core
+-  art::Framework_Principal
+-  art::Framework_Services_Registry
+-  art_root_io::tfile_support
+-  ROOT::Core
+-  art_root_io::TFileService_service
+-  art::Persistency_Common
+-  art::Persistency_Provenance
+-  art::Utilities 
+-  canvas::canvas
+-  messagefacility::MF_MessageLogger
+-  cetlib::cetlib cetlib_except::cetlib_except
+-  ROOT_BASIC_LIB_LIST
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(HitSdpPlotter art::module BASENAME_ONLY
++  LIBRARIES
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    lardataobj::RawData
++    lardataobj::AnalysisBase
++    dunecore::DuneObj
++    larsim::MCCheater_BackTrackerService_service
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT_BASIC_LIB_LIST
++)
++
+ 
+ install_fhicl()
+ install_headers()
+diff --git a/duneopdet/OpticalDetector/CMakeLists.txt b/duneopdet/OpticalDetector/CMakeLists.txt
+index d4e4a31..1f5ab19 100644
+--- a/duneopdet/OpticalDetector/CMakeLists.txt
++++ b/duneopdet/OpticalDetector/CMakeLists.txt
+@@ -2,93 +2,899 @@
+ 
+ include_directories("${dunedetdataformats_DIR}/../../../include")
+ 
+-art_make( BASENAME_ONLY ALLOW_UNDERSCORES
+-                LIBRARY_NAME duneopdet_OpticalDetector
+-                LIB_LIBRARIES
+-                                lardataobj::RecoBase
+-                                larcorealg::Geometry
+-                                larcore::Geometry_Geometry_service
+-                                larana::OpticalDetector_OpHitFinder
+-                                larreco::PhotonCalibrator
+-                                nusimdata::SimulationBase
+-                                fhiclcpp::fhiclcpp
+-                                messagefacility::MF_MessageLogger
+-                                art::Framework_Core
+-                                art::Framework_Principal
+-                                art::Framework_Services_Registry
+-                                art_root_io::tfile_support
+-                                ROOT::Core
+-                                art_root_io::TFileService_service
+-                                art::Framework_Services_Optional_RandomNumberGenerator_service
+-                                art::Persistency_Common
+-                                art::Utilities
+-				canvas::canvas
+-                                cetlib::cetlib
+-				cetlib_except::cetlib_except
+-                                Boost::filesystem
+-                                dunecore::opdet_PDVDPDMapAlg
+-
+-
+-                MODULE_LIBRARIES
+-                                dunecore::DuneObj
+-                                lardataalg::DetectorInfo
+-                                lardataobj::RecoBase
+-                                lardata::headers
+-                                larana::OpticalDetector
+-                                larana::OpticalDetector_OpHitFinder
+-                                larcorealg::Geometry
+-                                larcore::Geometry_Geometry_service
+-                                duneopdet::OpticalDetector
+-                                larsim::MCCheater_ParticleInventoryService_service
+-                                larsim::MCCheater_PhotonBackTrackerService_service
+-                                nusimdata::SimulationBase
+-                                nurandom::RandomUtils_NuRandomService_service
+-                                fhiclcpp::fhiclcpp
+-                                messagefacility::MF_MessageLogger
+-                                art::Framework_Core
+-                                art::Framework_Principal
+-                                art::Framework_Services_Registry
+-                                art_root_io::tfile_support
+-                                ROOT::Core
+-				ROOT::Tree
+-				ROOT::Graf
+-                                art_root_io::TFileService_service
+-                                art::Framework_Services_Optional_RandomNumberGenerator_service
+-                                art::Persistency_Provenance
+-                                art::Persistency_Common
+-                                art::Utilities
+-				canvas::canvas
+-                                cetlib::cetlib
+-				cetlib_except::cetlib_except
+-				CLHEP::CLHEP
+-                                Boost::filesystem
+-                                FFTW3::FFTW3
+-                                dunecore::opdet_PDVDPDMapAlg
+-				nlohmann_json::nlohmann_json
+-
+-                SERVICE_LIBRARIES
+-                                larcorealg::Geometry
+-                                larcore::Geometry_Geometry_service
+-                                lardata::headers
+-                                lardataalg::DetectorInfo
+-                                duneopdet::OpticalDetector
+-                                fhiclcpp::fhiclcpp
+-                                messagefacility::MF_MessageLogger
+-                                art::Framework_Core
+-                                art::Framework_Principal
+-                                art::Framework_Services_Registry
+-                                art_root_io::tfile_support
+-                                ROOT::Core
+-                                art_root_io::TFileService_service
+-                                art::Persistency_Common
+-                                art::Utilities
+-				canvas::canvas
+-                                cetlib::cetlib cetlib_except::cetlib_except
+-				CLHEP::CLHEP
+-                                Boost::filesystem
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
+ 
++cet_make_library(LIBRARY_NAME duneopdet_OpticalDetector
++  SOURCE
++    AlgoSSPLeadingEdge.cc
++    PhotonCalibratorProtoDUNESP.cc
++  LIBRARIES
++    lardataobj::RecoBase
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larana::OpticalDetector_OpHitFinder
++    larreco::PhotonCalibrator
++    nusimdata::SimulationBase
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    Boost::filesystem
++    dunecore::opdet_PDVDPDMapAlg
+ )
+ 
++cet_build_plugin(DUNE35tonOpDetResponse art::service BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::headers
++    lardataalg::DetectorInfo
++    duneopdet::OpticalDetector
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++)
++
++cet_build_plugin(DUNEOpDetResponse art::service BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::headers
++    lardataalg::DetectorInfo
++    duneopdet::OpticalDetector
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++)
++
++cet_build_plugin(DUNESimpleOpDetResponse art::service BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::headers
++    lardataalg::DetectorInfo
++    duneopdet::OpticalDetector
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++)
++
++cet_build_plugin(PhotonCalibratorServiceProtoDUNESP art::service BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::headers
++    lardataalg::DetectorInfo
++    duneopdet::OpticalDetector
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++)
++
++cet_build_plugin(ProtoDUNEOpDetResponse art::service BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    lardata::headers
++    lardataalg::DetectorInfo
++    duneopdet::OpticalDetector
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++)
++
++cet_build_plugin(AverageWaveform art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(CalibrationAnalysis art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(FlashMatchAna art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(OpDetDigiAnaDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(OpDetDigitizerDUNEDP art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(OpDetDigitizerDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(OpDetDigitizerProtoDUNEHD art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(OpDetDigitizerProtoDUNEVD art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(OpDetDigitizerProtoDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(OpFlashFinderDualPhase art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(OpFlashFinderVerticalDrift art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(OpSlicer art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(PDSNoiseFilter art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(PDSPCalPhoton art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(ProtoDUNE_opdet_eventdisplay art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(ProtoDUNEopdeteventdisplay art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(SIPMOpSensorSim art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(WaveformDigitizerSim art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++cet_build_plugin(WaveformPreProcessing art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++    FFTW3::FFTW3
++    dunecore::opdet_PDVDPDMapAlg
++    nlohmann_json::nlohmann_json
++)
++
++
+ file(GLOB dat_files *.dat)
+ install_fw( LIST ${dat_files} )
+ 
+diff --git a/duneopdet/OpticalDetector/Deconvolution/CMakeLists.txt b/duneopdet/OpticalDetector/Deconvolution/CMakeLists.txt
+index 0593580..2c6bc5a 100644
+--- a/duneopdet/OpticalDetector/Deconvolution/CMakeLists.txt
++++ b/duneopdet/OpticalDetector/Deconvolution/CMakeLists.txt
+@@ -1,82 +1,75 @@
+ 
+-art_make( BASENAME_ONLY ALLOW_UNDERSCORES
+-                LIBRARY_NAME duneopdet_OpticalDetector
+-                LIB_LIBRARIES 
+-                                lardataalg::DetectorInfo
+-                                lardataobj::RecoBase
+-                                larcorealg::Geometry
+-                                larcore::Geometry_Geometry_service
+-                                larana::OpticalDetector_OpHitFinder
+-                                nusimdata::SimulationBase
+-                                fhiclcpp::fhiclcpp
+-                                messagefacility::MF_MessageLogger
+-                                art::Framework_Core
+-                                art::Framework_Principal
+-                                art::Framework_Services_Registry
+-                                art_root_io::tfile_support
+-                                ROOT::Core
+-                                art_root_io::TFileService_service
+-                                art::Framework_Services_Optional_RandomNumberGenerator_service
+-                                art::Persistency_Common
+-                                art::Utilities 
+-				canvas::canvas
+-                                cetlib::cetlib 
+-				cetlib_except::cetlib_except 
+-                                Boost::filesystem
+-  
+-                MODULE_LIBRARIES
+-                                dunecore::DuneObj
+-                                lardataalg::DetectorInfo
+-                                lardataobj::RecoBase
+-                                lardata::headers
+-                                larana::OpticalDetector
+-                                larana::OpticalDetector_OpHitFinder
+-                                larcorealg::Geometry
+-                                larcore::Geometry_Geometry_service
+-                                duneopdet::OpticalDetector
+-                                larsim::MCCheater_ParticleInventoryService_service
+-                                larsim::MCCheater_PhotonBackTrackerService_service 
+-                                nusimdata::SimulationBase
+-                                nurandom::RandomUtils_NuRandomService_service
+-                                fhiclcpp::fhiclcpp
+-                                messagefacility::MF_MessageLogger
+-                                art::Framework_Core
+-                                art::Framework_Principal
+-                                art::Framework_Services_Registry
+-                                art_root_io::tfile_support
+-                                ROOT::Core
+-                                art_root_io::TFileService_service
+-                                art::Framework_Services_Optional_RandomNumberGenerator_service
+-                                art::Persistency_Provenance
+-                                art::Persistency_Common
+-                                art::Utilities 
+-				canvas::canvas
+-                                cetlib::cetlib 
+-				cetlib_except::cetlib_except
+-				CLHEP::CLHEP
+-                                Boost::filesystem
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
+ 
+-                SERVICE_LIBRARIES
+-                                larcorealg::Geometry
+-                                larcore::Geometry_Geometry_service
+-                                duneopdet::OpticalDetector
+-                                fhiclcpp::fhiclcpp
+-                                messagefacility::MF_MessageLogger
+-                                art::Framework_Core
+-                                art::Framework_Principal
+-                                art::Framework_Services_Registry
+-                                art_root_io::tfile_support
+-                                ROOT::Core
+-                                art_root_io::TFileService_service
+-                                art::Persistency_Common
+-                                art::Utilities 
+-				canvas::canvas
+-                                cetlib::cetlib cetlib_except::cetlib_except
+-				CLHEP::CLHEP
+-                                Boost::filesystem
++cet_build_plugin(DecoAnalysis art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++)
+ 
++cet_build_plugin(Deconvolution art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardataobj::RecoBase
++    lardata::headers
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/duneopdet/OpticalDetector/OpHitFinder/CMakeLists.txt b/duneopdet/OpticalDetector/OpHitFinder/CMakeLists.txt
+index b24e351..4c5b46d 100644
+--- a/duneopdet/OpticalDetector/OpHitFinder/CMakeLists.txt
++++ b/duneopdet/OpticalDetector/OpHitFinder/CMakeLists.txt
+@@ -1,88 +1,108 @@
+-art_make( BASENAME_ONLY ALLOW_UNDERSCORES
+-                LIBRARY_NAME duneopdet_OpticalDetector_OpHitFinder
+-                LIB_LIBRARIES 
+-                                lardataobj::RecoBase
+-                                larcorealg::Geometry
+-                                larcore::Geometry_Geometry_service
+-                                larana::OpticalDetector_OpHitFinder
+-                                lardataalg::DetectorInfo
+-                                #duneopdet::OpticalDetector_OpHitFinder
+-                                nusimdata::SimulationBase
+-                                fhiclcpp::fhiclcpp
+-                                messagefacility::MF_MessageLogger
+-                                art::Framework_Core
+-                                art::Framework_Principal
+-                                art::Framework_Services_Registry
+-                                art_root_io::tfile_support
+-                                ROOT::Core
+-                                art_root_io::TFileService_service
+-                                art::Framework_Services_Optional_RandomNumberGenerator_service
+-                                art::Persistency_Common
+-                                art::Utilities 
+-				canvas::canvas
+-                                cetlib::cetlib 
+-				cetlib_except::cetlib_except 
+-                                Boost::filesystem
+-                                larreco::PhotonCalibrator 
+-                MODULE_LIBRARIES
+-                                dunecore::DuneObj
+-                                lardataalg::DetectorInfo
+-                                lardata::headers
+-                                lardataobj::RecoBase
+-                                larana::OpticalDetector
+-                                larana::OpticalDetector_OpHitFinder
+-                                larcorealg::Geometry
+-                                larcore::Geometry_Geometry_service
+-                                duneopdet::OpticalDetector
+-                                duneopdet::OpticalDetector_OpHitFinder
+-                                larsim::MCCheater_ParticleInventoryService_service
+-                                larsim::MCCheater_PhotonBackTrackerService_service 
+-                                nusimdata::SimulationBase
+-                                nurandom::RandomUtils_NuRandomService_service
+-                                fhiclcpp::fhiclcpp
+-                                messagefacility::MF_MessageLogger
+-                                art::Framework_Core
+-                                art::Framework_Principal
+-                                art::Framework_Services_Registry
+-                                art_root_io::tfile_support
+-                                ROOT::Core
+-				ROOT::Tree
+-				ROOT::Graf
+-                                art_root_io::TFileService_service
+-                                art::Framework_Services_Optional_RandomNumberGenerator_service
+-                                art::Persistency_Provenance
+-                                art::Persistency_Common
+-                                art::Utilities 
+-				canvas::canvas
+-                                cetlib::cetlib 
+-				cetlib_except::cetlib_except
+-                                CLHEP::CLHEP
+-                                Boost::filesystem
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
+ 
+-                SERVICE_LIBRARIES
+-                                lardataalg::DetectorInfo
+-                                lardata::headers
+-                                larcorealg::Geometry
+-                                larcore::Geometry_Geometry_service
+-                                duneopdet::OpticalDetector
+-                                duneopdet::OpticalDetector_OpHitFinder
+-                                fhiclcpp::fhiclcpp
+-                                messagefacility::MF_MessageLogger
+-                                art::Framework_Core
+-                                art::Framework_Principal
+-                                art::Framework_Services_Registry
+-                                art_root_io::tfile_support
+-                                ROOT::Core
+-                                art_root_io::TFileService_service
+-                                art::Persistency_Common
+-                                art::Utilities 
+-				canvas::canvas
+-                                cetlib::cetlib cetlib_except
+-                                CLHEP::CLHEP
+-                                Boost::filesystem
++cet_make_library(LIBRARY_NAME duneopdet_OpticalDetector_OpHitFinder
++  SOURCE
++    OpHitAlg_deco.cxx
++  LIBRARIES
++    lardataobj::RecoBase
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larana::OpticalDetector_OpHitFinder
++    lardataalg::DetectorInfo
++    nusimdata::SimulationBase
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    Boost::filesystem
++    larreco::PhotonCalibrator
++)
++
++cet_build_plugin(OpFlashAnaDeco art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardata::headers
++    lardataobj::RecoBase
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    duneopdet::OpticalDetector_OpHitFinder
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
++)
+ 
++cet_build_plugin(OpHitFinderDeco art::module BASENAME_ONLY
++  LIBRARIES
++    dunecore::DuneObj
++    lardataalg::DetectorInfo
++    lardata::headers
++    lardataobj::RecoBase
++    larana::OpticalDetector
++    larana::OpticalDetector_OpHitFinder
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    duneopdet::OpticalDetector
++    duneopdet::OpticalDetector_OpHitFinder
++    larsim::MCCheater_ParticleInventoryService_service
++    larsim::MCCheater_PhotonBackTrackerService_service
++    nusimdata::SimulationBase
++    nurandom::RandomUtils_NuRandomService_service
++    fhiclcpp::fhiclcpp
++    messagefacility::MF_MessageLogger
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    ROOT::Tree
++    ROOT::Graf
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Provenance
++    art::Persistency_Common
++    art::Utilities
++    canvas::canvas
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    Boost::filesystem
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/duneopdet/PhotonPropagation/NeedsTensorflow/CMakeLists.txt b/duneopdet/PhotonPropagation/NeedsTensorflow/CMakeLists.txt
+index 1211de8..7d05f4a 100644
+--- a/duneopdet/PhotonPropagation/NeedsTensorflow/CMakeLists.txt
++++ b/duneopdet/PhotonPropagation/NeedsTensorflow/CMakeLists.txt
+@@ -1,7 +1,9 @@
+ add_subdirectory( VisibilityModelTools )
+ 
+-art_make(
+-  MODULE_LIBRARIES
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(PhotonVisibilityExport art::module
++  LIBRARIES
+     larcorealg::Geometry
+     larcore::Geometry_Geometry_service
+     art::Framework_Core
+@@ -19,9 +21,9 @@ art_make(
+     canvas::canvas
+     messagefacility::MF_MessageLogger
+     fhiclcpp::fhiclcpp
+-    cetlib::cetlib cetlib_except::cetlib_except
++    cetlib::cetlib
++    cetlib_except::cetlib_except
+     CLHEP::CLHEP
+-
+     VisibilityModel
+     larsim::OpticalPath
+     larsim::PhotonPropagation
+@@ -33,6 +35,7 @@ art_make(
+     duneopdet::PhotonPropagation_PhotonVisibilityServiceS2_service
+ )
+ 
++
+ install_headers()
+ install_fhicl()
+ install_source()
+diff --git a/duneopdet/PhotonPropagation/ScintTimeTools/CMakeLists.txt b/duneopdet/PhotonPropagation/ScintTimeTools/CMakeLists.txt
+index 7725aeb..b4b3b3e 100644
+--- a/duneopdet/PhotonPropagation/ScintTimeTools/CMakeLists.txt
++++ b/duneopdet/PhotonPropagation/ScintTimeTools/CMakeLists.txt
+@@ -1,16 +1,5 @@
+-art_make(NO_PLUGINS
+-  EXCLUDE
+-    ScintTimeXeDoping_tool.cc
+-  LIB_LIBRARIES
+-    ROOT::Core
+-    art::Framework_Services_Registry
+-    canvas::canvas
+-    cetlib::cetlib
+-    cetlib_except::cetlib_except
+-    fhiclcpp::fhiclcpp
+-    CLHEP::CLHEP
+-    art::Utilitiesa
+-  )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
+ 
+ 
+ cet_build_plugin(ScintTimeXeDoping art::tool

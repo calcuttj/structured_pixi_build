@@ -1,0 +1,103 @@
+# rattler-build recipe (v1 / CEP-13 format) for protoduneana 10.21.1 (v10_21_01d00).
+#
+# protoduneana is the ProtoDUNE analysis package (pion/proton cross-section analyses,
+# calibration, beam analysis). Product deps: duneprototypes + geant4reweight. It
+# genuinely links geant4reweight::ReweightBaseLib / PropBaseLib. Its CMakeLists
+# find_package()s the full dune product tree (dunecore/duneprototypes/dunecalib/
+# dunereco/dunesim/duneopdet) + larsoft/nu*/GENIE (closure) + larrecodnn + geant4reweight.
+# It find_package(nlohmann_json) itself (inject no-op). Shared dunecore-consumer build
+# contract + -include cassert + -I$PREFIX/inc (ifbeam WebAPI.h via the duneprototypes
+# closure) + the Boost-system drop.
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: protoduneana
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/protoduneana/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 020e898811ca1410039d7e5040158b642cc74dda2637b0af4a2b0dbc41d159c2
+  patches:
+    # Modernize deprecated cetmodules macros (art_make/cet_make/simple_plugin
+    # -> cet_make_library + art_dictionary + cet_build_plugin). Under pixi-build
+    # art_make's plugin glob drops sources beneath ".pixi" -> zero plugins built.
+    - patches/0001-modernize-cmake.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # dunecore run-closure (art+larsoft+nu*+GENIE+ifdh*+externals) transitively.
+    - dunecore
+    # dune product deps + directly-named packages not (all) in dunecore's closure
+    - duneprototypes
+    - dunecalib
+    - dunereco
+    - dunesim
+    - duneopdet
+    - dunepdlegacy
+    - geant4reweight
+    - larrecodnn
+    - artdaq_core
+    - trace
+    - ifbeam
+    # externals named directly
+    - nlohmann_json
+    - hdf5
+    - highfive
+    - libpq
+    - valgrind                    # FitUtils AbsCexDriver #include <valgrind/callgrind.h>
+    # build-visible externals (compiler/CMake-config providers + dunecore find_dep cascade)
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - dunedaqdataformats
+    - dunedetdataformats
+  run:
+  run_exports:
+    - ${{ pin_subpackage('protoduneana', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/protoduneana/cmake/protoduneanaConfig.cmake
+        - lib/libprotoduneana_*.so
+
+about:
+  homepage: https://github.com/DUNE/protoduneana
+  repository: https://github.com/DUNE/protoduneana
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: protoduneana -- ProtoDUNE analysis (pion/proton xsec, calibration, beam)
+  description: |
+    protoduneana provides the ProtoDUNE offline analyses: pion and proton hadronic
+    cross-section measurements (using geant4reweight), calibration, and beam-instrument
+    analysis, built on the duneprototypes / dunereco / dunesim layers of the DUNE
+    software suite (dunesw).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,78 @@
+# rattler-build recipe (v1 / CEP-13 format) for larcv2 2.2.6 (v2_2_6).
+#
+# larcv2 (DeepLearnPhysics/larcv2) is the LArTPC image/voxel data framework used for
+# deep-learning workflows. It uses a custom `source configure.sh && make` build (NOT
+# CMake) that produces a single liblarcv.so (+ROOT dictionary) and a `larcv` python
+# package. It is a STANDALONE package here: nothing in the dunesw conda stack
+# build-depends on it (dunereco's larcv2/Supera integration is dropped — larcv2 appears
+# only in dunereco's ups/product_deps, and the Supera submodule ships empty). Package it
+# for DL-image (Supera / CVN training) workflows; wire it into a dunereco rebuild later
+# if/when the Supera path is wanted.
+#
+# Built with ROOT + Python + NumPy (PyUtil); OpenCV support is OFF (optional CVUtil).
+
+context:
+  version: "2.2.6"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ parts[0] ~ "_" ~ parts[1] ~ "_" ~ parts[2] }}
+
+package:
+  name: larcv2
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DeepLearnPhysics/larcv2/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 2d301967017e14453110122a3b2abb0070ab57e9c2b5b6e9cc8b6aaa8f0b656b
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+  host:
+    - root_base
+    - root_cxx_standard
+    - python
+    - numpy
+  run:
+    - python
+    - numpy
+  # TODO: add a run_exports self-pin here before shipping, so consumers pick up
+  # liblarcv.so at runtime:
+  #   run_exports:
+  #     - ${{ pin_subpackage('larcv2', upper_bound='x.x') }}
+  # Deferred for now: nothing in the current stack build-depends on larcv2
+  # (dunereco builds with the larcv2/Supera DL paths OFF, dunesw never references
+  # it), so a run_exports has no consumer yet. Add it + rebuild larcv2 when a
+  # larcv2 consumer is enabled (e.g. dunereco Supera / DL-image support).
+
+tests:
+  - package_contents:
+      files:
+        - lib/larcv/liblarcv.so
+        - etc/conda/activate.d/larcv2.sh
+      include:
+        - larcv/core/Base/larcv_base.h
+
+about:
+  homepage: https://github.com/DeepLearnPhysics/larcv2
+  repository: https://github.com/DeepLearnPhysics/larcv2
+  license: MIT
+  license_file: LICENSE
+  summary: larcv2 -- LArTPC image/voxel data framework for deep learning (DeepLearnPhysics)
+  description: |
+    larcv2 is the LArTPC image (2D) / voxel (3D) data-processing framework from
+    DeepLearnPhysics, with C++ core + ROOT I/O and extensive Python support, used by
+    DUNE/SBN deep-learning reconstruction (CVN, Supera). Built here as a standalone
+    package (liblarcv.so + the `larcv` python module) with ROOT + NumPy; OpenCV support
+    is off. Not a build dependency of dunereco in this conda stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

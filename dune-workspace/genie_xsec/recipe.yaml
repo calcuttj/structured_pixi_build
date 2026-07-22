@@ -1,0 +1,56 @@
+# rattler-build recipe (v1 / CEP-13 format) for genie_xsec — a *downloader*
+# (mirrors the dune_pardata pattern).
+#
+# genie_xsec is the GENIE pre-computed cross-section spline DATA (per physics "tune").
+# It is a RUNTIME data product (located via GENIEXSECFILE / GXMLPATH at job time), NOT
+# a build dependency of dunesim/dunesw. The chosen tune tarball (AR23_20i_00_000, the
+# DUNE production default at v10_21_01) is ~428 MB, so this package ships ONLY scripts:
+#   * bin/genie_xsec-fetch            — idempotent scisoft downloader/extractor
+#   * etc/conda/activate.d/...         — sets GENIEXSECFILE/GENIEXSECPATH/GXMLPATH/TUNE
+#   * etc/conda/deactivate.d/...       — undoes the above
+#   * bin/.genie_xsec-post-link.sh     — best-effort fetch at install (opt-out)
+# Data is fetched into $CONDA_PREFIX/share/genie_xsec (override $GENIE_XSEC_DIR to share
+# one copy). To use a different tune, set $GENIE_XSEC_TARBALL before genie_xsec-fetch.
+
+context:
+  # scisoft file version 3.06.00 (UPS v3_06_00); default DUNE tune AR23_20i_00_000.
+  version: "3.6.0"
+
+package:
+  name: genie_xsec
+  version: ${{ version }}
+
+build:
+  number: 0
+  noarch: generic
+  script: build.sh
+
+requirements:
+  run:
+    - curl
+    - bzip2
+    - tar
+
+tests:
+  - package_contents:
+      files:
+        - bin/genie_xsec-fetch
+        - etc/conda/activate.d/genie_xsec.sh
+        - etc/conda/deactivate.d/genie_xsec.sh
+
+about:
+  homepage: https://scisoft.fnal.gov/scisoft/packages/genie_xsec/
+  license: LicenseRef-GENIE
+  summary: genie_xsec -- on-demand downloader for GENIE cross-section splines (~428 MB, DUNE AR23 tune)
+  description: |
+    Lightweight downloader for genie_xsec (GENIE pre-computed cross-section spline
+    data). The data (~428 MB for the AR23_20i_00_000 tune) is NOT bundled; it is fetched
+    from scisoft.fnal.gov into $CONDA_PREFIX/share/genie_xsec (or $GENIE_XSEC_DIR) by
+    `genie_xsec-fetch`, and GENIEXSECFILE/GENIEXSECPATH/GXMLPATH/GENIE_XSEC_TUNE are set
+    by an activation script. Runtime data for GENIE event generation in dunesim; not
+    required to build dunesw. Set GENIE_XSEC_AUTOFETCH=0 to skip the install-time
+    download; set GENIE_XSEC_TARBALL to select a different tune.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,54 @@
+# rattler-build recipe (v1 / CEP-13 format) for genie_phyopt — a *downloader*
+# (mirrors the dune_pardata / genie_xsec pattern).
+#
+# genie_phyopt is the GENIE physics-option DATA (decay/messenger XML for a given
+# variant). RUNTIME data (located via GXMLPATH at job time), NOT a build dependency of
+# dunesim/dunesw. The default variant (dkcharm) is tiny (~4 KB) but is kept as a
+# downloader for consistency with genie_xsec/dune_pardata. Ships ONLY scripts:
+#   * bin/genie_phyopt-fetch          — idempotent scisoft downloader/extractor
+#   * etc/conda/activate.d/...         — sets GENIEPHYOPTPATH / GXMLPATH / VARIANT
+#   * etc/conda/deactivate.d/...       — undoes the above
+#   * bin/.genie_phyopt-post-link.sh   — best-effort fetch at install (opt-out)
+# Data is fetched into $CONDA_PREFIX/share/genie_phyopt (override $GENIE_PHYOPT_DIR).
+# Set $GENIE_PHYOPT_TARBALL to select a different variant.
+
+context:
+  version: "3.6.0"
+
+package:
+  name: genie_phyopt
+  version: ${{ version }}
+
+build:
+  number: 0
+  noarch: generic
+  script: build.sh
+
+requirements:
+  run:
+    - curl
+    - bzip2
+    - tar
+
+tests:
+  - package_contents:
+      files:
+        - bin/genie_phyopt-fetch
+        - etc/conda/activate.d/genie_phyopt.sh
+        - etc/conda/deactivate.d/genie_phyopt.sh
+
+about:
+  homepage: https://scisoft.fnal.gov/scisoft/packages/genie_phyopt/
+  license: LicenseRef-GENIE
+  summary: genie_phyopt -- on-demand downloader for GENIE physics-option data (dkcharm variant)
+  description: |
+    Lightweight downloader for genie_phyopt (GENIE physics-option XML: decay tables,
+    messenger config). The data (~4 KB for the dkcharm variant) is fetched from
+    scisoft.fnal.gov into $CONDA_PREFIX/share/genie_phyopt (or $GENIE_PHYOPT_DIR) by
+    `genie_phyopt-fetch`, and GENIEPHYOPTPATH/GXMLPATH/GENIE_PHYOPT_VARIANT are set by an
+    activation script. Runtime data for GENIE event generation in dunesim; not required
+    to build dunesw. Set GENIE_PHYOPT_AUTOFETCH=0 to skip the install-time download.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

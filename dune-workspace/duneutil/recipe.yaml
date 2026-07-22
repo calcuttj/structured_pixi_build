@@ -1,0 +1,73 @@
+# rattler-build recipe (v1 / CEP-13 format) for duneutil 10.21.1 (v10_21_01d00).
+#
+# duneutil is a DUNE suite *utility* product: shell/python scripts (dhtools, xml
+# project files, samweb/pnfs helpers) + a duneutilConfig for the suite. It builds
+# no libraries and installs no headers (product_deps: incdir/libdir "-"). dunecore
+# does NOT find_package(duneutil) — it's not a build dependency of dunecore — but
+# it is part of the dunesw suite, so we package it as a standalone leaf.
+#
+# The UPS runtime deps larbatch / jobsub_client / python_future_six_request are
+# grid job-submission tools (PYTHONPATH only, not used by the CMake build); they
+# are intentionally omitted from this conda package.
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  # DUNE suite tag: 2-padded fields + the d00 patch-series suffix -> v10_21_01d00.
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: duneutil
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/duneutil/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 273e8add85c1f11fee31f36f28cf113e05d6c859086a0298fdfa8fdc51d4540f
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    - canvas_root_io             # find_package (config)
+    - art                        # find_package(art 1.08.00 REQUIRED)
+    - art_root_io                # find_package
+    - tbb-devel                  # art/cetlib config chain -> TBBConfig
+    - range-v3                   # fhiclcpp/cetlib config chain -> Range-v3
+    - root_base                  # ROOT (canvas_root_io/art_root_io)
+    - root_cxx_standard
+  run:
+  run_exports:
+    - ${{ pin_subpackage('duneutil', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - bin/latest
+        - lib/duneutil/cmake/duneutilConfig.cmake
+
+about:
+  homepage: https://github.com/DUNE/duneutil
+  repository: https://github.com/DUNE/duneutil
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: duneutil -- DUNE suite utility scripts and configuration
+  description: |
+    duneutil provides DUNE offline suite utility scripts and configuration:
+    dhtools, XML project files, samweb/pnfs/xrootd helpers and python modules.
+    It builds no libraries or headers. Packaged as part of the dunesw conda
+    stack. Grid job-submission runtime tools (larbatch, jobsub_client) are not
+    bundled.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

@@ -1,0 +1,97 @@
+# rattler-build recipe (v1 / CEP-13 format) for duneprototypes 10.21.1 (v10_21_01d00).
+#
+# duneprototypes is the ProtoDUNE (HD/VD/SP/DP, coldbox, iceberg) detector-specific
+# code: geometry/channel maps, beam-instrumentation, decoders, prototype reco/sim
+# built on the dunecore-only layer. Product deps: duneopdet + dunecalib + dunesim (all
+# GREEN) + cetmodules. Its CMakeLists find_package()s a wide slice — dunecore/larsoft/
+# nu* (closure) + the DUNE leaves (dunecalib/dunepdlegacy/artdaq_core/dune{det,daq}
+# dataformats), TRACE/HighFive/nlohmann_json/HDF5/PostgreSQL/libwda/ifdh*/ifbeam. It
+# already find_package(nlohmann_json) itself, so the shared build.sh nlohmann inject is
+# a no-op here; the Boost-system drop + dunecore contract still apply.
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: duneprototypes
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/duneprototypes/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 3064e489ff09da767bfd10016c9d0f0d6d462992603eedd50dd1b7c7d21126e6
+  patches:
+    # Modernize deprecated cetmodules macros (art_make/cet_make/simple_plugin
+    # -> cet_make_library + art_dictionary + cet_build_plugin). Under pixi-build
+    # art_make's plugin glob drops sources beneath ".pixi" -> zero plugins built.
+    - patches/0001-modernize-cmake.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # dunecore run-closure (art+larsoft+nu*+ifdh*+libwda+PostgreSQL+larpandora) transitively.
+    - dunecore
+    # product deps + directly-named DUNE leaves not (all) in dunecore's run-closure
+    - dunecalib
+    - dunesim
+    - duneopdet
+    - dunepdlegacy
+    - artdaq_core
+    - dunedaqdataformats
+    - dunedetdataformats
+    - trace
+    - ifbeam
+    # externals named directly by duneprototypes' CMakeLists
+    - nlohmann_json
+    - hdf5
+    - highfive
+    - libpq                       # find_package(PostgreSQL)
+    # build-visible externals (compiler/CMake-config providers + dunecore find_dep cascade)
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+  run:
+  run_exports:
+    - ${{ pin_subpackage('duneprototypes', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/duneprototypes/cmake/duneprototypesConfig.cmake
+        - lib/libduneprototypes_*.so
+
+about:
+  homepage: https://github.com/DUNE/duneprototypes
+  repository: https://github.com/DUNE/duneprototypes
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: duneprototypes -- ProtoDUNE detector code (geometry, beam, decoders, reco/sim)
+  description: |
+    duneprototypes provides the ProtoDUNE-specific DUNE offline code (ProtoDUNE
+    HD/VD/SP/DP, vertical- and horizontal-drift cold boxes, Iceberg): detector
+    geometry and channel maps, beam-instrumentation data products, raw-data decoders,
+    and prototype simulation/reconstruction, built on the duneopdet/dunecalib/dunesim
+    layer of the DUNE software suite (dunesw).
+
+extra:
+  recipe-maintainers:
+    - calcuttj

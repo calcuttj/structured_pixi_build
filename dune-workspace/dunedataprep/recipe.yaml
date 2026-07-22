@@ -1,0 +1,103 @@
+# rattler-build recipe (v1 / CEP-13 format) for dunedataprep 10.21.1 (v10_21_01d00).
+#
+# dunedataprep is the DUNE TPC data-preparation package: ADC signal processing /
+# deconvolution / ROI building as a large set of art tools+services+modules
+# (cet_build_plugin on dunecore::TpcDataTool). Besides the dunecore run-closure it
+# find_package()s the Wire-Cell stack (larwirecell + WireCell) which is NOT in
+# dunecore's run-closure, plus jsoncpp/spdlog/Eigen3/nufinder/dunepdlegacy/SQLite3/
+# FFTW3. build.sh is the shared dunecore-consumer contract + the nlohmann_json
+# find_package injection (dunecore Config omits find_dependency(nlohmann_json)).
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: dunedataprep
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunedataprep/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 46a68ee1f6407967d901de6025e06eb09e0bd395ee7df757038bee2703b18e10
+  patches:
+    # Modernize deprecated cetmodules macros (art_make/cet_make/simple_plugin
+    # -> cet_make_library + art_dictionary + cet_build_plugin). Under pixi-build
+    # art_make's plugin glob drops sources beneath ".pixi" -> zero plugins built.
+    - patches/0001-modernize-cmake.patch
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    - cetmodules <4.0a0
+    # dunecore pulls its entire run-closure (art+larsoft+nu+externals) transitively.
+    - dunecore
+    # Wire-Cell stack + dunepdlegacy: named directly, NOT in dunecore's run-closure.
+    - larwirecell
+    - wire-cell-toolkit
+    - dunepdlegacy
+    - nufinder
+    # externals named directly by dunedataprep's CMakeLists
+    - jsoncpp
+    - spdlog
+    - eigen
+    - nlohmann_json
+    - valgrind                    # DataPrep services #include <valgrind/callgrind.h>
+    - libsqlite                   # find_package(SQLite3)
+    # build-visible externals (compiler/CMake-config providers)
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - artdaq_core
+    - dunedaqdataformats
+    - dunedetdataformats
+    - highfive
+    - trace
+  run:
+  run_exports:
+    - ${{ pin_subpackage('dunedataprep', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      # only DataPrep/Utility/* headers are install_headers()'d; the Service/Tool/
+      # Module code ships as art plugin .so's (cet_build_plugin, no public headers).
+      include:
+        - dunedataprep/DataPrep/Utility/MathUtils.h
+      files:
+        - lib/dunedataprep/cmake/dunedataprepConfig.cmake
+        - lib/libdunedataprep_*.so
+
+about:
+  homepage: https://github.com/DUNE/dunedataprep
+  repository: https://github.com/DUNE/dunedataprep
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: dunedataprep -- DUNE TPC data preparation (signal processing / deconvolution)
+  description: |
+    dunedataprep provides the DUNE offline TPC data-preparation chain: raw-digit
+    extraction, pedestal/noise mitigation, deconvolution and ROI building,
+    implemented as art tools/services/modules on the dunecore base and the Wire-Cell
+    signal-processing toolkit.
+
+extra:
+  recipe-maintainers:
+    - calcuttj

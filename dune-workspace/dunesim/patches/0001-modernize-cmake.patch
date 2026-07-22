@@ -1,0 +1,968 @@
+diff --git a/dunesim/DetSim/CMakeLists.txt b/dunesim/DetSim/CMakeLists.txt
+index 6cad4d9..cedeea1 100644
+--- a/dunesim/DetSim/CMakeLists.txt
++++ b/dunesim/DetSim/CMakeLists.txt
+@@ -7,39 +7,80 @@
+ # SimWireDUNE35t_module.cc and SimWireDUNE10kt_module.cc are
+ # removed.
+ 
+-art_make( BASENAME_ONLY
+-          MODULE_LIBRARIES larcorealg::Geometry
+-	                   dunecore::Geometry
+- 	                   lardataalg::DetectorInfo
+-			   larcore::Geometry_Geometry_service
+-			   larsim::Simulation 
+-			   nug4::ParticleNavigation 
+-			   lardataobj::Simulation
+-	                   lardata::Utilities
+-			   larevt::Filters
+-			   lardataobj::RawData
+-                           dunecore::SignalShapingServiceDUNE_service
+-			   dunecore::SignalShapingServiceDUNEDPhase_service
+-                           nurandom::RandomUtils_NuRandomService_service
+-                           art::Framework_Core
+-                           art::Framework_Principal
+-                           art::Framework_Services_Registry
+-                           art_root_io::tfile_support
+-                           ROOT::Core
+-                           art_root_io::TFileService_service
+-                           art::Framework_Services_Optional_RandomNumberGenerator_service
+-			   art::Persistency_Common
+-			   art::Persistency_Provenance
+-			   art::Utilities
+-			   canvas::canvas
+-			   messagefacility::MF_MessageLogger 
+- 	                   fhiclcpp::fhiclcpp
+-			   cetlib::cetlib cetlib_except::cetlib_except
+-			   CLHEP::CLHEP
+-                           ROOT::Geom
+-                           ROOT::XMLIO
+-                           ROOT::Gdml
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(SimWireDUNE10kt art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    lardataalg::DetectorInfo
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    dunecore::SignalShapingServiceDUNE_service
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    nurandom::RandomUtils_NuRandomService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++)
++
++cet_build_plugin(SimWireDUNE35t art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    dunecore::Geometry
++    lardataalg::DetectorInfo
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardata::Utilities
++    larevt::Filters
++    lardataobj::RawData
++    dunecore::SignalShapingServiceDUNE_service
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    nurandom::RandomUtils_NuRandomService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++)
++
+ 
+ add_subdirectory(Utility)
+ add_subdirectory(Tool)
+diff --git a/dunesim/DetSim/Module/CMakeLists.txt b/dunesim/DetSim/Module/CMakeLists.txt
+index ab759ec..dac0a1a 100644
+--- a/dunesim/DetSim/Module/CMakeLists.txt
++++ b/dunesim/DetSim/Module/CMakeLists.txt
+@@ -3,15 +3,56 @@
+ # David Adams
+ # January 2017
+ 
+-art_make(
+-  BASENAME_ONLY
+-  MODULE_LIBRARIES
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(NoiseAdder art::module BASENAME_ONLY
++  LIBRARIES
++    lardataalg::DetectorInfo
++    dunecore::ArtSupport
++    dunesim::DetSim
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardata::Utilities
++    larevt::Filters
++    larcorealg::Geometry
++    lardataobj::RawData
++    dunecore::SignalShapingServiceDUNE_service
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    nurandom::RandomUtils_NuRandomService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++)
++
++cet_build_plugin(SimWireClnSigDUNE art::module BASENAME_ONLY
++  LIBRARIES
+     lardataalg::DetectorInfo
+     dunecore::ArtSupport
+     dunesim::DetSim
+     dunecore::Geometry
+     larcore::Geometry_Geometry_service
+-    larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
+     lardata::Utilities
+     larevt::Filters
+     larcorealg::Geometry
+@@ -28,11 +69,11 @@ art_make(
+     art::Framework_Services_Optional_RandomNumberGenerator_service
+     art::Persistency_Common
+     art::Persistency_Provenance
+-    art::Utilities 
++    art::Utilities
+     canvas::canvas
+     messagefacility::MF_MessageLogger
+     fhiclcpp::fhiclcpp
+-    cetlib::cetlib 
++    cetlib::cetlib
+     cetlib_except::cetlib_except
+     CLHEP::CLHEP
+     ROOT::Geom
+@@ -40,4 +81,81 @@ art_make(
+     ROOT::Gdml
+ )
+ 
++cet_build_plugin(SimWireDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    lardataalg::DetectorInfo
++    dunecore::ArtSupport
++    dunesim::DetSim
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardata::Utilities
++    larevt::Filters
++    larcorealg::Geometry
++    lardataobj::RawData
++    dunecore::SignalShapingServiceDUNE_service
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    nurandom::RandomUtils_NuRandomService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++)
++
++cet_build_plugin(SimWireUniqNoiseDUNE art::module BASENAME_ONLY
++  LIBRARIES
++    lardataalg::DetectorInfo
++    dunecore::ArtSupport
++    dunesim::DetSim
++    dunecore::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    lardata::Utilities
++    larevt::Filters
++    larcorealg::Geometry
++    lardataobj::RawData
++    dunecore::SignalShapingServiceDUNE_service
++    dunecore::SignalShapingServiceDUNEDPhase_service
++    nurandom::RandomUtils_NuRandomService_service
++    art::Framework_Core
++    art::Framework_Principal
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Framework_Services_Optional_RandomNumberGenerator_service
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++)
++
++
+ install_source()
+diff --git a/dunesim/EventGenerator/CMakeLists.txt b/dunesim/EventGenerator/CMakeLists.txt
+index 5592f78..28e6d88 100644
+--- a/dunesim/EventGenerator/CMakeLists.txt
++++ b/dunesim/EventGenerator/CMakeLists.txt
+@@ -3,33 +3,132 @@
+ #		  LIBRARIES
+ #	    )
+ 
+-art_make( BASENAME_ONLY
+-          MODULE_LIBRARIES 
+-                        larcoreobj::SummaryData
+-                        larcorealg::Geometry
+-                        larcore::Geometry_Geometry_service
+-                        nurandom::RandomUtils_NuRandomService_service
+-                        larsim::Simulation lardataobj::Simulation
+-                        lardataobj::RecoBase
+-                        lardata::Utilities
+-                        lardataalg::UtilitiesHeaders
+-                        nusimdata::SimulationBase
+-                        art::Persistency_Common
+-                        art::Persistency_Provenance
+-                        art::Utilities canvas::canvas
+-                        messagefacility::MF_MessageLogger
+-                        hep_concurrency::hep_concurrency
+-                        fhiclcpp::fhiclcpp
+-                        cetlib::cetlib cetlib_except::cetlib_except
+-			CLHEP::CLHEP
+-			SQLite::SQLite3
+-                        ROOT::EG
+-			ROOT::Tree
+-                        ifdh::ifdh
+-                        dunesim_EventGenerator_ProtoDUNEbeamDataProducts
+-                        dunecore::ArtSupport
+-                        ProtoDUNETriggeredBeamUtils
+- )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(PDSPDataDrivenBeam art::module BASENAME_ONLY
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    nurandom::RandomUtils_NuRandomService_service
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardataalg::UtilitiesHeaders
++    nusimdata::SimulationBase
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    hep_concurrency::hep_concurrency
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    SQLite::SQLite3
++    ROOT::EG
++    ROOT::Tree
++    ifdh::ifdh
++    dunesim_EventGenerator_ProtoDUNEbeamDataProducts
++    dunecore::ArtSupport
++    ProtoDUNETriggeredBeamUtils
++)
++
++cet_build_plugin(ProtoDUNEBeam art::module BASENAME_ONLY
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    nurandom::RandomUtils_NuRandomService_service
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardataalg::UtilitiesHeaders
++    nusimdata::SimulationBase
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    hep_concurrency::hep_concurrency
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    SQLite::SQLite3
++    ROOT::EG
++    ROOT::Tree
++    ifdh::ifdh
++    dunesim_EventGenerator_ProtoDUNEbeamDataProducts
++    dunecore::ArtSupport
++    ProtoDUNETriggeredBeamUtils
++)
++
++cet_build_plugin(ProtoDUNEHDLaser art::module BASENAME_ONLY
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    nurandom::RandomUtils_NuRandomService_service
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardataalg::UtilitiesHeaders
++    nusimdata::SimulationBase
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    hep_concurrency::hep_concurrency
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    SQLite::SQLite3
++    ROOT::EG
++    ROOT::Tree
++    ifdh::ifdh
++    dunesim_EventGenerator_ProtoDUNEbeamDataProducts
++    dunecore::ArtSupport
++    ProtoDUNETriggeredBeamUtils
++)
++
++cet_build_plugin(ProtoDUNETriggeredBeam art::module BASENAME_ONLY
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    nurandom::RandomUtils_NuRandomService_service
++    larsim::Simulation
++    lardataobj::Simulation
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardataalg::UtilitiesHeaders
++    nusimdata::SimulationBase
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    hep_concurrency::hep_concurrency
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    SQLite::SQLite3
++    ROOT::EG
++    ROOT::Tree
++    ifdh::ifdh
++    dunesim_EventGenerator_ProtoDUNEbeamDataProducts
++    dunecore::ArtSupport
++    ProtoDUNETriggeredBeamUtils
++)
++
+ 
+ 
+ install_headers()
+diff --git a/dunesim/EventGenerator/CORSIKAprotodunedp/CMakeLists.txt b/dunesim/EventGenerator/CORSIKAprotodunedp/CMakeLists.txt
+index c70f007..bda77a7 100644
+--- a/dunesim/EventGenerator/CORSIKAprotodunedp/CMakeLists.txt
++++ b/dunesim/EventGenerator/CORSIKAprotodunedp/CMakeLists.txt
+@@ -1,28 +1,87 @@
+ 
+-art_make(
+-          MODULE_LIBRARIES
+-                        larcoreobj::SummaryData
+-                        larcore::Geometry_Geometry_service
+-			                  larcorealg::Geometry
+-                        nurandom::RandomUtils_NuRandomService_service
+-                        larsim::Simulation lardataobj::Simulation
+-                        nusimdata::SimulationBase
+-                        nugen::EventGeneratorBase_GENIE
+-                        ROOT::Core
+-                        art::Persistency_Common
+-                        art::Persistency_Provenance
+-                        art::Utilities
+-                        canvas::canvas
+-                        messagefacility::MF_MessageLogger
+-                        art_root_io::tfile_support
+-                        fhiclcpp::fhiclcpp
+-                        cetlib::cetlib cetlib_except::cetlib_except
+-			CLHEP::CLHEP
+-			ROOT::Tree
+-			SQLite::SQLite3
+-                        ROOT::EG
+-                        ifdh::ifdh
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(CORSIKAGendp art::module
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    nurandom::RandomUtils_NuRandomService_service
++    larsim::Simulation
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    nugen::EventGeneratorBase_GENIE
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Tree
++    SQLite::SQLite3
++    ROOT::EG
++    ifdh::ifdh
++)
++
++cet_build_plugin(DataGen311 art::module
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    nurandom::RandomUtils_NuRandomService_service
++    larsim::Simulation
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    nugen::EventGeneratorBase_GENIE
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Tree
++    SQLite::SQLite3
++    ROOT::EG
++    ifdh::ifdh
++)
++
++cet_build_plugin(Gen311 art::module
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    nurandom::RandomUtils_NuRandomService_service
++    larsim::Simulation
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    nugen::EventGeneratorBase_GENIE
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    art_root_io::tfile_support
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Tree
++    SQLite::SQLite3
++    ROOT::EG
++    ifdh::ifdh
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunesim/EventGenerator/MUSUN/CMakeLists.txt b/dunesim/EventGenerator/MUSUN/CMakeLists.txt
+index 7cd66c1..60d0831 100644
+--- a/dunesim/EventGenerator/MUSUN/CMakeLists.txt
++++ b/dunesim/EventGenerator/MUSUN/CMakeLists.txt
+@@ -1,21 +1,26 @@
+-art_make(
+-          MODULE_LIBRARIES
+-                        larcoreobj::SummaryData
+-                        larcore::Geometry_Geometry_service
+-                        larcorealg::Geometry
+-                        larsim::Simulation lardataobj::Simulation
+-                        nusimdata::SimulationBase
+-                        ROOT::Core
+-                        art::Persistency_Common
+-                        art::Persistency_Provenance
+-                        art::Utilities
+-                        canvas::canvas
+-                        messagefacility::MF_MessageLogger
+-                        fhiclcpp::fhiclcpp
+-                        cetlib::cetlib cetlib_except::cetlib_except
+-			CLHEP::CLHEP
+-                        ROOT::Geom
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(CosmicFilter art::module
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    larsim::Simulation
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Geom
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunesim/EventGenerator/NEUT/CMakeLists.txt b/dunesim/EventGenerator/NEUT/CMakeLists.txt
+index a7a7bc9..a7f11b0 100644
+--- a/dunesim/EventGenerator/NEUT/CMakeLists.txt
++++ b/dunesim/EventGenerator/NEUT/CMakeLists.txt
+@@ -1,25 +1,30 @@
+-art_make(
+-          MODULE_LIBRARIES
+-                        larcoreobj::SummaryData
+-                        larcore::Geometry_Geometry_service
+-			larcorealg::Geometry
+-                        nurandom::RandomUtils_NuRandomService_service
+-                        nugen::EventGeneratorBase_GENIE
+-                        larsim::Simulation lardataobj::Simulation
+-                        nusimdata::SimulationBase
+-                        ROOT::Core
+-                        art::Persistency_Common
+-                        art::Persistency_Provenance
+-                        art::Utilities
+-                        art_root_io::tfile_support
+-                        canvas::canvas
+-                        messagefacility::MF_MessageLogger
+-                        fhiclcpp::fhiclcpp
+-                        cetlib::cetlib cetlib_except::cetlib_except
+-			CLHEP::CLHEP
+-			SQLite::SQLite3
+-                        ROOT::EG
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(NEUTImport art::module
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    nurandom::RandomUtils_NuRandomService_service
++    nugen::EventGeneratorBase_GENIE
++    larsim::Simulation
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    art_root_io::tfile_support
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    SQLite::SQLite3
++    ROOT::EG
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunesim/EventGenerator/NuE/CMakeLists.txt b/dunesim/EventGenerator/NuE/CMakeLists.txt
+index 51866a5..f9b923e 100644
+--- a/dunesim/EventGenerator/NuE/CMakeLists.txt
++++ b/dunesim/EventGenerator/NuE/CMakeLists.txt
+@@ -1,24 +1,29 @@
+-art_make(
+-          MODULE_LIBRARIES
+-                        larcoreobj::SummaryData
+-                        larcore::Geometry_Geometry_service
+-			larcorealg::Geometry
+-                        nurandom::RandomUtils_NuRandomService_service
+-                        larsim::Simulation lardataobj::Simulation
+-                        nusimdata::SimulationBase
+-                        art::Persistency_Common
+-                        art::Persistency_Provenance
+-                        art::Utilities
+-                        canvas::canvas
+-                        messagefacility::MF_MessageLogger
+-                        fhiclcpp::fhiclcpp
+-                        cetlib::cetlib cetlib_except::cetlib_except
+-                        CLHEP::CLHEP
+-			ROOT::Core
+-			ROOT::Hist
+-			SQLite::SQLite3
+-                        ROOT::EG
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(NuEScatterGen art::module
++  LIBRARIES
++    larcoreobj::SummaryData
++    larcore::Geometry_Geometry_service
++    larcorealg::Geometry
++    nurandom::RandomUtils_NuRandomService_service
++    larsim::Simulation
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    CLHEP::CLHEP
++    ROOT::Core
++    ROOT::Hist
++    SQLite::SQLite3
++    ROOT::EG
++)
++
+ 
+ install_headers()
+ install_fhicl()
+diff --git a/dunesim/EventGenerator/ProtoDUNEbeamDataProducts/CMakeLists.txt b/dunesim/EventGenerator/ProtoDUNEbeamDataProducts/CMakeLists.txt
+index e397a06..60eba8d 100644
+--- a/dunesim/EventGenerator/ProtoDUNEbeamDataProducts/CMakeLists.txt
++++ b/dunesim/EventGenerator/ProtoDUNEbeamDataProducts/CMakeLists.txt
+@@ -1,23 +1,36 @@
+ # for classes_def.xml
+ include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+ 
+-art_make(
+-          MODULE_LIBRARIES dunesim_EventGenerator_ProtoDUNEbeamDataProducts
+-          LIB_LIBRARIES lardataobj::Simulation
+-          larcoreobj::headers
+-          nusimdata::SimulationBase
+-          art::Framework_Services_Registry
+-          art_root_io::tfile_support
+-          ROOT::Core
+-	  art_root_io::TFileService_service
+-          art::Persistency_Common
+-          art::Utilities 
+-          art::Persistency_Common
+-          art::Persistency_Provenance 
+-	  canvas::canvas
+-          messagefacility::MF_MessageLogger
+-          cetlib::cetlib cetlib_except::cetlib_except
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunesim_EventGenerator_ProtoDUNEbeamDataProducts
++  SOURCE
++    ProtoDUNEBeamInstrument.cxx
++    ProtoDUNEbeamsim.cxx
++  LIBRARIES
++    lardataobj::Simulation
++    larcoreobj::headers
++    nusimdata::SimulationBase
++    art::Framework_Services_Registry
++    art_root_io::tfile_support
++    ROOT::Core
++    art_root_io::TFileService_service
++    art::Persistency_Common
++    art::Utilities
++    art::Persistency_Common
++    art::Persistency_Provenance
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++)
++
++include(ArtDictionary)
++art_dictionary(
++  DICTIONARY_LIBRARIES PRIVATE
++    dunesim_EventGenerator_ProtoDUNEbeamDataProducts
++)
++
+ 
+ install_headers()
+ install_source()
+diff --git a/dunesim/EventGenerator/Utils/CMakeLists.txt b/dunesim/EventGenerator/Utils/CMakeLists.txt
+index 19d1aa8..e40dda0 100644
+--- a/dunesim/EventGenerator/Utils/CMakeLists.txt
++++ b/dunesim/EventGenerator/Utils/CMakeLists.txt
+@@ -19,38 +19,46 @@ cet_make_exec( NAME reformat_g4bl
+ 	       ROOT::Tree
+                dunecore::DuneObj
+ 	    )
+-simple_plugin(H4BeamInput "source"
+-  art::Framework_Services_Registry
+-  dunesim::EventGenerator_Utils_H4BeamFileService_service
++cet_build_plugin(H4BeamInput art::source
++  LIBRARIES
++    art::Framework_Services_Registry
++    dunesim::EventGenerator_Utils_H4BeamFileService_service
+ )
+ 
+-simple_plugin(H4BeamFileService "service"
+-              ${ART_PERSISTENCY_ROOTDB}
+-              art::Framework_Services_Registry
+-              ${persistency_lib}
+-              SQLite::SQLite3
+-              messagefacility::MF_MessageLogger
+-              ${CETLIB_LIBS}
+-	      ProtoDUNETriggeredBeamUtils
++
++cet_build_plugin(H4BeamFileService art::service
++  LIBRARIES
++    ${ART_PERSISTENCY_ROOTDB}
++    art::Framework_Services_Registry
++    ${persistency_lib}
++    SQLite::SQLite3
++    messagefacility::MF_MessageLogger
++    ${CETLIB_LIBS}
++    ProtoDUNETriggeredBeamUtils
+ )
+ 
+-simple_plugin( H4BeamFileTester "module"
+-                        ${ART_FRAMEWORK_CORE}
+-                        ${ART_FRAMEWORK_PRINCIPAL}
+-                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
+-                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
+-                        art::Persistency_Common
+-                        art::Persistency_Provenance
+-                        art::Utilities ${canvas}
+-                        messagefacility::MF_MessageLogger
+-                        ${hep_concurrency}
+-                        fhiclcpp::fhiclcpp
+-                        cetlib::cetlib ${cetlib_except}
+-                        ${CLHEP}
+-                        ${ROOT_BASIC_LIB_LIST}
+-                        dunesim_EventGenerator_ProtoDUNEbeamDataProducts
+-                        ProtoDUNETriggeredBeamUtils
+-                        dunesim::EventGenerator_Utils_H4BeamFileService_service
++
++cet_build_plugin(H4BeamFileTester art::module
++  LIBRARIES
++    ${ART_FRAMEWORK_CORE}
++    ${ART_FRAMEWORK_PRINCIPAL}
++    ${ART_FRAMEWORK_SERVICES_REGISTRY}
++    ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    ${canvas}
++    messagefacility::MF_MessageLogger
++    ${hep_concurrency}
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    ${cetlib_except}
++    ${CLHEP}
++    ${ROOT_BASIC_LIB_LIST}
++    dunesim_EventGenerator_ProtoDUNEbeamDataProducts
++    ProtoDUNETriggeredBeamUtils
++    dunesim::EventGenerator_Utils_H4BeamFileService_service
+ )
++
+ install_scripts()
+ install_fhicl()
+diff --git a/dunesim/LArG4/CMakeLists.txt b/dunesim/LArG4/CMakeLists.txt
+index 8f0da3d..93dddad 100644
+--- a/dunesim/LArG4/CMakeLists.txt
++++ b/dunesim/LArG4/CMakeLists.txt
+@@ -1,22 +1,30 @@
+ 
+-art_make( BASENAME_ONLY
+-          MODULE_LIBRARIES larcorealg::Geometry
+-			larcore::Geometry_Geometry_service
+-			larsim::Simulation nug4::ParticleNavigation lardataobj::Simulation
+-			nusimdata::SimulationBase
+-			ROOT::Core
+-			ROOT::Tree
+-			art_root_io::tfile_support
+-			art::Persistency_Common
+-			art::Persistency_Provenance
+-			art::Utilities canvas::canvas
+-			messagefacility::MF_MessageLogger
+-	                fhiclcpp::fhiclcpp
+-			cetlib::cetlib cetlib_except::cetlib_except
+-                        ROOT::Geom
+-                        ROOT::XMLIO
+-                        ROOT::Gdml
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_build_plugin(CheckAuxDet art::module BASENAME_ONLY
++  LIBRARIES
++    larcorealg::Geometry
++    larcore::Geometry_Geometry_service
++    larsim::Simulation
++    nug4::ParticleNavigation
++    lardataobj::Simulation
++    nusimdata::SimulationBase
++    ROOT::Core
++    ROOT::Tree
++    art_root_io::tfile_support
++    art::Persistency_Common
++    art::Persistency_Provenance
++    art::Utilities
++    canvas::canvas
++    messagefacility::MF_MessageLogger
++    fhiclcpp::fhiclcpp
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    ROOT::Geom
++    ROOT::XMLIO
++    ROOT::Gdml
++)
++
+ 
+ # install_headers()
+ install_fhicl()
+diff --git a/dunesim/SpaceCharge/CMakeLists.txt b/dunesim/SpaceCharge/CMakeLists.txt
+index 7d38c1f..551476f 100644
+--- a/dunesim/SpaceCharge/CMakeLists.txt
++++ b/dunesim/SpaceCharge/CMakeLists.txt
+@@ -1,23 +1,33 @@
+-art_make( NO_PLUGINS
+-          
+-          LIB_LIBRARIES
+-          				lardataobj::RecoBase
+-                        lardata::Utilities
+-                         lardataalg::DetectorInfo
+-              larevt::SpaceCharge
+-			larcorealg::Geometry
+-                        messagefacility::MF_MessageLogger
+-                        art::Framework_Services_Registry 
+-                        cetlib::cetlib cetlib_except::cetlib_except
+-			    art_root_io::tfile_support
+-			    ROOT::Core
+-			    art::Persistency_Common
+-			    art::Persistency_Provenance canvas::canvas
+-			    art::Utilities
+-			fhiclcpp::fhiclcpp
+-                            ROOT::Hist
+-			
+-        )
++# [modernized] was art_make/cet_make -> explicit cet_make_library + build_dictionary + cet_build_plugin (pixi-build .pixi glob-exclude fix)
++
++cet_make_library(LIBRARY_NAME dunesim_SpaceCharge
++  SOURCE
++    SpaceCharge3x1x1dphase.cxx
++    SpaceChargeDUNE35t.cxx
++    SpaceChargeProtoDUNE.cxx
++    SpaceChargeProtoDUNEdp.cxx
++    SpaceChargeProtoDUNEhd.cxx
++    SpaceChargeProtoDUNEvd.cxx
++  LIBRARIES
++    lardataobj::RecoBase
++    lardata::Utilities
++    lardataalg::DetectorInfo
++    larevt::SpaceCharge
++    larcorealg::Geometry
++    messagefacility::MF_MessageLogger
++    art::Framework_Services_Registry
++    cetlib::cetlib
++    cetlib_except::cetlib_except
++    art_root_io::tfile_support
++    ROOT::Core
++    art::Persistency_Common
++    art::Persistency_Provenance
++    canvas::canvas
++    art::Utilities
++    fhiclcpp::fhiclcpp
++    ROOT::Hist
++)
++
+ 
+ 
+ 

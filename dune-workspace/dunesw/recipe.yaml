@@ -1,0 +1,100 @@
+# rattler-build recipe (v1 / CEP-13 format) for the dunesw metapackage 10.21.1
+# (v10_21_01d00).
+#
+# dunesw is the top-level DUNE offline software metapackage (dunesw v10_21_01d00): a
+# thin product that find_package()s the dunecore/larsoft base and installs the
+# top-level workflow fcl, whose real purpose is to depend on the whole DUNE suite.
+# Installing `dunesw` pulls duneexamples + dunedataprep + duneana + protoduneana (and
+# their transitive dune*/larsoft/nu*/externals closure). Capstone of the dunesw conda
+# packaging effort on top of the GREEN larsoft stack.
+#
+# NOTE: dune_pardata (2.7 GB runtime data downloader) is intentionally NOT a run dep
+# here (mirrors larsoft omitting larsoft_data) — install it separately to fetch the
+# photon libraries / flux / PMT-response data at runtime.
+
+context:
+  version: "10.21.1"
+  parts: ${{ version | split('.') }}
+  tag: ${{ "v" ~ ("0" ~ parts[0])[-2:] ~ "_" ~ ("0" ~ parts[1])[-2:] ~ "_" ~ ("0" ~ parts[2])[-2:] ~ "d00" }}
+
+package:
+  name: dunesw
+  version: ${{ version }}
+
+source:
+  url: https://github.com/DUNE/dunesw/archive/refs/tags/${{ tag }}.tar.gz
+  sha256: 437a50b3341c5894c0994e79c655604a962b4fb5f14af54823f88c61aac24bf7
+
+build:
+  number: 0
+  script: build.sh
+  skip: not linux
+
+requirements:
+  build:
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - cmake
+    - make
+  host:
+    # dunesw's CMakeLists find_package()s the dunecore + larsoft base (REQUIRED EXPORT);
+    # dunecore's run-closure pulls the rest. Standard externals for the find_dep cascade.
+    - cetmodules <4.0a0
+    - dunecore
+    - root_base
+    - root_cxx_standard
+    - clhep
+    - geant4
+    - libboost-devel
+    - tbb-devel
+    - range-v3
+    - fftw
+    - vector-classes
+    - libtorch * cpu*
+    # transitive sibling closure (pixi-build workspace: a member manifest
+    # path-dep is honored only if the dep is ALSO named in the recipe here)
+    - artdaq_core
+    - duneanaobj
+    - dunecalib
+    - dunedaqdataformats
+    - dunedetdataformats
+    - duneopdet
+    - dunepdlegacy
+    - duneprototypes
+    - dunereco
+    - dunesim
+    - geant4reweight
+    - highfive
+    - srproxy
+    - trace
+  run:
+    # the four top-level DUNE products (product_deps); their run_exports pull the whole
+    # dune*/larsoft/nu*/externals closure. Pinned to the 10.21.x series.
+    - duneexamples >=10.21.1,<10.22.0a0
+    - dunedataprep >=10.21.1,<10.22.0a0
+    - duneana >=10.21.1,<10.22.0a0
+    - protoduneana >=10.21.1,<10.22.0a0
+  run_exports:
+    - ${{ pin_subpackage('dunesw', upper_bound='x.x') }}
+
+tests:
+  - package_contents:
+      files:
+        - lib/dunesw/cmake/duneswConfig.cmake
+
+about:
+  homepage: https://github.com/DUNE/dunesw
+  repository: https://github.com/DUNE/dunesw
+  license: Apache-2.0
+  license_file: LICENSE
+  summary: dunesw -- top-level DUNE offline software suite metapackage
+  description: |
+    dunesw is the top-level metapackage of the DUNE offline software suite. Installing
+    it pulls the full DUNE stack — duneexamples, dunedataprep, duneana, and protoduneana
+    — together with their dunecore / larsoft / nusofthep / generator / external
+    dependency closure. Built on the GREEN larsoft v10_21_01 conda stack.
+
+extra:
+  recipe-maintainers:
+    - calcuttj
