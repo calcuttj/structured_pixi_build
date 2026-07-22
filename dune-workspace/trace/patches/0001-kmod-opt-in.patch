@@ -1,0 +1,32 @@
+From: dune conda packaging
+Subject: [PATCH] src_module: build TRACE.ko only when WANT_KMOD is requested
+
+TRACE's top CMakeLists unconditionally add_subdirectory(src_module), and
+src_module/CMakeLists.txt builds the TRACE.ko kernel module whenever
+/lib/modules/$(uname -r)/build exists. On a build host WITHOUT kernel headers
+(CI, the FNAL cluster) that check is false and the module is silently skipped; on
+a host WITH kernel headers (an Ubuntu dev machine) it tries to build TRACE.ko and
+fails (e.g. kernel Makefile arch quirk: "arch/64/Makefile: No such file or
+directory"). A conda package must never contain a host-kernel-specific .ko, so
+make the module build opt-in via -DWANT_KMOD=ON (a flag TRACE already references).
+Default (unset) => never build the module, independent of the build host. The
+else-branch's existing WANT_KMOD FATAL_ERROR still fires if a user requests the
+module without kernel headers.
+
+--- a/src_module/CMakeLists.txt
++++ b/src_module/CMakeLists.txt
+@@ -7,7 +7,13 @@
+
+ message("KVERS is ${KVERS}")
+
+-if (EXISTS /lib/modules/${KVERS}/build)
++# Build the kernel module ONLY when explicitly requested (-DWANT_KMOD=ON). A conda
++# package must never ship a host-kernel-specific TRACE.ko: on a build host that has
++# kernel headers (/lib/modules/$(uname -r)/build present, e.g. a dev machine) the
++# original unconditional check would try to build it and fail. Gating on WANT_KMOD
++# makes the conda build host-independent; the else-branch below still errors if a
++# user asks for WANT_KMOD without kernel headers.
++if (WANT_KMOD AND EXISTS /lib/modules/${KVERS}/build)
+     add_custom_command(
+ 		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../module/${KVERS}/TRACE.ko
+ 		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/Makefile ${CMAKE_CURRENT_BINARY_DIR}

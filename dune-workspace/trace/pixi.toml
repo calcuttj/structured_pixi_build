@@ -6,4 +6,4 @@ version = "3.17.11"
 backend = { name = "pixi-build-rattler-build", version = "0.*" }
 
 [package.build.config]
-extra-input-globs = ["build.sh"]
+extra-input-globs = ["build.sh", "patches/**"]

@@ -25,6 +25,11 @@ package:
 source:
   url: https://github.com/art-daq/TRACE/archive/refs/tags/${{ tag }}.tar.gz
   sha256: ecda7af224aa24701d012746c9dbdc5d155e98df4ba17adc3957cf5e5a2588d3
+  patches:
+    # Only build the TRACE.ko kernel module when -DWANT_KMOD=ON. Otherwise a build
+    # host that happens to have kernel headers (/lib/modules/$(uname -r)/build)
+    # tries to build a host-kernel .ko and fails; a conda pkg must not ship one.
+    - patches/0001-kmod-opt-in.patch
 
 build:
   number: 0
