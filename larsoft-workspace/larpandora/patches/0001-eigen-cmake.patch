@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 85752c1..5269859 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -43,7 +43,7 @@ find_package(larpandoracontent REQUIRED EXPORT) # Must precede Pandora*
+ find_package(larreco REQUIRED)
+ find_package(larsim REQUIRED EXPORT)
+ 
+-find_package(Eigen3 3.3 REQUIRED)
++find_package(Eigen3 REQUIRED CONFIG)
+ find_package(PandoraSDK REQUIRED EXPORT)
+ find_package(ROOT COMPONENTS Core Gpad Graf3d Hist Physics RIO Tree REQUIRED)
+ 

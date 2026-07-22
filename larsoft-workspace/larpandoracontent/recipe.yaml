@@ -21,6 +21,8 @@ package:
 source:
   url: https://github.com/LArSoft/larpandoracontent/archive/refs/tags/${{ tag }}.tar.gz
   sha256: f51999fcb9e04e58b6ee5a78f0b698b9979b6e52962c1699c70f46c82ed5d18c
+  patches:
+   - patches/0001-eigen-cmake.patch
 
 build:
   number: 0

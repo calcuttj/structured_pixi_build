@@ -1,0 +1,44 @@
+From: larsoft conda packaging
+Subject: [PATCH] find_package(Eigen3): force CONFIG mode, drop the 3.3 version bound
+
+lareventdisplay's 3DDrawers/SimDrawers art plugins link Eigen3::Eigen (PRIVATE),
+which is provided by the top-level `find_package(Eigen3 3.3 REQUIRED)`. That call is
+fragile against the conda stack:
+
+  * cetmodules ships share/cetmodules/Modules/FindEigen3.cmake (MODULE mode). It only
+    creates the Eigen3::Eigen target by internally running `find_package(Eigen3
+    CONFIG)` under `if (NOT Eigen3_FOUND)`. If Eigen3_FOUND is already set (e.g. by a
+    transitive find, or a stale CMakeCache), that config find is skipped and no
+    target is created.
+  * conda-forge's eigen is 5.0.1, whose Eigen3ConfigVersion.cmake treats a "3.3"
+    request as the range [3.3, 3.4) and reports 5.0.1 as INCOMPATIBLE. So a plain
+    CONFIG-mode resolution of `Eigen3 3.3` is rejected outright.
+
+In both failure modes find_package "succeeds" (or is bypassed) without defining
+Eigen3::Eigen, and the plugins then fail at generate time with
+"Target ... links to: Eigen3::Eigen but the target was not found".
+
+Fix: resolve Eigen in CONFIG mode with no version bound. CONFIG bypasses cetmodules'
+module and its Eigen3_FOUND guard and includes Eigen3Config.cmake directly (which does
+`if (NOT TARGET Eigen3::Eigen) include(Eigen3Targets.cmake)`), always defining the
+target; dropping the version avoids eigen 5.0.1's range rejection. Eigen is header-only
+and neither larsoft nor its consumers require exactly 3.3.
+
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -42,7 +42,14 @@
+ find_package(nuevdb REQUIRED EXPORT)
+ find_package(nusimdata REQUIRED EXPORT)
+
+-find_package(Eigen3 3.3 REQUIRED)
++# Force CONFIG mode and drop the version bound. cetmodules' FindEigen3.cmake
++# (MODULE mode) only creates the Eigen3::Eigen target when it can run
++# find_package(Eigen3 CONFIG); a pre-set Eigen3_FOUND short-circuits that, and
++# eigen 5.0.1's ConfigVersion rejects a "3.3" request (treats it as [3.3,3.4)),
++# so in either case Eigen3::Eigen is never defined and the PRIVATE-linked drawer
++# plugins fail with 'target Eigen3::Eigen not found'. Going straight to CONFIG
++# with no version always includes Eigen3Config.cmake, which defines the target.
++find_package(Eigen3 REQUIRED CONFIG)
+ find_package(ROOT COMPONENTS Core EG Geom Gpad Gui Hist MathCore REQUIRED EXPORT)
+
+ # macros for dictionary and simple_plugin

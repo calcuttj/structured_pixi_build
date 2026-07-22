@@ -20,6 +20,12 @@ package:
 source:
   url: https://github.com/LArSoft/lareventdisplay/archive/refs/tags/${{ tag }}.tar.gz
   sha256: 3fe3668ac4b6bcfc22ec8bd284a904ebb3af135c5b03ef270867f5844d29d629
+  patches:
+    # find_package(Eigen3 3.3 REQUIRED) -> find_package(Eigen3 REQUIRED CONFIG):
+    # avoids cetmodules' FindEigen3 module short-circuit + eigen 5.0.1's rejection
+    # of the "3.3" range, so the Eigen3::Eigen target is always defined for the
+    # PRIVATE-linked drawer plugins. See the patch header for the full rationale.
+    - patches/0001-eigen3-config-mode.patch
 
 build:
   number: 0

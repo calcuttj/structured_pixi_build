@@ -1,0 +1,13 @@
+diff --git a/cmake/cetmodules_build.cmake b/cmake/cetmodules_build.cmake
+index 7ea89df..f12590c 100644
+--- a/cmake/cetmodules_build.cmake
++++ b/cmake/cetmodules_build.cmake
+@@ -14,7 +14,7 @@ if(PANDORA_MONITORING)
+   find_package(PandoraMonitoring 05.00.00 REQUIRED EXPORT)
+ endif()
+ 
+-find_package(Eigen3 3.3 REQUIRED EXPORT)
++find_package(Eigen3 REQUIRED CONFIG EXPORT)
+ 
+ find_package(Torch QUIET EXPORT)
+ if(Torch_FOUND)
