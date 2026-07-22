@@ -24,6 +24,7 @@ source:
   patches:
    - patches/0001-eigen-cmake.patch
 
+
 build:
   number: 0
   script: build.sh
@@ -48,6 +49,14 @@ requirements:
     # (Caffe2/public/cuda.cmake) which fails with no CUDA toolkit. (CPU policy.)
     - libtorch * cpu*
     - tbb-devel
+  run:
+    # eigen is part of larpandoracontent's PUBLIC interface: LArPandoraDLContent links
+    # Eigen3::Eigen PUBLIC, and larpandoracontentConfig.cmake does find_dependency(Eigen3)
+    # (the Eigen find is EXPORTed). eigen is header-only with NO run_export, so listing it
+    # in host alone does NOT propagate it — consumers (larpandora -> dunecore -> every dune
+    # package) then fail at configure with "Could not find Eigen3Config.cmake". Put eigen in
+    # run so it reaches every downstream build/runtime env.
+    - eigen
   run_exports:
     - ${{ pin_subpackage('larpandoracontent', upper_bound='x.x') }}
 
