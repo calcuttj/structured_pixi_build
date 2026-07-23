@@ -34,7 +34,7 @@ requirements:
     - make
   host:
     - root_base
-    - root_cxx_standard ==20      # match the boost-1.90 art/larsoft stack
+    #- root_cxx_standard ==20      # match the boost-1.90 art/larsoft stack
     - pythia6                      # Pythia6::Pythia6 (fortran entry points)
     - nufinder                     # FindPythia6.cmake (PYTHIA_INC contract)
   run_exports:

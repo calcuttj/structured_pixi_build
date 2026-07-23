@@ -31,7 +31,7 @@ requirements:
     - make
   host:
     - root_base
-    - root_cxx_standard ==20
+    #- root_cxx_standard ==20
     - gsl
   run_exports:
     - ${{ pin_subpackage('marley', upper_bound='x.x') }}

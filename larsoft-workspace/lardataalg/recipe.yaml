@@ -56,7 +56,7 @@ requirements:
     - libsqlite
     - tbb-devel
     - root_base                  # ROOT (Core EG Hist Physics) + dicts
-    - root_cxx_standard
+    #- root_cxx_standard
   run:
   run_exports:
     - ${{ pin_subpackage('lardataalg', upper_bound='x.x') }}

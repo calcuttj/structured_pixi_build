@@ -131,7 +131,7 @@ requirements:
         # root_cxx_standard is its zip partner. root_base's weak run_export puts
         # ROOT into run: automatically.
         - root_base 6.36.*
-        - root_cxx_standard
+        #- root_cxx_standard
     - if: wct_with_libtorch == "true"
       then:
         # libtorch build string follows the cuda toggle: cpu by default (this is

@@ -47,7 +47,7 @@ requirements:
   host:
     - nufinder   # + transitive run_export closure (pixi-build workspace)
     - root_base
-    - root_cxx_standard ==20     # match the boost-1.90 art/larsoft stack
+    #- root_cxx_standard ==20     # match the boost-1.90 art/larsoft stack
     - pythia6                    # -lPythia6 (--with-pythia6-lib)
     - tpythia6                   # -lEGPythia6 (ROOT's removed TPythia6 interface)
     - log4cpp

@@ -40,7 +40,7 @@ requirements:
   host:
     - cetmodules <4.0a0
     - root_base
-    - root_cxx_standard ==20
+    #- root_cxx_standard ==20
     - eigen
     - pandorasdk
     - pandoramonitoring

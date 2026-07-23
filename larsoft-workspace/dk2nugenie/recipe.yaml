@@ -41,7 +41,7 @@ requirements:
     - nufinder   # + transitive run_export closure (pixi-build workspace)
     - pythia6
     - root_base
-    - root_cxx_standard ==20
+    #- root_cxx_standard ==20
     - dk2nudata                  # the tree half (dk2nu::Tree); GENIE_ONLY links it
     - genie                      # GFw* libs + flux driver headers
     - tpythia6                   # genie's run-export pulls pythia6/tpythia6

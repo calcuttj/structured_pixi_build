@@ -45,7 +45,7 @@ requirements:
     # etc. are now built against root_cxx_standard==20 + root_base 6.36.6. Without a
     # canvas_root_io puller here, this pin keeps dk2nudata's run_export aligned with
     # the rest of the suite. (The art-stack-boost190 variant config also sets cxx20.)
-    - root_cxx_standard ==20
+    #- root_cxx_standard ==20
   run:
   run_exports:
     - ${{ pin_subpackage('dk2nudata', upper_bound='x.x') }}

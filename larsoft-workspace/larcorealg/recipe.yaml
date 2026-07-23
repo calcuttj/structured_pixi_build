@@ -64,7 +64,7 @@ requirements:
     - tbb-devel
     # ROOT (Core GenVector Geom MathCore Matrix Physics) + dictionaries:
     - root_base
-    - root_cxx_standard
+    #- root_cxx_standard
   run:
   run_exports:
     - ${{ pin_subpackage('larcorealg', upper_bound='x.x') }}

@@ -55,7 +55,7 @@ requirements:
     - libsqlite
     - tbb-devel
     - root_base                  # ROOT (Core Tree Gui Graf Graf3d Rint) + dict
-    - root_cxx_standard
+    #- root_cxx_standard
   run:
   run_exports:
     - ${{ pin_subpackage('nuevdb', upper_bound='x.x') }}

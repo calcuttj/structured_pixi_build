@@ -53,7 +53,7 @@ requirements:
     - root_base 6.36.*
     # root_cxx_standard is a zip_key with root_base; list it (unpinned) so the
     # solver pairs the matching C++ standard (cxx20). Do NOT pin the std value.
-    - root_cxx_standard
+    #- root_cxx_standard
     - clhep                      # find_package(CLHEP Matrix Vector) + clhep dictionary
     - range-v3                   # transitive: canvasConfig find_dependency(Range-v3)
     - libboost-devel             # find_package(Boost headers thread)

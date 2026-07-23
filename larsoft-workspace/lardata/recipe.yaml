@@ -61,7 +61,7 @@ requirements:
     - libsqlite
     - tbb-devel
     - root_base                  # ROOT (Core FFTW GenVector Hist MathCore Physics RIO Tree)
-    - root_cxx_standard
+    #- root_cxx_standard
   run:
   run_exports:
     - ${{ pin_subpackage('lardata', upper_bound='x.x') }}

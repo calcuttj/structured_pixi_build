@@ -69,7 +69,7 @@ requirements:
     - catch2
     - tbb-devel
     - root_base                  # ROOT (Core EG Tree Hist Physics RIO)
-    - root_cxx_standard
+    #- root_cxx_standard
   run:
   run_exports:
     - ${{ pin_subpackage('larg4', upper_bound='x.x') }}

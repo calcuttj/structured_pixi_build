@@ -50,7 +50,7 @@ requirements:
     - libsqlite
     - tbb-devel
     - root_base                  # ROOT (Core RIO Tree) + art_dictionary
-    - root_cxx_standard
+    #- root_cxx_standard
   run:
   run_exports:
     - ${{ pin_subpackage('gallery', upper_bound='x.x') }}

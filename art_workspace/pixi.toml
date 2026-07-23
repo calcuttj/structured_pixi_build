@@ -21,7 +21,7 @@ libboost_python_devel = ["1.90"]
 # (the two are zip_keys in CF pinning). The backend does NOT load CF pinning, so
 # pin BOTH to single values here — one combo, so no zip_keys entry is needed.
 root_base = ["6.36.6"]
-root_cxx_standard = ["20"]
+#root_cxx_standard = ["20"]
 # NOTE: pinning icu/libxml2 here is a NO-OP for the art stack — they aren't direct deps
 # of any art recipe (they arrive transitively via root_base), so a build-variants pin
 # doesn't change any variant hash. This stack resolves icu 78 / libxml2 2.15 (current CF).

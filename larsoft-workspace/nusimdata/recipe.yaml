@@ -51,7 +51,7 @@ requirements:
     - tbb-devel
     # ROOT (Core EG Physics RIO Tree) + dictionaries:
     - root_base
-    - root_cxx_standard
+    #- root_cxx_standard
   run:
   run_exports:
     - ${{ pin_subpackage('nusimdata', upper_bound='x.x') }}

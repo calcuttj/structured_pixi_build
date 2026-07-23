@@ -51,7 +51,7 @@ requirements:
     - libsqlite
     - tbb-devel
     - root_base                  # ROOT (transitive via larcorealg/canvas)
-    - root_cxx_standard
+    #- root_cxx_standard
   run:
   run_exports:
     - ${{ pin_subpackage('larcore', upper_bound='x.x') }}

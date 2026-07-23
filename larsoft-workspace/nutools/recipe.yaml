@@ -37,7 +37,7 @@ requirements:
     - nufinder   # + transitive run_export closure (pixi-build workspace)
     - cetmodules <4.0a0
     - root_base
-    - root_cxx_standard ==20
+    #- root_cxx_standard ==20
     - tbb-devel                  # artConfig find_dependency(TBB)
     - range-v3                   # artConfig find_dependency(Range-v3)
     - libboost-devel

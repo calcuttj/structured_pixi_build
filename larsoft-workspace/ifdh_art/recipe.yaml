@@ -40,7 +40,7 @@ requirements:
     - ifdhc_config   # + transitive run_export closure (pixi-build workspace)
     - cetmodules <4.0a0
     - root_base
-    - root_cxx_standard ==20
+    #- root_cxx_standard ==20
     - tbb-devel                  # artConfig.cmake find_dependency(TBB) needs TBBConfig
     - range-v3                   # artConfig.cmake find_dependency(Range-v3)
     - libboost-devel             # fhiclcpp/coding.h includes boost/lexical_cast.hpp

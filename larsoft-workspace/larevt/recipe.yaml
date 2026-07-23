@@ -63,7 +63,7 @@ requirements:
     - catch2
     - tbb-devel
     - root_base                  # ROOT (Core Hist MathCore Physics RIO)
-    - root_cxx_standard
+    #- root_cxx_standard
   run:
   run_exports:
     - ${{ pin_subpackage('larevt', upper_bound='x.x') }}

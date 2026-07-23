@@ -85,7 +85,7 @@ requirements:
     # find_dependency() chains resolve.
     - cetmodules <4.0a0
     - root_base
-    - root_cxx_standard ==20
+    #- root_cxx_standard ==20
     # build-time CMake-config providers the components' find_dependency() chains
     # need (the components' run_exports pull the runtime libs, e.g. `tbb`, but
     # not the -devel/-config packages, e.g. tbb-devel -> TBBConfig.cmake).

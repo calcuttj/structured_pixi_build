@@ -64,7 +64,7 @@ requirements:
     - tpythia6
     - cetmodules <4.0a0
     - root_base
-    - root_cxx_standard ==20
+    #- root_cxx_standard ==20
     - tbb-devel
     - range-v3
     - libboost-devel

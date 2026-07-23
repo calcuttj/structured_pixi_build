@@ -18,7 +18,7 @@ libboost_python_devel = ["1.90"]
 # ROOT: recipe now deps root_base 6.36.* (was the `root` metapackage); single-valued
 # root_base + root_cxx_standard = one combo, so no zip_keys entry needed.
 root_base = ["6.36.6"]
-root_cxx_standard = ["20"]
+#root_cxx_standard = ["20"]
 # hdf5 1.14 + python 3.13 to match the larsoft/geant4-gated stack (current CF drifted
 # hdf5->2.x and root_base->py3.14; larsoft needs hdf5 1.14 + geant4 caps python<=3.13).
 hdf5 = ["1.14"]

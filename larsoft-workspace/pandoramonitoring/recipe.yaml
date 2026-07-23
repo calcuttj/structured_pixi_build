@@ -37,7 +37,7 @@ requirements:
   host:
     - pandorasdk
     - root_base
-    - root_cxx_standard ==20
+    #- root_cxx_standard ==20
   run_exports:
     - ${{ pin_subpackage('pandoramonitoring', upper_bound='x.x') }}
 
