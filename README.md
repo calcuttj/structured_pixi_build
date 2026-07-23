@@ -24,10 +24,26 @@ newly built packages and to stage them into a target channel.
 This will take the newly-built conda packages and move them to art-channel. You then have to `index` them to make pixi recognize it as a local channel hosting conda packages. Run the following command 
 
 <pre>
-  pixi exec 
+  pixi exec --spec conda-index -- python -m conda_index /path/to/art-channel
 </pre>
 
 ## Building wct
-wire-cell-toolkit is the only thing in wct-workspace, it doesn't require `art` dependencies, so you can just run `pixi install` to install it, then make a channel (move conda packages + index) as before.
+wire-cell-toolkit is the only thing built in wct-workspace, it doesn't require `art` dependencies, so you can just run `pixi install` to install it, then make a channel (move conda packages + index) as before.
+
+The wire-cell-toolkit build is greedy on CPU cores, so you might want to limit it temporarily during the run using `CPU_COUNT=N pixi install` where `N` is up to you.
+
+
+## Building larsoft
+larsoft relies on both art and wct being built previously. Build those then create channels from the results. Now you can build larsoft (and its many dependencies). 
+
+### Pointing to art/wct channels
+The pixi.toml files in larsoft and dune workspaces currently point to a location on a BNL machine, you need to change those before they can work. You should change them to `file:///path/to/{channel}`: note the 3 forward slashes (`/`). Make sure you keep the conda-forge channel
+
+Build larsoft -- it will take a while without concurrency so use `CPU_COUNT=N pixi install`. Then create a channel from the results.
+
+
+
+## Building dune
+Finally, you can build dune. Change the channel paths to your own for art, wct, and now larsoft then run the build.
 
 ## Building larsoft
