@@ -45,5 +45,3 @@ Build larsoft -- it will take a while without concurrency so use `CPU_COUNT=N pi
 
 ## Building dune
 Finally, you can build dune. Change the channel paths to your own for art, wct, and now larsoft then run the build.
-
-## Building larsoft
